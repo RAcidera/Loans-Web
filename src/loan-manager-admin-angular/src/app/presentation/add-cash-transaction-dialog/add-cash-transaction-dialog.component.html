@@ -1,0 +1,26 @@
+<h2 class="dialog-title">Add cash transaction</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
+  <mat-form-field appearance="outline">
+    <mat-label>Transaction type</mat-label>
+    <mat-select formControlName="transactionType">
+      <mat-option *ngFor="let t of types" [value]="t.value">{{ t.label }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Amount</mat-label>
+    <span matTextPrefix>₱&nbsp;</span>
+    <input matInput type="number" formControlName="amount" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Remarks</mat-label>
+    <textarea matInput formControlName="remarks" rows="2" placeholder="What is this for?"></textarea>
+  </mat-form-field>
+
+  <div class="dialog-form__actions">
+    <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || submitting">Add transaction</button>
+  </div>
+</form>

@@ -1,0 +1,163 @@
+<button mat-button class="back-link" (click)="back()">
+  <mat-icon>arrow_back</mat-icon>
+  Back to customers
+</button>
+
+<div class="profile-page" *ngIf="!loading && customer">
+  <mat-card class="profile-card">
+    <div class="profile-card__header">
+      <div>
+        <h2>
+          {{ customer.fullName }}
+          <span class="nickname" *ngIf="customer.nicknameAlias">"{{ customer.nicknameAlias }}"</span>
+        </h2>
+        <p class="mono profile-card__code">{{ customer.customerCode }}</p>
+      </div>
+      <span class="chip" [ngClass]="'chip--' + customer.status">{{ customer.status === 'active' ? 'Active' : 'Inactive' }}</span>
+    </div>
+
+    <form *ngIf="editing" [formGroup]="form" (ngSubmit)="save()" class="profile-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Full name</mat-label>
+        <input matInput formControlName="fullName" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Nickname / Alias</mat-label>
+        <input matInput formControlName="nicknameAlias" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Address</mat-label>
+        <input matInput formControlName="address" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Contact number</mat-label>
+        <input matInput formControlName="contactNumber" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Borrower type</mat-label>
+        <input matInput formControlName="borrowerType" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Notes</mat-label>
+        <textarea matInput formControlName="notes" rows="3"></textarea>
+      </mat-form-field>
+
+      <div class="profile-form__actions">
+        <button type="button" mat-stroked-button (click)="cancelEdit()">Cancel</button>
+        <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || saving">Save changes</button>
+      </div>
+    </form>
+
+    <dl *ngIf="!editing" class="profile-fields">
+      <div class="profile-fields__row">
+        <dt>Address</dt>
+        <dd>{{ customer.address || '—' }}</dd>
+      </div>
+      <div class="profile-fields__row">
+        <dt>Contact number</dt>
+        <dd class="mono">{{ customer.contactNumber || '—' }}</dd>
+      </div>
+      <div class="profile-fields__row">
+        <dt>Borrower type</dt>
+        <dd>{{ customer.borrowerType || '—' }}</dd>
+      </div>
+      <div class="profile-fields__row">
+        <dt>Customer since</dt>
+        <dd class="mono">{{ customer.createdAt }}</dd>
+      </div>
+    </dl>
+
+    <button
+      mat-stroked-button
+      *ngIf="!editing && authService.hasRole('admin')"
+      (click)="startEdit()"
+      class="profile-card__edit"
+    >
+      <mat-icon>edit</mat-icon>
+      Edit profile
+    </button>
+  </mat-card>
+
+  <section class="kpi-row">
+    <mat-card class="kpi-card" *ngFor="let kpi of financialKpis" [ngClass]="'kpi-card--' + kpi.tone">
+      <div class="kpi-card__icon">
+        <mat-icon>{{ kpi.icon }}</mat-icon>
+      </div>
+      <span class="kpi-card__label">{{ kpi.label }}</span>
+      <div class="kpi-card__value">{{ kpi.value }}</div>
+    </mat-card>
+  </section>
+
+  <mat-card class="tabs-card">
+    <mat-tab-group>
+      <mat-tab label="Loans">
+        <div class="tab-content">
+          <div class="table-scroll">
+          <table mat-table [dataSource]="loans" class="loans-table">
+            <ng-container matColumnDef="id">
+              <th mat-header-cell *matHeaderCellDef>Loan ID</th>
+              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.loanNumber }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="principal">
+              <th mat-header-cell *matHeaderCellDef>Principal</th>
+              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.principalAmount | number }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="dueDate">
+              <th mat-header-cell *matHeaderCellDef>Due date</th>
+              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="balance">
+              <th mat-header-cell *matHeaderCellDef>Balance</th>
+              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.balance | number }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="status">
+              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <td mat-cell *matCellDef="let loan">
+                <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="actions">
+              <th mat-header-cell *matHeaderCellDef></th>
+              <td mat-cell *matCellDef="let loan">
+                <button mat-icon-button (click)="openLoanDetails(loan); $event.stopPropagation()" aria-label="View loan details">
+                  <mat-icon>visibility</mat-icon>
+                </button>
+              </td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openLoanDetails(row)"></tr>
+          </table>
+          </div>
+
+          <p class="empty-note" *ngIf="loans.length === 0">No loans for this customer yet.</p>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Documents">
+        <div class="tab-content">
+          <lm-document-manager ownerType="customer" [ownerId]="customer.customerId"></lm-document-manager>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Notes">
+        <div class="tab-content">
+          <p *ngIf="customer.notes" class="notes-text">{{ customer.notes }}</p>
+          <p class="empty-note" *ngIf="!customer.notes">No notes yet — add some via "Edit profile" above.</p>
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  </mat-card>
+</div>
+
+<p *ngIf="!loading && !customer" class="empty-hint">Customer not found.</p>

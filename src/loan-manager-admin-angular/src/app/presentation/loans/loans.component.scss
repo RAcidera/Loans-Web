@@ -1,0 +1,154 @@
+@use '../../styles/tokens';
+
+.mono {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+.right {
+  text-align: right;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.table-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+  padding: 4px 4px 0;
+}
+
+.table-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  padding: 16px 20px 4px;
+
+  h2 {
+    font-family: var(--lm-font-display);
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0 0 2px;
+  }
+
+  p {
+    font-size: 13px;
+    color: var(--lm-text-muted);
+    margin: 0;
+  }
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+  }
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px 8px;
+}
+
+.filter-field {
+  width: 160px;
+}
+
+.filter-field--range {
+  width: 220px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.loans-table {
+  width: 100%;
+
+  th.mat-mdc-header-cell {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--lm-text-muted);
+    font-weight: 600;
+  }
+
+  tr.mat-mdc-row {
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(108, 93, 211, 0.05);
+    }
+  }
+
+  tr.loans-table__footer {
+    font-weight: 600;
+
+    td.mat-mdc-footer-cell {
+      border-top: 2px solid var(--lm-border);
+    }
+  }
+}
+
+.chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &--active {
+    background: rgba(34, 160, 107, 0.15);
+    color: #1a7a53;
+  }
+
+  &--extended {
+    background: rgba(225, 170, 54, 0.18);
+    color: #8a6414;
+  }
+
+  &--overdue {
+    background: rgba(193, 102, 107, 0.16);
+    color: #8a3d42;
+  }
+
+  &--paid {
+    background: rgba(139, 143, 163, 0.14);
+    color: var(--lm-text-muted);
+  }
+
+  &--writtenoff {
+    background: rgba(139, 143, 163, 0.14);
+    color: var(--lm-text-muted);
+  }
+
+  // Loan Classification variants — same semantic colors as Status
+  // (green/amber/red) since both convey a good/caution/bad judgment,
+  // just from different sources (system vs. lender).
+  &--normal {
+    background: rgba(34, 160, 107, 0.15);
+    color: #1a7a53;
+  }
+
+  &--watchlist {
+    background: rgba(225, 170, 54, 0.18);
+    color: #8a6414;
+  }
+
+  &--badloan {
+    background: rgba(193, 102, 107, 0.16);
+    color: #8a3d42;
+  }
+}
+
+.empty-hint {
+  padding: 20px;
+  text-align: center;
+  color: var(--lm-text-muted);
+  font-size: 13px;
+}

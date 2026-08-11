@@ -1,0 +1,43 @@
+@use '../styles/tokens';
+
+.dialog-title {
+  font-family: var(--lm-font-display);
+  font-size: 17px;
+  font-weight: 600;
+  margin: 0 0 16px;
+  padding: 24px 24px 0;
+
+  @include tokens.mobile {
+    padding: 20px 16px 0;
+  }
+}
+
+.dialog-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  min-width: 320px;
+  padding: 0 24px 24px;
+
+  @include tokens.mobile {
+    min-width: 0;
+    padding: 0 16px 20px;
+  }
+
+  mat-form-field {
+    width: 100%;
+  }
+
+  &__error {
+    color: var(--lm-rose);
+    font-size: 12.5px;
+    margin: -4px 0 8px;
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 8px;
+  }
+}

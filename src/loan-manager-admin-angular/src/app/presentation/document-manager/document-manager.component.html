@@ -1,0 +1,53 @@
+<div class="document-manager">
+  <div class="document-manager__header">
+    <h3>Documents</h3>
+    <button
+      mat-stroked-button
+      type="button"
+      (click)="openFilePicker()"
+      [disabled]="uploading"
+      *ngIf="authService.hasRole('admin')"
+    >
+      <mat-spinner *ngIf="uploading" diameter="16"></mat-spinner>
+      <mat-icon *ngIf="!uploading">upload_file</mat-icon>
+      {{ uploading ? 'Uploading…' : 'Upload' }}
+    </button>
+    <input #fileInput type="file" accept=".jpg,.jpeg,.png,.pdf" multiple hidden (change)="onFilesSelected($event)" />
+  </div>
+
+  <p class="document-manager__error" *ngIf="uploadError">{{ uploadError }}</p>
+
+  <div class="document-manager__spinner" *ngIf="loading">
+    <mat-spinner diameter="24"></mat-spinner>
+  </div>
+
+  <ul class="document-list" *ngIf="!loading && documents.length > 0">
+    <li class="document-list__item" *ngFor="let doc of documents">
+      <mat-icon class="document-list__icon">{{ doc.contentType === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>
+      <div class="document-list__main">
+        <span class="document-list__name">{{ doc.originalFileName }}</span>
+        <span class="document-list__meta mono">{{ formatFileSize(doc.fileSizeBytes) }} · {{ doc.uploadedAt | date: 'yyyy-MM-dd' }} · {{ doc.uploadedBy }}</span>
+      </div>
+      <div class="document-list__actions">
+        <button mat-icon-button type="button" (click)="view(doc)" aria-label="View document" matTooltip="View">
+          <mat-icon>visibility</mat-icon>
+        </button>
+        <button mat-icon-button type="button" (click)="download(doc)" aria-label="Download document" matTooltip="Download">
+          <mat-icon>download</mat-icon>
+        </button>
+        <button
+          mat-icon-button
+          type="button"
+          (click)="remove(doc)"
+          aria-label="Delete document"
+          matTooltip="Delete"
+          *ngIf="authService.hasRole('admin')"
+        >
+          <mat-icon>delete</mat-icon>
+        </button>
+      </div>
+    </li>
+  </ul>
+
+  <p class="empty-note" *ngIf="!loading && documents.length === 0">No documents uploaded yet.</p>
+</div>

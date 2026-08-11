@@ -1,0 +1,35 @@
+<div class="login-page">
+  <mat-card class="login-card">
+    <div class="login-card__brand">
+      <span class="login-card__mark"><mat-icon>account_balance</mat-icon></span>
+      <span class="login-card__name">Loan Manager</span>
+    </div>
+
+    <p class="login-card__subtitle">Sign in to manage loans, customers, and cash on hand.</p>
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="login-form">
+      <mat-form-field appearance="outline">
+        <mat-label>Username</mat-label>
+        <input matInput formControlName="username" autocomplete="username" />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Password</mat-label>
+        <input matInput type="password" formControlName="password" autocomplete="current-password" />
+      </mat-form-field>
+
+      <p class="login-form__error" *ngIf="errorMessage">
+        <mat-icon>error_outline</mat-icon>
+        {{ errorMessage }}
+      </p>
+
+      <button mat-flat-button color="primary" type="submit" class="login-form__submit" [disabled]="form.invalid || submitting">
+        {{ submitting ? 'Signing in…' : 'Sign in' }}
+      </button>
+    </form>
+
+    <p class="login-card__hint">
+      Demo accounts — admin / Admin&#64;12345 (full access) or staff / Staff&#64;12345 (record payments only).
+    </p>
+  </mat-card>
+</div>

@@ -1,0 +1,12 @@
+{
+  "version": 2,
+  "dgSpecHash": "ZQ7p+cDvFtU=",
+  "success": true,
+  "projectFilePath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\RomeoAcidera\\.nuget\\packages\\mediatr\\12.4.1\\mediatr.12.4.1.nupkg.sha512",
+    "C:\\Users\\RomeoAcidera\\.nuget\\packages\\mediatr.contracts\\2.0.1\\mediatr.contracts.2.0.1.nupkg.sha512",
+    "C:\\Users\\RomeoAcidera\\.nuget\\packages\\microsoft.extensions.dependencyinjection.abstractions\\8.0.1\\microsoft.extensions.dependencyinjection.abstractions.8.0.1.nupkg.sha512"
+  ],
+  "logs": []
+}

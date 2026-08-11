@@ -1,0 +1,78 @@
+<section class="funds-row" *ngIf="summary">
+  <mat-card class="funds-card funds-card--primary">
+    <span class="funds-card__label">Current cash on hand</span>
+    <div class="funds-card__value">₱{{ summary.cashOnHand | number }}</div>
+    <div class="funds-card__spark" aria-hidden="true">
+      <span
+        class="funds-card__bar"
+        *ngFor="let h of sparkBars(summary.sevenDayTrend); let last = last"
+        [class.funds-card__bar--today]="last"
+        [style.height.%]="h"
+      ></span>
+    </div>
+    <p class="funds-card__hint">Total cash in − total cash out, per the ledger below</p>
+  </mat-card>
+
+  <mat-card class="funds-card">
+    <span class="funds-card__label">Total revolving funds</span>
+    <div class="funds-card__value">₱{{ summary.revolvingFunds | number }}</div>
+    <p class="funds-card__hint">Cash-based — available to release as new loans</p>
+  </mat-card>
+
+  <mat-card class="funds-card">
+    <span class="funds-card__label">Outstanding principal</span>
+    <div class="funds-card__value">₱{{ summary.outstandingPrincipal | number }}</div>
+    <p class="funds-card__hint">Receivable, not yet counted as available cash</p>
+  </mat-card>
+</section>
+
+<mat-card class="ledger-card">
+  <div class="ledger-card__header">
+    <div>
+      <h2>Cash transaction history</h2>
+      <p>Every movement of cash in or out of the business</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openAddTransaction()" *ngIf="authService.hasRole('admin')">
+      <mat-icon>add</mat-icon>
+      Add cash transaction
+    </button>
+  </div>
+
+  <div class="table-scroll">
+  <table mat-table [dataSource]="ledger" class="ledger-table">
+    <ng-container matColumnDef="date">
+      <th mat-header-cell *matHeaderCellDef>Date</th>
+      <td mat-cell *matCellDef="let e" class="mono">{{ e.transactionDate }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="type">
+      <th mat-header-cell *matHeaderCellDef>Type</th>
+      <td mat-cell *matCellDef="let e">
+        <span class="chip" [ngClass]="isCashIn(e.transactionType) ? 'chip--in' : 'chip--out'">
+          {{ getTypeLabel(e.transactionType) }}
+        </span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="reference">
+      <th mat-header-cell *matHeaderCellDef>Reference</th>
+      <td mat-cell *matCellDef="let e" class="mono">{{ e.referenceId || '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="amount">
+      <th mat-header-cell *matHeaderCellDef>Amount</th>
+      <td mat-cell *matCellDef="let e" class="mono right" [ngClass]="isCashIn(e.transactionType) ? 'amount--in' : 'amount--out'">
+        {{ isCashIn(e.transactionType) ? '+' : '−' }}₱{{ e.amount | number }}
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="remarks">
+      <th mat-header-cell *matHeaderCellDef>Remarks</th>
+      <td mat-cell *matCellDef="let e">{{ e.remarks }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+  </table>
+  </div>
+</mat-card>

@@ -1,0 +1,16 @@
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\bin\Debug\net8.0\LoanManagementSystem.Application.deps.json
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\bin\Debug\net8.0\LoanManagementSystem.Application.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\bin\Debug\net8.0\LoanManagementSystem.Application.pdb
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\bin\Debug\net8.0\LoanManagementSystem.Domain.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\bin\Debug\net8.0\LoanManagementSystem.Domain.pdb
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.csproj.AssemblyReference.cache
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.GeneratedMSBuildEditorConfig.editorconfig
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.AssemblyInfoInputs.cache
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.AssemblyInfo.cs
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.csproj.CoreCompileInputs.cache
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.sourcelink.json
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanMana.A4A499FA.Up2Date
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\refint\LoanManagementSystem.Application.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\LoanManagementSystem.Application.pdb
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Application\obj\Debug\net8.0\ref\LoanManagementSystem.Application.dll

@@ -1,0 +1,117 @@
+@use '@angular/material' as mat;
+@use './app/styles/tokens';
+
+html, body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--lm-bg);
+  color: var(--lm-text);
+  font-family: var(--lm-font-body);
+}
+
+$lm-theme: mat.define-theme((
+  color: (
+    theme-type: light,
+    primary: mat.$violet-palette,
+    tertiary: mat.$orange-palette,
+  ),
+  typography: (
+    plain-family: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
+    brand-family: 'Space Grotesk, Inter, sans-serif',
+  ),
+  density: (
+    scale: 0,
+  ),
+));
+
+html {
+  @include mat.all-component-themes($lm-theme);
+}
+
+// ---------------------------------------------------------
+// Global input styling — every mat-form-field app-wide (dozens of forms/
+// dialogs), not duplicated per component: light-gray filled box, rounded
+// corners, muted border (accent on focus), label always visible above the
+// field (see MAT_FORM_FIELD_DEFAULT_OPTIONS's floatLabel: 'always' in
+// app.config.ts), hint text muted below.
+// ---------------------------------------------------------
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--lm-bg);
+    border-radius: var(--lm-radius);
+  }
+
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: var(--lm-border) !important;
+  }
+
+  .mdc-notched-outline__leading {
+    border-radius: var(--lm-radius) 0 0 var(--lm-radius);
+  }
+
+  .mdc-notched-outline__trailing {
+    border-radius: 0 var(--lm-radius) var(--lm-radius) 0;
+  }
+
+  &.mat-focused .mdc-notched-outline__leading,
+  &.mat-focused .mdc-notched-outline__notch,
+  &.mat-focused .mdc-notched-outline__trailing {
+    border-color: var(--lm-primary) !important;
+  }
+
+  .mat-mdc-form-field-hint {
+    color: var(--lm-text-muted);
+  }
+}
+
+// ---------------------------------------------------------
+// Global card background — mat.define-theme's M3 tokens tint every
+// mat-card's surface with a hue derived from the theme's primary/tertiary
+// colors (a light pink here) instead of pure white, which every panel/KPI
+// card/table-card across the app inherits by default since none of them
+// set their own background-color (only border-radius/shadow/border).
+// Overridden once, globally, rather than per component.
+// ---------------------------------------------------------
+.mat-mdc-card {
+  background-color: var(--lm-surface) !important;
+}
+
+// Same M3 surface-tinting issue as mat-card, on every mat-table (header,
+// rows, cells, footer all render their own tinted background otherwise —
+// covering the white card underneath even after the .mat-mdc-card fix above).
+// Row/cell are deliberately NOT !important: several tables set a per-row
+// :hover background (e.g. loans/customers tables), which must still win —
+// a plain rule here is enough since it's declared after Material's own
+// theme include and matches its selector specificity.
+.mat-mdc-table,
+.mat-mdc-header-row,
+.mat-mdc-footer-row,
+.mat-mdc-header-cell,
+.mat-mdc-footer-cell {
+  background-color: var(--lm-surface) !important;
+}
+
+.mat-mdc-row,
+.mat-mdc-cell {
+  background-color: var(--lm-surface);
+}
+
+// Same M3 tinting on the row-divider borders too — cells were rendering
+// with a dark purple-gray border (M3's outline-variant token) instead of
+// this app's own hairline --lm-border used everywhere else (cards, inputs).
+.mat-mdc-header-cell,
+.mat-mdc-cell,
+.mat-mdc-footer-cell {
+  border-bottom-color: var(--lm-border) !important;
+}
+
+// mat-paginator (the "footer" bar under every paginated table) has the
+// same M3 surface tint as mat-card/mat-table did.
+.mat-mdc-paginator {
+  background-color: var(--lm-surface) !important;
+}

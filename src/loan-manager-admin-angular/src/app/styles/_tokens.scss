@@ -1,0 +1,82 @@
+// ---------------------------------------------------------
+// Design tokens — Loan Manager Admin
+// Palette: indigo accent (trust/fintech) + near-black sidebar, on a cool
+// light-neutral surface. Sidebar background is deliberately decoupled from
+// the brand accent (--lm-sidebar-bg vs --lm-primary) — the previous pine
+// palette used one token for both jobs, but this template needs a dark
+// sidebar container and a separate, brighter accent for buttons/links/active
+// states.
+// ---------------------------------------------------------
+
+:root {
+  // Brand accent — buttons, links, active-nav pill, tab underlines
+  --lm-primary: #6C5DD3;
+  --lm-primary-light: #8B7FE8; // lighter accent — secondary accents, hover states
+  --lm-primary-dark: #5847C4;  // pressed/hover state for solid accent surfaces
+
+  // Sidebar container — decoupled from --lm-primary, see note above
+  --lm-sidebar-bg: #14121F;
+  --lm-sidebar-elevated: #1E1B2E; // promo card surface inside the sidebar
+  --lm-sidebar-text-muted: rgba(255, 255, 255, 0.6);
+
+  // Status semantics
+  --lm-success: #22A06B; // active / good standing / positive trend
+  --lm-warning: #E1AA36; // pending / extended / attention
+  --lm-danger: #C1666B;  // overdue / rejected
+  --lm-info: #4C8DFF;    // in progress
+
+  // Legacy aliases — kept so any not-yet-migrated consumer still resolves;
+  // prefer the semantic names above for new work.
+  --lm-amber: #E1AA36;
+  --lm-rose: #C1666B;
+
+  // Surfaces / neutrals — cooler and lighter than the old warm-paper palette
+  --lm-bg: #F6F6FB;
+  --lm-surface: #FFFFFF;
+  --lm-border: #ECECF3;
+  --lm-text: #1B1B29;
+  --lm-text-muted: #8B8FA3;
+
+  // Type
+  --lm-font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --lm-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --lm-font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+
+  // Layout
+  --lm-radius: 12px;
+  --lm-sidebar-w: 240px;
+  --lm-sidebar-w-collapsed: 72px;
+  --lm-topbar-h: 64px;
+  --lm-shadow-sm: 0 1px 2px rgba(20, 18, 31, 0.06), 0 1px 1px rgba(20, 18, 31, 0.04);
+  --lm-shadow-md: 0 4px 16px rgba(20, 18, 31, 0.08);
+}
+
+// Breakpoints
+$lm-bp-mobile: 599px;
+$lm-bp-tablet: 899px;
+
+@mixin mobile {
+  @media (max-width: $lm-bp-mobile) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media (max-width: $lm-bp-tablet) {
+    @content;
+  }
+}
+
+// Shared utility mixins
+@mixin lm-card {
+  background: var(--lm-surface);
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius);
+  box-shadow: var(--lm-shadow-sm);
+}
+
+@mixin lm-mono-figure {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: "tnum" 1;
+  letter-spacing: -0.01em;
+}

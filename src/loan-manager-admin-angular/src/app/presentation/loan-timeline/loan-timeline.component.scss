@@ -1,0 +1,96 @@
+@use '../../styles/tokens';
+
+.mono {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+.loan-timeline {
+  &__dates {
+    display: flex;
+    justify-content: space-between;
+    font-size: 11.5px;
+    color: var(--lm-text-muted);
+    margin-bottom: 6px;
+  }
+
+  &__due--overdue {
+    color: var(--lm-rose);
+    font-weight: 600;
+  }
+
+  &__track {
+    position: relative;
+    height: 8px;
+    background: var(--lm-border);
+    border-radius: 4px;
+    margin-bottom: 8px;
+  }
+
+  &__fill {
+    position: absolute;
+    inset: 0 auto 0 0;
+    height: 100%;
+    background: var(--lm-primary-light);
+    border-radius: 4px;
+
+    &--overdue {
+      background: var(--lm-rose);
+    }
+
+    &--paid {
+      background: var(--lm-primary);
+    }
+  }
+
+  &__tick {
+    position: absolute;
+    top: -3px;
+    width: 3px;
+    height: 14px;
+    background: var(--lm-amber);
+    border-radius: 2px;
+    transform: translateX(-1.5px);
+    cursor: default;
+  }
+
+  &__today {
+    position: absolute;
+    top: -4px;
+    width: 10px;
+    height: 16px;
+    border-radius: 3px;
+    background: var(--lm-primary);
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 1px var(--lm-primary);
+    transform: translateX(-5px);
+    cursor: default;
+  }
+
+  &__meta {
+    display: flex;
+    gap: 6px;
+  }
+
+  &__flag {
+    font-size: 11.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 999px;
+
+    &--overdue {
+      background: rgba(193, 102, 107, 0.15);
+      color: var(--lm-rose);
+    }
+
+    &--paid {
+      background: rgba(139, 143, 163, 0.14);
+      color: var(--lm-text-muted);
+    }
+
+    &--extended {
+      background: rgba(225, 170, 54, 0.18);
+      color: #8a6414;
+    }
+  }
+}

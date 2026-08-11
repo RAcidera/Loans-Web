@@ -1,0 +1,79 @@
+<div class="shell" [class.collapsed]="collapsed()" [class.mobile-nav-open]="mobileNavOpen()">
+  <div class="sidebar-backdrop" *ngIf="mobileNavOpen()" (click)="closeMobileNav()"></div>
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand__mark"><mat-icon>account_balance</mat-icon></span>
+      <span class="brand__name" *ngIf="!collapsed()">Loan Manager</span>
+    </div>
+
+    <nav class="nav">
+      <a
+        *ngFor="let item of navItems"
+        class="nav__item"
+        [routerLink]="item.route"
+        routerLinkActive="nav__item--active"
+        (click)="closeMobileNav()"
+      >
+        <mat-icon>{{ item.icon }}</mat-icon>
+        <span *ngIf="!collapsed()">{{ item.label }}</span>
+      </a>
+    </nav>
+
+    <div class="sidebar__promo" *ngIf="!collapsed()">
+      <div class="sidebar__promo__icon">
+        <mat-icon>bolt</mat-icon>
+      </div>
+      <span class="sidebar__promo__title">Stay on top of your goals</span>
+      <p class="sidebar__promo__hint">Follow up on payments and keep loans on track.</p>
+      <a mat-stroked-button class="sidebar__promo__cta" routerLink="/loans" (click)="closeMobileNav()">
+        Manage Loans
+        <mat-icon>arrow_forward</mat-icon>
+      </a>
+    </div>
+
+    <button class="sidebar__collapse" mat-icon-button (click)="toggleSidebar()" aria-label="Toggle sidebar">
+      <mat-icon>{{ collapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+    </button>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <button
+        class="topbar__menu-toggle"
+        mat-icon-button
+        aria-label="Toggle navigation menu"
+        (click)="toggleMobileNav()"
+      >
+        <mat-icon>menu</mat-icon>
+      </button>
+      <h1 class="topbar__title">{{ pageTitle() }}</h1>
+
+      <div class="topbar__actions">
+        <button mat-icon-button aria-label="Search">
+          <mat-icon>search</mat-icon>
+        </button>
+        <button mat-icon-button aria-label="Notifications" matBadge="3" matBadgeColor="warn" matBadgeSize="small">
+          <mat-icon>notifications_none</mat-icon>
+        </button>
+        <button mat-icon-button [matMenuTriggerFor]="userMenu" class="topbar__avatar" [attr.aria-label]="'Account menu for ' + (authService.username() ?? 'user')">
+          {{ initials() }}
+        </button>
+        <mat-menu #userMenu="matMenu">
+          <div class="topbar__menu-header">
+            <strong>{{ authService.username() }}</strong>
+            <span class="topbar__menu-role">{{ authService.role() }}</span>
+          </div>
+          <button mat-menu-item (click)="logout()">
+            <mat-icon>logout</mat-icon>
+            <span>Sign out</span>
+          </button>
+        </mat-menu>
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet></router-outlet>
+    </main>
+  </div>
+</div>

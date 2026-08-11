@@ -1,0 +1,37 @@
+<div class="loan-timeline">
+  <div class="loan-timeline__dates">
+    <span class="mono">{{ loan.startDate }}</span>
+    <span class="mono" [class.loan-timeline__due--overdue]="daysOverdue > 0">{{ loan.dueDate }}</span>
+  </div>
+
+  <div class="loan-timeline__track">
+    <div
+      class="loan-timeline__fill"
+      [class.loan-timeline__fill--overdue]="daysOverdue > 0"
+      [class.loan-timeline__fill--paid]="loan.status === 'paid'"
+      [style.width.%]="percentElapsed"
+    ></div>
+
+    <span
+      *ngFor="let tick of extensionTicks"
+      class="loan-timeline__tick"
+      [style.left.%]="tick.position"
+      [matTooltip]="tick.label"
+    ></span>
+
+    <span
+      *ngIf="loan.status !== 'paid'"
+      class="loan-timeline__today"
+      [style.left.%]="percentElapsed"
+      matTooltip="Today"
+    ></span>
+  </div>
+
+  <div class="loan-timeline__meta">
+    <span *ngIf="daysOverdue > 0" class="loan-timeline__flag loan-timeline__flag--overdue">{{ daysOverdue }} days overdue</span>
+    <span *ngIf="loan.status === 'paid'" class="loan-timeline__flag loan-timeline__flag--paid">Fully paid</span>
+    <span *ngIf="extensionTicks.length > 0" class="loan-timeline__flag loan-timeline__flag--extended">
+      Extended {{ extensionTicks.length }}×
+    </span>
+  </div>
+</div>

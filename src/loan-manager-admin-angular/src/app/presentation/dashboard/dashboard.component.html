@@ -1,0 +1,100 @@
+<section class="kpi-row">
+  <mat-card class="kpi-card" *ngFor="let kpi of kpis" [ngClass]="'kpi-card--' + kpi.tone">
+    <div class="kpi-card__icon">
+      <mat-icon>{{ kpi.icon }}</mat-icon>
+    </div>
+    <span class="kpi-card__label">{{ kpi.label }}</span>
+    <div class="kpi-card__value">{{ kpi.value }}</div>
+    <div class="kpi-card__spark" *ngIf="kpi.sparkline" aria-hidden="true">
+      <span
+        class="kpi-card__bar"
+        *ngFor="let h of sparkBars(kpi.sparkline); let last = last"
+        [class.kpi-card__bar--today]="last"
+        [style.height.%]="h"
+      ></span>
+    </div>
+  </mat-card>
+</section>
+
+<div class="two-col">
+  <mat-card class="table-card">
+    <div class="table-card__header">
+      <h2>Loans</h2>
+      <p>All active, extended, overdue, and paid loans</p>
+    </div>
+
+    <div class="table-scroll">
+    <table mat-table [dataSource]="dataSource" matSort class="loans-table">
+      <ng-container matColumnDef="id">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Loan ID</th>
+        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.loanNumber }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+        <td mat-cell *matCellDef="let loan">{{ loan.customerName }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="principal">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Principal</th>
+        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.principalAmount | number }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="dueDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Due date</th>
+        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="balance">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
+        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.balance | number }}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="status">
+        <th mat-header-cell *matHeaderCellDef>Status</th>
+        <td mat-cell *matCellDef="let loan">
+          <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
+        </td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef></th>
+        <td mat-cell *matCellDef="let loan">
+          <button mat-icon-button (click)="openLoanDetails(loan); $event.stopPropagation()" aria-label="View loan details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openLoanDetails(row)"></tr>
+    </table>
+    </div>
+
+    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+  </mat-card>
+
+  <mat-card class="feed-card">
+    <div class="table-card__header">
+      <h2>Recent payments</h2>
+      <p>Latest collections across all loans</p>
+    </div>
+
+    <ul class="feed-list">
+      <li class="feed-item" *ngFor="let p of recentPayments">
+        <div class="feed-item__icon">
+          <mat-icon>payments</mat-icon>
+        </div>
+        <div class="feed-item__main">
+          <span class="feed-item__customer">{{ p.customerName }}</span>
+          <span class="feed-item__loan mono">{{ p.loanNumber }}</span>
+        </div>
+        <div class="feed-item__side">
+          <span class="feed-item__amount mono">+₱{{ p.amountPaid | number }}</span>
+          <span class="feed-item__date mono">{{ p.paymentDate }}</span>
+        </div>
+      </li>
+      <li class="feed-empty" *ngIf="recentPayments.length === 0">No payments recorded yet.</li>
+    </ul>
+  </mat-card>
+</div>

@@ -1,0 +1,268 @@
+@use '../../styles/tokens';
+
+.mono {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+.right {
+  text-align: right;
+}
+
+.back-link {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 12px;
+  color: var(--lm-text-muted);
+}
+
+.loan-details {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.header-card,
+.tabs-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+}
+
+.header-card {
+  padding: 20px;
+}
+
+.header-card__top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+
+.header-card__identity {
+  h2 {
+    font-family: var(--lm-font-display);
+    font-size: 20px;
+    font-weight: 600;
+    margin: 0;
+  }
+
+  p {
+    font-size: 13.5px;
+    color: var(--lm-text-muted);
+    margin: 2px 0 8px;
+  }
+}
+
+.header-card__chips {
+  display: flex;
+  gap: 6px;
+}
+
+.header-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.header-card__stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  background: var(--lm-bg);
+  border-radius: var(--lm-radius);
+  padding: 14px;
+
+  @include tokens.mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+.summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  &__label {
+    font-size: 11.5px;
+    color: var(--lm-text-muted);
+  }
+
+  &__value {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--lm-text);
+
+    &--balance {
+      color: var(--lm-primary);
+    }
+  }
+}
+
+.tabs-card {
+  padding: 4px 4px 12px;
+}
+
+.tab-content {
+  padding: 20px;
+
+  &--stub {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--lm-text-muted);
+    padding: 48px 20px;
+
+    mat-icon {
+      font-size: 32px;
+      width: 32px;
+      height: 32px;
+      opacity: 0.6;
+    }
+
+    p {
+      margin: 0;
+      font-size: 13.5px;
+    }
+  }
+}
+
+.overview-fields {
+  margin: 20px 0 0;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0 24px;
+
+  @include tokens.mobile {
+    grid-template-columns: 1fr;
+  }
+
+  &__row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--lm-border);
+
+    &--full {
+      grid-column: 1 / -1;
+    }
+
+    dt {
+      font-size: 12.5px;
+      color: var(--lm-text-muted);
+    }
+
+    dd {
+      margin: 0;
+      font-size: 13.5px;
+      font-weight: 500;
+      text-align: right;
+    }
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.history-table {
+  width: 100%;
+
+  th.mat-mdc-header-cell {
+    font-size: 11.5px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+    color: var(--lm-text-muted);
+    font-weight: 600;
+  }
+
+  &__footer {
+    font-weight: 600;
+
+    td.mat-mdc-footer-cell {
+      border-top: 2px solid var(--lm-border);
+    }
+  }
+}
+
+.empty-note {
+  font-size: 12.5px;
+  color: var(--lm-text-muted);
+  padding: 8px 4px;
+  margin: 0;
+}
+
+.state-panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+.empty-hint {
+  padding: 20px;
+  text-align: center;
+  color: var(--lm-text-muted);
+  font-size: 13px;
+}
+
+.chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &--active {
+    background: rgba(34, 160, 107, 0.15);
+    color: #1a7a53;
+  }
+
+  &--extended {
+    background: rgba(225, 170, 54, 0.18);
+    color: #8a6414;
+  }
+
+  &--overdue {
+    background: rgba(193, 102, 107, 0.16);
+    color: #8a3d42;
+  }
+
+  &--paid {
+    background: rgba(139, 143, 163, 0.14);
+    color: var(--lm-text-muted);
+  }
+
+  &--writtenoff {
+    background: rgba(139, 143, 163, 0.14);
+    color: var(--lm-text-muted);
+  }
+
+  &--normal {
+    background: rgba(34, 160, 107, 0.15);
+    color: #1a7a53;
+  }
+
+  &--watchlist {
+    background: rgba(225, 170, 54, 0.18);
+    color: #8a6414;
+  }
+
+  &--badloan {
+    background: rgba(193, 102, 107, 0.16);
+    color: #8a3d42;
+  }
+}

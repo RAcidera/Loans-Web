@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>LoanManagementSystem.Domain</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!--
+      MediatR is used only for the INotification marker interface that
+      IDomainEvent extends, so domain events can be published via the same
+      IMediator the Application layer already uses for commands/queries.
+      This is the only third-party dependency the Domain project takes on;
+      everything else here is plain C#.
+    -->
+    <PackageReference Include="MediatR" Version="12.4.1" />
+  </ItemGroup>
+
+</Project>

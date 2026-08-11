@@ -1,0 +1,17 @@
+@use '../../styles/tokens';
+@use '../_shared-dialog-form' as *;
+
+.dialog-subtitle {
+  font-size: 13px;
+  color: var(--lm-text-muted);
+  margin: -8px 0 16px;
+  padding: 0 24px;
+
+  @include tokens.mobile {
+    padding: 0 16px;
+  }
+}
+
+.mono {
+  font-family: var(--lm-font-mono);
+}

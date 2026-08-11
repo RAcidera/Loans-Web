@@ -1,0 +1,72 @@
+<mat-card class="table-card">
+  <div class="table-card__header">
+    <div>
+      <h2>Customers</h2>
+      <p>Every customer profile on record</p>
+    </div>
+    <button mat-flat-button color="primary" (click)="openAddCustomer()" *ngIf="authService.hasRole('admin')">
+      <mat-icon>person_add</mat-icon>
+      Add customer
+    </button>
+  </div>
+
+  <div class="search-box">
+    <mat-icon>search</mat-icon>
+    <input type="text" (input)="applyFilter($any($event.target).value)" placeholder="Name, contact, borrower type…" aria-label="Search customers" />
+  </div>
+
+  <div class="table-scroll">
+  <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSort($event)" class="customers-table">
+    <ng-container matColumnDef="customerCode">
+      <th mat-header-cell *matHeaderCellDef>Code</th>
+      <td mat-cell *matCellDef="let c" class="mono bold">{{ c.customerCode }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="name">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+      <td mat-cell *matCellDef="let c">
+        {{ c.fullName }}
+        <span class="nickname" *ngIf="c.nicknameAlias">"{{ c.nicknameAlias }}"</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="contact">
+      <th mat-header-cell *matHeaderCellDef>Contact</th>
+      <td mat-cell *matCellDef="let c" class="mono">{{ c.contactNumber }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="borrowerType">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Borrower type</th>
+      <td mat-cell *matCellDef="let c">{{ c.borrowerType }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let c">
+        <span class="chip" [ngClass]="'chip--' + c.status">{{ getStatusLabel(c.status) }}</span>
+      </td>
+    </ng-container>
+
+    <ng-container matColumnDef="loanCount">
+      <th mat-header-cell *matHeaderCellDef>Loans</th>
+      <td mat-cell *matCellDef="let c" class="mono right">{{ c.loanCount }}</td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openCustomerProfile(row)"></tr>
+  </table>
+  </div>
+
+  <p class="empty-hint" *ngIf="dataSource.data.length === 0">No customers yet.</p>
+
+  <p class="results-caption" *ngIf="dataSource.data.length > 0">Showing {{ dataSource.data.length }} of {{ totalCount }} customers</p>
+
+  <mat-paginator
+    [length]="totalCount"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[10, 25, 50]"
+    showFirstLastButtons
+    (page)="onPage($event)"
+  ></mat-paginator>
+</mat-card>

@@ -1,0 +1,67 @@
+using LoanManagementSystem.Application.Common.DTOs;
+using LoanManagementSystem.Application.Users.Commands.ChangePassword;
+using LoanManagementSystem.Application.Users.Commands.CreateUser;
+using LoanManagementSystem.Application.Users.Commands.DeactivateUser;
+using LoanManagementSystem.Application.Users.Queries.GetUsers;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+
+namespace LoanManagementSystem.Api.Controllers;
+
+[ApiController]
+[Route("api/users")]
+[Authorize] // any authenticated user (Admin or Staff) — see per-action overrides below
+public class UsersController : ControllerBase
+{
+    private readonly IMediator _mediator;
+
+    public UsersController(IMediator mediator)
+    {
+        _mediator = mediator;
+    }
+
+    /// <summary>GET /api/users — Admin only. SRS "Staff cannot see the user list".</summary>
+    [HttpGet]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<List<UserDto>>> GetAll(CancellationToken ct) =>
+        Ok(await _mediator.Send(new GetUsersQuery(), ct));
+
+    /// <summary>POST /api/users — Admin only.</summary>
+    [HttpPost]
+    [Authorize(Roles = "Admin")]
+    public async Task<ActionResult<UserDto>> Create(CreateUserRequest request, CancellationToken ct)
+    {
+        var command = new CreateUserCommand(request.Username, request.Password, request.Role);
+        var created = await _mediator.Send(command, ct);
+        return CreatedAtAction(nameof(GetAll), created);
+    }
+
+    /// <summary>
+    /// PUT /api/users/me/password — any authenticated user, changes only the
+    /// CALLER's own password. Resolved from the caller's own token (never a
+    /// route id), so there's no separate self-or-admin authorization check
+    /// to get wrong.
+    /// </summary>
+    [HttpPut("me/password")]
+    public async Task<IActionResult> ChangeMyPassword(ChangePasswordRequest request, CancellationToken ct)
+    {
+        var username = User.Identity!.Name!;
+        var command = new ChangePasswordCommand(username, request.CurrentPassword, request.NewPassword);
+        await _mediator.Send(command, ct);
+        return NoContent();
+    }
+
+    /// <summary>POST /api/users/{id}/deactivate — Admin only.</summary>
+    [HttpPost("{id}/deactivate")]
+    [Authorize(Roles = "Admin")]
+    public async Task<IActionResult> Deactivate(string id, CancellationToken ct)
+    {
+        var command = new DeactivateUserCommand(id, User.Identity!.Name!);
+        await _mediator.Send(command, ct);
+        return NoContent();
+    }
+}
+
+public sealed record CreateUserRequest(string Username, string Password, string Role);
+public sealed record ChangePasswordRequest(string CurrentPassword, string NewPassword);
