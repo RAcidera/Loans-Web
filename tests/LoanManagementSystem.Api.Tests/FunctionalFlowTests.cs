@@ -100,7 +100,7 @@ public class FunctionalFlowTests : IClassFixture<TestApiFactory>
 
         var extendResponse = await client.PostAsJsonAsync(
             $"/api/loans/{loan.LoanId}/extensions",
-            new { extensionDays = 15, additionalInterestAmount = 25, remarks = "e2e test extension" });
+            new { extensionDays = 15, additionalChargesAmount = 25, remarks = "e2e test extension" });
         extendResponse.EnsureSuccessStatusCode();
 
         var ledgerCountAfter = (await (await client.GetAsync("/api/cash-funds/ledger")).Content.ReadFromJsonAsync<List<CashLedgerEntryDto>>())!.Count;
@@ -121,6 +121,6 @@ public class FunctionalFlowTests : IClassFixture<TestApiFactory>
     private sealed record LoginResponseDto(string Token, DateTime ExpiresAtUtc, string Username, string Role);
     private sealed record LoanDto(string LoanId, string LoanNumber, string Status);
     private sealed record CustomerDto(string CustomerId);
-    private sealed record CashSummaryDto(decimal TotalCashIn, decimal TotalCashOut, decimal CashOnHand, decimal RevolvingFunds, decimal OutstandingPrincipal, List<decimal> SevenDayTrend);
+    private sealed record CashSummaryDto(decimal CashOnHand);
     private sealed record CashLedgerEntryDto(string LedgerId, string TransactionDate, string TransactionType, string? ReferenceId, decimal Amount, string Remarks, string CreatedAt);
 }

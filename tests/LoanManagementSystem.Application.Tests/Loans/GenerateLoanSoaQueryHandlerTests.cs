@@ -30,7 +30,7 @@ public class GenerateLoanSoaQueryHandlerTests
         var customer = Customer.Create("Ana Villanueva", "45 Rizal Ave.", "+63 919 333 5566", "Community member");
         var loan = Loan.Originate(customer.Id, Money.Of(1000), InterestRate.Of(0.03m), new DateOnly(2026, 1, 1), 60);
         var payment = loan.RecordPayment(Money.Of(400), PaymentMethod.Cash, "", new DateOnly(2026, 2, 1));
-        loan.Extend(15, Money.Of(20), Money.Of(50), "grace period", new DateOnly(2026, 3, 1));
+        loan.Extend(15, Money.Of(50), "grace period", new DateOnly(2026, 3, 1));
 
         _loanRepository.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>())).ReturnsAsync(loan);
         _customerRepository.Setup(r => r.GetByIdAsync(customer.Id, It.IsAny<CancellationToken>())).ReturnsAsync(customer);

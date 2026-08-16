@@ -9,9 +9,7 @@ namespace LoanManagementSystem.Application.EventHandlers;
 /// <summary>
 /// Reacts to a loan extension by writing its LoanLedgerEntry row — no cash
 /// moves (see LoanExtendedDomainEvent), but the SRS's own ledger example
-/// shows an "Extension" line, so AdditionalInterestAmount and
-/// AdditionalChargesAmount are combined into one Debit here rather than
-/// split into two rows the way origination's Principal/Interest are.
+/// shows an "Extension" line, recorded here as one Debit of AdditionalChargesAmount.
 /// </summary>
 public sealed class LoanExtendedEventHandler : INotificationHandler<LoanExtendedDomainEvent>
 {
@@ -26,11 +24,9 @@ public sealed class LoanExtendedEventHandler : INotificationHandler<LoanExtended
 
     public async Task Handle(LoanExtendedDomainEvent notification, CancellationToken ct)
     {
-        var totalDebit = notification.AdditionalInterestAmount.Add(notification.AdditionalChargesAmount);
-
         _loanLedgerRepository.Add(LoanLedgerEntry.Record(
             notification.LoanId, LoanLedgerTransactionType.Extension,
-            debit: totalDebit, credit: Money.Zero, runningBalance: notification.ResultingBalance,
+            debit: notification.AdditionalChargesAmount, credit: Money.Zero, runningBalance: notification.ResultingBalance,
             remarks: $"Extension +{notification.ExtensionDays} days", transactionDate: notification.ExtensionDate,
             referenceId: notification.ExtensionId.ToString()));
 

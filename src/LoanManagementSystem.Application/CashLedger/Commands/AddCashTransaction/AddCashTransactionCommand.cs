@@ -8,8 +8,8 @@ using DomainCashLedgerEntry = LoanManagementSystem.Domain.CashLedger.CashLedgerE
 namespace LoanManagementSystem.Application.CashLedger.Commands.AddCashTransaction;
 
 /// <summary>
-/// For the manual entries an admin types in from the Cash & Funds page
-/// (owner deposit / withdrawal / expense). loan_release and
+/// For the manual entries an admin types in from the Cash Transactions page
+/// (owner deposit / withdrawal / expense / adjustment). loan_release and
 /// payment_received are system-generated as side effects of
 /// CreateLoanCommand and RecordPaymentCommand via domain events, and
 /// deliberately not exposed here — allowing them through this endpoint
@@ -19,12 +19,16 @@ namespace LoanManagementSystem.Application.CashLedger.Commands.AddCashTransactio
 public sealed record AddCashTransactionCommand(
     string TransactionType,
     decimal Amount,
-    string Remarks
+    string Remarks,
+    /// <summary>"yyyy-MM-dd"; defaults to today (server time) when omitted.</summary>
+    string? TransactionDate = null,
+    /// <summary>Required only when TransactionType is "adjustment" — every other manual type has a fixed direction.</summary>
+    bool? IsCashIn = null
 ) : IRequest<CashLedgerEntryDto>;
 
 public sealed class AddCashTransactionCommandHandler : IRequestHandler<AddCashTransactionCommand, CashLedgerEntryDto>
 {
-    private static readonly HashSet<string> ManualTypes = new() { "owner_deposit", "owner_withdrawal", "expense" };
+    private static readonly HashSet<string> ManualTypes = new() { "owner_deposit", "owner_withdrawal", "expense", "adjustment" };
 
     private readonly ICashLedgerRepository _cashLedgerRepository;
     private readonly IUnitOfWork _unitOfWork;
@@ -42,7 +46,11 @@ public sealed class AddCashTransactionCommandHandler : IRequestHandler<AddCashTr
                 $"'{request.TransactionType}' cannot be entered manually — loan_release and payment_received are created automatically.");
 
         var type = MappingExtensions.ParseCashTransactionType(request.TransactionType);
-        var entry = DomainCashLedgerEntry.Record(type, Money.Of(request.Amount), request.Remarks, DateOnly.FromDateTime(DateTime.UtcNow));
+        var transactionDate = request.TransactionDate is not null
+            ? DateOnly.Parse(request.TransactionDate)
+            : DateOnly.FromDateTime(DateTime.UtcNow);
+
+        var entry = DomainCashLedgerEntry.Record(type, Money.Of(request.Amount), request.Remarks, transactionDate, isCashIn: request.IsCashIn);
 
         _cashLedgerRepository.Add(entry);
         await _unitOfWork.SaveChangesAsync(ct);

@@ -46,11 +46,10 @@ public class CustomerRepository : ICustomerRepository
         _db.Customers.AsNoTracking().OrderBy(c => c.FullName).ToListAsync(ct);
 
     public async Task<(List<Customer> Items, int TotalCount)> GetPageAsync(
-        int pageIndex, int pageSize, string? search, string? sortBy, string? sortDir, CancellationToken ct = default)
+        int pageIndex, int pageSize, string? search, string? sortBy, string? sortDir,
+        CustomerStatus? status = null, CancellationToken ct = default)
     {
-        var query = _db.Customers.AsNoTracking().AsQueryable();
-        if (!string.IsNullOrWhiteSpace(search))
-            query = query.Where(c => c.FullName.Contains(search) || c.ContactNumber.Contains(search));
+        var query = ApplyFilters(_db.Customers.AsNoTracking().AsQueryable(), search, status);
 
         var totalCount = await query.CountAsync(ct);
 
@@ -63,6 +62,20 @@ public class CustomerRepository : ICustomerRepository
 
         var items = await query.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync(ct);
         return (items, totalCount);
+    }
+
+    public Task<List<Customer>> GetFilteredAsync(string? search, CustomerStatus? status, CancellationToken ct = default) =>
+        ApplyFilters(_db.Customers.AsNoTracking().AsQueryable(), search, status).ToListAsync(ct);
+
+    private static IQueryable<Customer> ApplyFilters(IQueryable<Customer> query, string? search, CustomerStatus? status)
+    {
+        if (!string.IsNullOrWhiteSpace(search))
+            query = query.Where(c => c.FullName.Contains(search) || c.ContactNumber.Contains(search));
+
+        if (status is { } s)
+            query = query.Where(c => c.Status == s);
+
+        return query;
     }
 
     public Task<List<CustomerId>> SearchIdsByNameAsync(string search, CancellationToken ct = default) =>

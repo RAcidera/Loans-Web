@@ -27,6 +27,11 @@ C:\inetpub\LoanManagementSystem\Api\LoanManagementSystem.Api.runtimeconfig.json
 C:\inetpub\LoanManagementSystem\Api\LoanManagementSystem.Api.pdb
 C:\inetpub\LoanManagementSystem\Api\Azure.Core.dll
 C:\inetpub\LoanManagementSystem\Api\Azure.Identity.dll
+C:\inetpub\LoanManagementSystem\Api\ClosedXML.dll
+C:\inetpub\LoanManagementSystem\Api\ClosedXML.Parser.dll
+C:\inetpub\LoanManagementSystem\Api\DocumentFormat.OpenXml.dll
+C:\inetpub\LoanManagementSystem\Api\DocumentFormat.OpenXml.Framework.dll
+C:\inetpub\LoanManagementSystem\Api\ExcelNumberFormat.dll
 C:\inetpub\LoanManagementSystem\Api\MediatR.dll
 C:\inetpub\LoanManagementSystem\Api\MediatR.Contracts.dll
 C:\inetpub\LoanManagementSystem\Api\Microsoft.AspNetCore.Authentication.JwtBearer.dll
@@ -54,12 +59,15 @@ C:\inetpub\LoanManagementSystem\Api\Microsoft.OpenApi.dll
 C:\inetpub\LoanManagementSystem\Api\Microsoft.SqlServer.Server.dll
 C:\inetpub\LoanManagementSystem\Api\Microsoft.Win32.SystemEvents.dll
 C:\inetpub\LoanManagementSystem\Api\QuestPDF.dll
+C:\inetpub\LoanManagementSystem\Api\RBush.dll
+C:\inetpub\LoanManagementSystem\Api\SixLabors.Fonts.dll
 C:\inetpub\LoanManagementSystem\Api\Swashbuckle.AspNetCore.Swagger.dll
 C:\inetpub\LoanManagementSystem\Api\Swashbuckle.AspNetCore.SwaggerGen.dll
 C:\inetpub\LoanManagementSystem\Api\Swashbuckle.AspNetCore.SwaggerUI.dll
 C:\inetpub\LoanManagementSystem\Api\System.Configuration.ConfigurationManager.dll
 C:\inetpub\LoanManagementSystem\Api\System.Drawing.Common.dll
 C:\inetpub\LoanManagementSystem\Api\System.IdentityModel.Tokens.Jwt.dll
+C:\inetpub\LoanManagementSystem\Api\System.IO.Packaging.dll
 C:\inetpub\LoanManagementSystem\Api\System.Memory.Data.dll
 C:\inetpub\LoanManagementSystem\Api\System.Runtime.Caching.dll
 C:\inetpub\LoanManagementSystem\Api\System.Security.Cryptography.ProtectedData.dll

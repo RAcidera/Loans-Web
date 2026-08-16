@@ -13,4 +13,10 @@ export abstract class UserRepository {
   abstract createUser(username: string, password: string, role: UserRole): Observable<AppUser>;
   abstract changeMyPassword(currentPassword: string, newPassword: string): Observable<void>;
   abstract deactivateUser(userId: string): Observable<void>;
+  /** Reverses a deactivation — the Settings page's "Reactivate" action. */
+  abstract activateUser(userId: string): Observable<void>;
+  /** Switches a user between 'staff' and 'admin'. */
+  abstract changeUserRole(userId: string, role: UserRole): Observable<AppUser>;
+  /** Admin sets a NEW password for another user who forgot theirs — no current-password check, unlike changeMyPassword. */
+  abstract resetUserPassword(userId: string, newPassword: string): Observable<void>;
 }

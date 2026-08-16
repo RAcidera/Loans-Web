@@ -1,5 +1,6 @@
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Domain.CashLedger;
+using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
@@ -30,6 +31,19 @@ public class CashLedgerEntryConfiguration : IEntityTypeConfiguration<CashLedgerE
             .HasMaxLength(30);
 
         builder.Property(e => e.ReferenceId).HasColumnName("reference_id").HasMaxLength(36); // nullable loan_id, per SRS
+
+        // Stored (not derived from TransactionType) because Adjustment can
+        // go either way — see CashLedgerEntry.ResolveDirection.
+        builder.Property(e => e.IsCashIn).HasColumnName("is_cash_in");
+
+        // Nullable — only set on payment_received entries; lets
+        // PaymentEditedEventHandler find this exact row again (ReferenceId
+        // alone isn't unique per payment on a multi-payment loan).
+        builder.Property(e => e.SourcePaymentId)
+            .HasConversion(
+                id => id.HasValue ? id.Value.Value : (Guid?)null,
+                value => value.HasValue ? new PaymentId(value.Value) : (PaymentId?)null)
+            .HasColumnName("source_payment_id");
 
         builder.Property(e => e.Amount)
             .HasConversion(new ValueConverter<Money, decimal>(m => m.Amount, v => Money.Of(v)))

@@ -105,6 +105,11 @@ using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
+    // Schema creation must happen in every environment — BackfillLoanLedgerAsync
+    // below queries real tables unconditionally, so a fresh database needs
+    // its schema before that runs, not just when demo seeding is also on.
+    await DbSeeder.EnsureSchemaAsync(db);
+
     // Demo data (Customers/Loans/CashLedger/Users) is only useful for local
     // dev/demo purposes. In Production it's actively harmful: its "already
     // seeded" check only looks at Customers, so once real Customers exist

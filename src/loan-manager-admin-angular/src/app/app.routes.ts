@@ -6,7 +6,9 @@ import { CustomersComponent } from './presentation/customers/customers.component
 import { CustomerProfileComponent } from './presentation/customer-profile/customer-profile.component';
 import { LoansComponent } from './presentation/loans/loans.component';
 import { LoanDetailsComponent } from './presentation/loan-details/loan-details.component';
+import { PaymentsComponent } from './presentation/payments/payments.component';
 import { ReportsComponent } from './presentation/reports/reports.component';
+import { InterestEarnedReportComponent } from './presentation/interest-earned-report/interest-earned-report.component';
 import { SettingsComponent } from './presentation/settings/settings.component';
 import { LoginComponent } from './presentation/login/login.component';
 import { authGuard } from './infrastructure/auth/auth.guard';
@@ -25,7 +27,9 @@ export const routes: Routes = [
       { path: 'customers/:id', component: CustomerProfileComponent },
       { path: 'loans', component: LoansComponent },
       { path: 'loans/:id', component: LoanDetailsComponent },
+      { path: 'payments', component: PaymentsComponent },
       { path: 'reports', component: ReportsComponent },
+      { path: 'reports/interest-earned', component: InterestEarnedReportComponent },
       { path: 'settings', component: SettingsComponent },
     ],
   },

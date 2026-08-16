@@ -15,9 +15,24 @@ export interface Payment {
   referenceNumber?: string;
 }
 
-/** A payment enriched with the customer name, for the dashboard's "recent payments" feed (SRS wireframe 2). */
+/** A payment enriched with the owning customer/loan — backs the dashboard's "recent payments" feed (SRS wireframe 2) and the standalone Payments list page. */
 export interface PaymentWithCustomer extends Payment {
+  customerId: string;
   customerName: string;
   /** Human-friendly sequential code (e.g. "LM-001") — display this, never loanId's raw GUID. */
   loanNumber: string;
+}
+
+/** Payments list page footer total — same filters as getPaymentsPage(), no paging. */
+export interface PaymentsTotals {
+  totalAmountPaid: number;
+  count: number;
+}
+
+/** Spec's search/date-range filters for the standalone Payments list page. */
+export interface PaymentPageFilters {
+  loanSearch?: string;
+  customerSearch?: string;
+  dateFrom?: string;
+  dateTo?: string;
 }

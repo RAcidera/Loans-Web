@@ -5,7 +5,6 @@ public sealed record LoanExtensionDto(
     string LoanId,
     string ExtensionDate,
     int ExtensionDays,
-    decimal AdditionalInterestAmount,
     decimal AdditionalChargesAmount,
     string Remarks
 );

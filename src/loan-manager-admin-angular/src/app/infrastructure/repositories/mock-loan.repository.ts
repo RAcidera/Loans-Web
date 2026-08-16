@@ -1,18 +1,21 @@
 import { Injectable } from '@angular/core';
-import { Observable, of, delay } from 'rxjs';
+import { Observable, of, delay, switchMap } from 'rxjs';
 
 import { CustomerListItem, LoanRepository, UpdateLoanFields } from '../../domain/repositories/loan.repository';
-import { Customer } from '../../domain/entities/customer.entity';
+import { Customer, CustomerStatus } from '../../domain/entities/customer.entity';
 import { CustomerDocument } from '../../domain/entities/customer-document.entity';
+import { CustomerPayment } from '../../domain/entities/customer-payment.entity';
+import { CustomerTotals } from '../../domain/entities/customer-totals.entity';
 import { DashboardReceivables } from '../../domain/entities/dashboard-receivables.entity';
-import { Loan, LoanClassification, LoanPageFilters } from '../../domain/entities/loan.entity';
+import { DailyCollection, DashboardSummary, MonthlyCollection } from '../../domain/entities/dashboard-summary.entity';
+import { Loan, LoanClassification, LoanPageFilters, LoanStatus } from '../../domain/entities/loan.entity';
 import { LoanAuditLogEntry } from '../../domain/entities/loan-audit-log-entry.entity';
 import { LoanDocument } from '../../domain/entities/loan-document.entity';
 import { LoanExtension } from '../../domain/entities/loan-extension.entity';
 import { LoanLedgerEntry } from '../../domain/entities/loan-ledger-entry.entity';
 import { LoanTotals } from '../../domain/entities/loan-totals.entity';
 import { PagedResult } from '../../domain/entities/paged-result.entity';
-import { Payment, PaymentMethod, PaymentWithCustomer } from '../../domain/entities/payment.entity';
+import { Payment, PaymentMethod, PaymentPageFilters, PaymentWithCustomer, PaymentsTotals } from '../../domain/entities/payment.entity';
 
 function addDays(dateStr: string, days: number): string {
   const d = new Date(dateStr);
@@ -79,6 +82,7 @@ function buildLoan(raw: (typeof RAW_LOANS)[number], index: number): Loan {
   const totalExtensionCharges = 0;
   const totalAmountDue = principalAmount + totalInterest + totalExtensionCharges;
   const customer = CUSTOMERS.find((c) => c.customerId === customerId);
+  const paymentTermsMonths = 2;
   return {
     loanId,
     loanNumber: `LOA${String(index + 1).padStart(5, '0')}`,
@@ -88,11 +92,13 @@ function buildLoan(raw: (typeof RAW_LOANS)[number], index: number): Loan {
     interestRate,
     startDate,
     dueDate,
+    paymentTermsMonths,
     totalInterest,
     totalExtensionCharges,
     totalAmountDue,
     totalPaid,
     balance: Math.max(totalAmountDue - totalPaid, 0),
+    dailyPayment: Math.round(((principalAmount + totalInterest) / (paymentTermsMonths * 30)) * 100) / 100,
     status,
     classification: 'normal',
     remarks: '',
@@ -107,8 +113,7 @@ const EXTENSIONS: Record<string, LoanExtension[]> = {
       loanId: 'L-2039',
       extensionDate: '2026-06-29',
       extensionDays: 30,
-      additionalInterestAmount: 105,
-      additionalChargesAmount: 0,
+      additionalChargesAmount: 105,
       remarks: 'Customer requested extra month, business slow this week',
     },
   ],
@@ -163,11 +168,9 @@ export class MockLoanRepository extends LoanRepository {
 
   getCustomersPage(
     pageIndex: number, pageSize: number, search: string, sortBy?: string, sortDir: 'asc' | 'desc' = 'asc',
+    status?: CustomerStatus,
   ): Observable<PagedResult<CustomerListItem>> {
-    const term = search.trim().toLowerCase();
-    const filtered = CUSTOMERS.filter(
-      (c) => !term || c.fullName.toLowerCase().includes(term) || c.contactNumber.toLowerCase().includes(term),
-    );
+    const filtered = this.filterCustomers(search, status);
 
     const dir = sortDir === 'desc' ? -1 : 1;
     const key: 'fullName' | 'borrowerType' = sortBy === 'borrowerType' ? 'borrowerType' : 'fullName';
@@ -176,9 +179,49 @@ export class MockLoanRepository extends LoanRepository {
     const totalCount = sorted.length;
     const items: CustomerListItem[] = sorted
       .slice(pageIndex * pageSize, pageIndex * pageSize + pageSize)
-      .map((c) => ({ ...c, loanCount: this.loans.filter((l) => l.customerId === c.customerId).length }));
+      .map((c) => this.toListItem(c));
 
     return of({ items, totalCount }).pipe(delay(150));
+  }
+
+  getCustomersTotals(search: string, status?: CustomerStatus): Observable<CustomerTotals> {
+    const filtered = this.filterCustomers(search, status);
+    const items = filtered.map((c) => this.toListItem(c));
+
+    return of({
+      totalCustomersCount: filtered.length,
+      activeCustomersCount: filtered.filter((c) => c.status === 'active').length,
+      inactiveCustomersCount: filtered.filter((c) => c.status === 'inactive').length,
+      totalLoansCount: items.reduce((sum, c) => sum + c.loanCount, 0),
+      totalOutstandingBalance: items.reduce((sum, c) => sum + c.outstandingBalance, 0),
+    }).pipe(delay(150));
+  }
+
+  /**
+   * Plain CSV text, not a real .xlsx — same offline-mock trade-off as
+   * LoanRepository.exportLoans (see that method's comment).
+   */
+  exportCustomers(search: string, status?: CustomerStatus): Observable<Blob> {
+    const filtered = this.filterCustomers(search, status).map((c) => this.toListItem(c));
+    const header = 'Code,Name,Contact,Borrower Type,Status,Total Loans,Outstanding Balance,Date Added';
+    const rows = filtered.map((c) =>
+      [c.customerCode, c.fullName, c.contactNumber, c.borrowerType, c.status, c.loanCount, c.outstandingBalance, c.createdAt].join(','),
+    );
+    return of(new Blob([[header, ...rows].join('\n')], { type: 'text/csv' })).pipe(delay(150));
+  }
+
+  private filterCustomers(search: string, status?: CustomerStatus): Customer[] {
+    const term = search.trim().toLowerCase();
+    return CUSTOMERS.filter(
+      (c) =>
+        (!term || c.fullName.toLowerCase().includes(term) || c.contactNumber.toLowerCase().includes(term)) &&
+        (!status || c.status === status),
+    );
+  }
+
+  private toListItem(c: Customer): CustomerListItem {
+    const customerLoans = this.loans.filter((l) => l.customerId === c.customerId);
+    return { ...c, loanCount: customerLoans.length, outstandingBalance: customerLoans.reduce((sum, l) => sum + l.balance, 0) };
   }
 
   getCustomerById(customerId: string): Observable<Customer | undefined> {
@@ -297,7 +340,26 @@ export class MockLoanRepository extends LoanRepository {
       totalExtensionCharges: filtered.reduce((sum, l) => sum + l.totalExtensionCharges, 0),
       totalPayments: filtered.reduce((sum, l) => sum + l.totalPaid, 0),
       totalOutstandingBalance: filtered.reduce((sum, l) => sum + l.balance, 0),
+      totalLoansCount: filtered.length,
+      activeLoansCount: filtered.filter((l) => l.status === 'active' || l.status === 'extended').length,
+      overdueLoansCount: filtered.filter((l) => l.status === 'overdue').length,
+      paidLoansCount: filtered.filter((l) => l.status === 'paid').length,
     }).pipe(delay(150));
+  }
+
+  /**
+   * Plain CSV text, not a real .xlsx (no zip/OOXML library available to
+   * this offline mock) — same spirit as buildSimplePdfBlob's hand-rolled
+   * minimal PDF above: good enough for the mock/demo path, since the
+   * registered repository in app.config.ts is HttpLoanRepository.
+   */
+  exportLoans(search: string, filters?: LoanPageFilters): Observable<Blob> {
+    const filtered = this.applyFilters(search, filters);
+    const header = 'Loan #,Customer,Loan Date,Due Date,Principal,Interest,Ext. Charges,Payments,Balance,Status,Classification';
+    const rows = filtered.map((l) =>
+      [l.loanNumber, l.customerName, l.startDate, l.dueDate, l.principalAmount, l.totalInterest, l.totalExtensionCharges, l.totalPaid, l.balance, l.status, l.classification].join(','),
+    );
+    return of(new Blob([[header, ...rows].join('\n')], { type: 'text/csv' })).pipe(delay(150));
   }
 
   getDashboardReceivables(): Observable<DashboardReceivables> {
@@ -318,6 +380,58 @@ export class MockLoanRepository extends LoanRepository {
       loansDueThisWeekCount: this.loans.filter(
         (l) => l.status !== 'paid' && l.status !== 'writtenoff' && l.dueDate >= today && l.dueDate <= weekFromNow,
       ).length,
+    }).pipe(delay(150));
+  }
+
+  getDashboardSummary(): Observable<DashboardSummary> {
+    const today = new Date();
+    const allPayments = Object.values(this.payments).flat();
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthlyCollections: MonthlyCollection[] = monthNames.map((month, i) => ({
+      month,
+      thisYear: allPayments.filter((p) => {
+        const d = new Date(p.paymentDate);
+        return d.getFullYear() === today.getFullYear() && d.getMonth() === i;
+      }).reduce((sum, p) => sum + p.amountPaid, 0),
+      lastYear: 0, // mock data doesn't carry a prior year's worth of payments
+    }));
+
+    const last7DaysCollections: DailyCollection[] = Array.from({ length: 7 }, (_, i) => {
+      const date = new Date(today);
+      date.setDate(date.getDate() - (6 - i));
+      const iso = date.toISOString().slice(0, 10);
+      return { date: iso, amount: allPayments.filter((p) => p.paymentDate === iso).reduce((sum, p) => sum + p.amountPaid, 0) };
+    });
+
+    const active = this.loans.filter((l) => (l.status === 'active' || l.status === 'extended') && l.classification !== 'badloan');
+    const overdue = this.loans.filter((l) => l.status === 'overdue' && l.classification !== 'badloan');
+    const badLoan = this.loans.filter((l) => l.classification === 'badloan' && l.status !== 'writtenoff');
+    const paid = this.loans.filter((l) => l.status === 'paid');
+
+    const recentLoans = [...this.loans].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
+
+    return of({
+      grossReceivables: this.loans.filter((l) => l.status !== 'writtenoff').reduce((sum, l) => sum + l.balance, 0),
+      grossReceivablesChangePercent: null,
+      collectibleReceivables: this.loans.filter((l) => l.status !== 'writtenoff').reduce((sum, l) => sum + l.balance, 0),
+      collectibleReceivablesChangePercent: null,
+      badLoanReceivables: this.loans.filter((l) => l.classification === 'badloan').reduce((sum, l) => sum + l.balance, 0),
+      badLoanReceivablesChangePercent: null,
+      activeLoansCount: this.loans.filter((l) => l.status === 'active' || l.status === 'extended').length,
+      activeLoansChangePercent: null,
+      overdueLoansCount: this.loans.filter((l) => l.status === 'overdue').length,
+      overdueLoansChangePercent: null,
+      loansDueThisWeekCount: 0,
+      monthlyCollections,
+      last7DaysCollections,
+      receivablesBreakdown: {
+        current: active.reduce((sum, l) => sum + l.totalAmountDue, 0),
+        overdue: overdue.reduce((sum, l) => sum + l.totalAmountDue, 0),
+        badLoan: badLoan.reduce((sum, l) => sum + l.totalAmountDue, 0),
+        paid: paid.reduce((sum, l) => sum + l.totalAmountDue, 0),
+      },
+      recentLoans,
     }).pipe(delay(150));
   }
 
@@ -352,10 +466,15 @@ export class MockLoanRepository extends LoanRepository {
       if (term && !l.loanNumber.toLowerCase().includes(term) && !l.customerName.toLowerCase().includes(term) && !l.status.toLowerCase().includes(term)) {
         return false;
       }
-      if (filters?.status && filters.status === 'overdue' && !isEffectivelyOverdue(l)) return false;
-      if (filters?.status && filters.status !== 'overdue' && (l.status !== filters.status || isEffectivelyOverdue(l))) return false;
+      if (filters?.statuses?.length) {
+        const wantsOverdue = filters.statuses.includes('overdue');
+        const otherStatuses: LoanStatus[] = filters.statuses.filter((s) => s !== 'overdue');
+        const matchesOverdue = wantsOverdue && isEffectivelyOverdue(l);
+        const matchesOther = otherStatuses.includes(l.status) && !isEffectivelyOverdue(l);
+        if (!matchesOverdue && !matchesOther) return false;
+      }
       if (filters?.overdueOnly && !isEffectivelyOverdue(l)) return false;
-      if (filters?.classification && l.classification !== filters.classification) return false;
+      if (filters?.classifications?.length && !filters.classifications.includes(l.classification)) return false;
       if (filters?.badLoansOnly && l.classification !== 'badloan') return false;
       if (filters?.loanDateFrom && l.startDate < filters.loanDateFrom) return false;
       if (filters?.loanDateTo && l.startDate > filters.loanDateTo) return false;
@@ -373,12 +492,34 @@ export class MockLoanRepository extends LoanRepository {
     return of(this.loans.filter((l) => l.customerId === customerId)).pipe(delay(150));
   }
 
-  createLoan(customerId: string, principal: number, interestRate = 0.03, termDays = 60, startDate?: string): Observable<Loan> {
+  getCustomerPaymentsPage(
+    customerId: string, pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc',
+  ): Observable<PagedResult<CustomerPayment>> {
+    const loanNumbers = new Map(this.loans.filter((l) => l.customerId === customerId).map((l) => [l.loanId, l.loanNumber]));
+    const dir = sortDir === 'asc' ? 1 : -1;
+    const all = Object.values(this.payments)
+      .flat()
+      .filter((p) => loanNumbers.has(p.loanId))
+      .map((p): CustomerPayment => ({ ...p, loanNumber: loanNumbers.get(p.loanId)! }))
+      .sort((a, b) => {
+        if (sortBy === 'amount') return (a.amountPaid - b.amountPaid) * dir;
+        if (sortBy === 'loan') return a.loanNumber.localeCompare(b.loanNumber) * dir;
+        return (new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime()) * (sortBy === 'date' ? dir : -1);
+      });
+
+    const start = pageIndex * pageSize;
+    return of({ items: all.slice(start, start + pageSize), totalCount: all.length }).pipe(delay(150));
+  }
+
+  createLoan(
+    customerId: string, principal: number, interestRate = 0.07, paymentTermsMonths = 2,
+    startDate?: string, interestAmount?: number,
+  ): Observable<Loan> {
     const customer = CUSTOMERS.find((c) => c.customerId === customerId);
     if (!customer) throw new Error(`Customer ${customerId} not found`);
 
     const start = startDate ?? new Date().toISOString().slice(0, 10);
-    const totalInterest = Math.round(principal * interestRate);
+    const totalInterest = interestAmount ?? Math.round(principal * interestRate * paymentTermsMonths * 100) / 100;
     const totalAmountDue = principal + totalInterest;
 
     const loan: Loan = {
@@ -389,12 +530,14 @@ export class MockLoanRepository extends LoanRepository {
       principalAmount: principal,
       interestRate,
       startDate: start,
-      dueDate: addDays(start, termDays),
+      dueDate: addDays(start, paymentTermsMonths * 30),
+      paymentTermsMonths,
       totalInterest,
       totalExtensionCharges: 0,
       totalAmountDue,
       totalPaid: 0,
       balance: totalAmountDue,
+      dailyPayment: Math.round((totalAmountDue / (paymentTermsMonths * 30)) * 100) / 100,
       status: 'active',
       classification: 'normal',
       remarks: '',
@@ -408,14 +551,17 @@ export class MockLoanRepository extends LoanRepository {
     const loan = this.loans.find((l) => l.loanId === loanId);
     if (!loan) throw new Error(`Loan ${loanId} not found`);
 
+    if (fields.principal !== undefined) loan.principalAmount = fields.principal;
     if (fields.startDate !== undefined) loan.startDate = fields.startDate;
     if (fields.dueDate !== undefined) loan.dueDate = fields.dueDate;
     if (fields.interestRate !== undefined) loan.interestRate = fields.interestRate;
     if (fields.interestAmount !== undefined) loan.totalInterest = fields.interestAmount;
+    if (fields.paymentTermsMonths !== undefined) loan.paymentTermsMonths = fields.paymentTermsMonths;
     if (fields.remarks !== undefined) loan.remarks = fields.remarks;
 
     loan.totalAmountDue = loan.principalAmount + loan.totalInterest + loan.totalExtensionCharges;
     loan.balance = Math.max(loan.totalAmountDue - loan.totalPaid, 0);
+    loan.dailyPayment = Math.round((loan.totalAmountDue / (loan.paymentTermsMonths * 30)) * 100) / 100;
 
     this.addAuditEntry(loanId, 'edited', 'Loan details edited.');
     return of(loan).pipe(delay(150));
@@ -465,16 +611,15 @@ export class MockLoanRepository extends LoanRepository {
       debit: loan.principalAmount, credit: 0, runningBalance, remarks: 'Loan released', createdAt: loan.startDate,
     });
 
-    const originationInterest = loan.totalInterest - (this.extensions[loanId] ?? []).reduce((sum, e) => sum + e.additionalInterestAmount, 0);
-    runningBalance += originationInterest;
+    runningBalance += loan.totalInterest;
     entries.push({
       ledgerId: nextId(), loanId, transactionDate: loan.startDate, transactionType: 'interest_added',
-      debit: originationInterest, credit: 0, runningBalance, remarks: 'Interest added', createdAt: loan.startDate,
+      debit: loan.totalInterest, credit: 0, runningBalance, remarks: 'Interest added', createdAt: loan.startDate,
     });
 
     const movements = [
       ...(this.extensions[loanId] ?? []).map((e) => ({
-        date: e.extensionDate, isPayment: false, amount: e.additionalInterestAmount + e.additionalChargesAmount,
+        date: e.extensionDate, isPayment: false, amount: e.additionalChargesAmount,
         referenceId: e.extensionId, remarks: `Extension +${e.extensionDays} days`,
       })),
       ...(this.payments[loanId] ?? []).map((p) => ({
@@ -499,7 +644,7 @@ export class MockLoanRepository extends LoanRepository {
     return of(this.extensions[loanId] ?? []).pipe(delay(150));
   }
 
-  extendLoan(loanId: string, extensionDays: number, additionalInterestAmount: number, remarks: string, additionalChargesAmount = 0): Observable<Loan> {
+  extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0): Observable<Loan> {
     const loan = this.loans.find((l) => l.loanId === loanId);
     if (!loan) throw new Error(`Loan ${loanId} not found`);
 
@@ -508,16 +653,14 @@ export class MockLoanRepository extends LoanRepository {
       loanId,
       extensionDate: new Date().toISOString().slice(0, 10),
       extensionDays,
-      additionalInterestAmount,
       additionalChargesAmount,
       remarks,
     };
     this.extensions[loanId] = [...(this.extensions[loanId] ?? []), extension];
 
     loan.dueDate = addDays(loan.dueDate, extensionDays);
-    loan.totalInterest += additionalInterestAmount;
     loan.totalExtensionCharges += additionalChargesAmount;
-    loan.totalAmountDue += additionalInterestAmount + additionalChargesAmount;
+    loan.totalAmountDue += additionalChargesAmount;
     loan.balance = Math.max(loan.totalAmountDue - loan.totalPaid, 0);
     loan.status = 'extended';
 
@@ -525,7 +668,7 @@ export class MockLoanRepository extends LoanRepository {
   }
 
   updateExtension(
-    loanId: string, extensionId: string, extensionDays: number, additionalInterestAmount: number,
+    loanId: string, extensionId: string, extensionDays: number,
     remarks: string, additionalChargesAmount = 0,
   ): Observable<LoanExtension> {
     const loan = this.loans.find((l) => l.loanId === loanId);
@@ -535,13 +678,11 @@ export class MockLoanRepository extends LoanRepository {
 
     // Roll back this extension's old contribution before applying the new one.
     loan.dueDate = addDays(addDays(loan.dueDate, -extension.extensionDays), extensionDays);
-    loan.totalInterest = loan.totalInterest - extension.additionalInterestAmount + additionalInterestAmount;
     loan.totalExtensionCharges = loan.totalExtensionCharges - extension.additionalChargesAmount + additionalChargesAmount;
     loan.totalAmountDue = loan.principalAmount + loan.totalInterest + loan.totalExtensionCharges;
     loan.balance = Math.max(loan.totalAmountDue - loan.totalPaid, 0);
 
     extension.extensionDays = extensionDays;
-    extension.additionalInterestAmount = additionalInterestAmount;
     extension.additionalChargesAmount = additionalChargesAmount;
     extension.remarks = remarks;
 
@@ -556,7 +697,6 @@ export class MockLoanRepository extends LoanRepository {
 
     this.extensions[loanId] = (this.extensions[loanId] ?? []).filter((e) => e.extensionId !== extensionId);
     loan.dueDate = addDays(loan.dueDate, -extension.extensionDays);
-    loan.totalInterest -= extension.additionalInterestAmount;
     loan.totalExtensionCharges -= extension.additionalChargesAmount;
     loan.totalAmountDue = loan.principalAmount + loan.totalInterest + loan.totalExtensionCharges;
     loan.balance = Math.max(loan.totalAmountDue - loan.totalPaid, 0);
@@ -568,16 +708,82 @@ export class MockLoanRepository extends LoanRepository {
     return of(this.payments[loanId] ?? []).pipe(delay(150));
   }
 
+  getPaymentsPage(
+    loanId: string, pageIndex: number, pageSize: number, sortBy?: string, sortDir: 'asc' | 'desc' = 'desc',
+  ): Observable<PagedResult<Payment>> {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    const all = [...(this.payments[loanId] ?? [])].sort(
+      (a, b) => (new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime()) * dir,
+    );
+    const start = pageIndex * pageSize;
+    return of({ items: all.slice(start, start + pageSize), totalCount: all.length }).pipe(delay(150));
+  }
+
   getRecentPayments(limit: number): Observable<PaymentWithCustomer[]> {
-    const all: PaymentWithCustomer[] = Object.values(this.payments)
+    const all = this.allPaymentsWithCustomer().sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime());
+    return of(all.slice(0, limit)).pipe(delay(150));
+  }
+
+  private allPaymentsWithCustomer(): PaymentWithCustomer[] {
+    return Object.values(this.payments)
       .flat()
       .map((p) => {
         const loan = this.loans.find((l) => l.loanId === p.loanId);
-        return { ...p, customerName: loan?.customerName ?? 'Unknown', loanNumber: loan?.loanNumber ?? '—' };
-      })
-      .sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime());
+        return {
+          ...p,
+          customerId: loan?.customerId ?? '',
+          customerName: loan?.customerName ?? 'Unknown',
+          loanNumber: loan?.loanNumber ?? '—',
+        };
+      });
+  }
 
-    return of(all.slice(0, limit)).pipe(delay(150));
+  getPaymentsListPage(
+    pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc', filters?: PaymentPageFilters,
+  ): Observable<PagedResult<PaymentWithCustomer>> {
+    let items = this.allPaymentsWithCustomer();
+
+    if (filters?.loanSearch) {
+      const digits = filters.loanSearch.replace(/\D/g, '');
+      items = digits ? items.filter((p) => p.loanNumber.includes(digits)) : [];
+    }
+    if (filters?.customerSearch) {
+      const term = filters.customerSearch.toLowerCase();
+      items = items.filter((p) => p.customerName.toLowerCase().includes(term));
+    }
+    if (filters?.dateFrom) items = items.filter((p) => p.paymentDate >= filters.dateFrom!);
+    if (filters?.dateTo) items = items.filter((p) => p.paymentDate <= filters.dateTo!);
+
+    const desc = sortDir === 'desc';
+    const sorters: Record<string, (a: PaymentWithCustomer, b: PaymentWithCustomer) => number> = {
+      loan: (a, b) => a.loanNumber.localeCompare(b.loanNumber),
+      customer: (a, b) => a.customerName.localeCompare(b.customerName),
+      amount: (a, b) => a.amountPaid - b.amountPaid,
+      date: (a, b) => new Date(a.paymentDate).getTime() - new Date(b.paymentDate).getTime(),
+    };
+    const sorter = sortBy ? sorters[sortBy] : undefined;
+    items = sorter
+      ? [...items].sort((a, b) => (desc ? -sorter(a, b) : sorter(a, b)))
+      : [...items].sort((a, b) => new Date(b.paymentDate).getTime() - new Date(a.paymentDate).getTime());
+
+    const totalCount = items.length;
+    const page = items.slice(pageIndex * pageSize, pageIndex * pageSize + pageSize);
+    return of({ items: page, totalCount }).pipe(delay(150));
+  }
+
+  getPaymentsListTotals(filters?: PaymentPageFilters): Observable<PaymentsTotals> {
+    return this.getPaymentsListPage(0, Number.MAX_SAFE_INTEGER, undefined, undefined, filters).pipe(
+      switchMap((result) =>
+        of({
+          totalAmountPaid: result.items.reduce((sum, p) => sum + p.amountPaid, 0),
+          count: result.items.length,
+        }),
+      ),
+    );
+  }
+
+  exportPaymentsList(filters?: PaymentPageFilters): Observable<Blob> {
+    return of(new Blob(['mock export'], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' })).pipe(delay(150));
   }
 
   recordPayment(loanId: string, amountPaid: number, paymentMethod: PaymentMethod, notes: string, referenceNumber?: string): Observable<Payment> {

@@ -10,16 +10,19 @@ using MediatR;
 namespace LoanManagementSystem.Application.Loans.Commands.CreateLoan;
 
 /// <summary>
-/// InterestRate and TermDays are optional, defaulting to the SRS's stated
-/// 3% / 60 days (3.2) when not supplied, so a caller can originate a
-/// standard loan with just a customer and a principal.
+/// InterestRate and PaymentTermsMonths are optional, defaulting to the
+/// SRS's stated 3% / 2 months (60 days) when not supplied, so a caller can
+/// originate a standard loan with just a customer and a principal.
+/// InterestAmount, when supplied, overrides the rate*principal calculation
+/// outright — see Loan.Originate's doc comment.
 /// </summary>
 public sealed record CreateLoanCommand(
     string CustomerId,
     decimal Principal,
     decimal? InterestRate = null,
-    int? TermDays = null,
-    string? StartDate = null
+    int? PaymentTermsMonths = null,
+    string? StartDate = null,
+    decimal? InterestAmount = null
 ) : IRequest<LoanDto>;
 
 public sealed class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand, LoanDto>
@@ -46,9 +49,11 @@ public sealed class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand
             : DateOnly.FromDateTime(DateTime.UtcNow);
 
         var rate = request.InterestRate is not null ? InterestRate.Of(request.InterestRate.Value) : InterestRate.Default;
-        var termDays = request.TermDays ?? 60;
+        var paymentTermsMonths = request.PaymentTermsMonths ?? 2;
+        var termDays = paymentTermsMonths * 30;
+        var interestAmount = request.InterestAmount is not null ? Money.Of(request.InterestAmount.Value) : null;
 
-        var loan = Loan.Originate(customerId, Money.Of(request.Principal), rate, startDate, termDays);
+        var loan = Loan.Originate(customerId, Money.Of(request.Principal), rate, startDate, termDays, paymentTermsMonths, interestAmount);
 
         _loanRepository.Add(loan);
         await _unitOfWork.SaveChangesAsync(ct); // also flushes the LoanCreatedDomainEvent → loan_release ledger entry, and populates loan.LoanNumber from the DB

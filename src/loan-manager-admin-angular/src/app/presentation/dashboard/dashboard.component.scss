@@ -1,30 +1,62 @@
 @use '../../styles/tokens';
 
+.mono {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+.right {
+  text-align: right;
+}
+
+// A hover target with no visible fill of its own — just enlarges the hit
+// area around a small visible dot so the native SVG <title> tooltip is
+// easy to trigger without the dot itself needing to be that big.
+.chart-hit-target {
+  cursor: default;
+}
+
+// ---------------------------------------------------------
+// Top KPI row — icon and label/value sit side by side (kpi-card__top),
+// the trend line sits below that row, matching "dashboard-modern.html"'s
+// .kpi-top / .trend split rather than a stacked icon-above-text layout.
+// ---------------------------------------------------------
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
-  margin-bottom: 20px;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 12px;
+  margin-bottom: 14px;
 
-  @media (max-width: 1100px) {
+  @media (max-width: 1300px) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  @media (max-width: 700px) {
     grid-template-columns: repeat(2, 1fr);
   }
 }
 
 .kpi-card {
-  padding: 16px 16px 12px;
+  padding: 14px;
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
+  position: relative;
+
+  &__top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
 
   &__icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    flex-shrink: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 10px;
     background: rgba(108, 93, 211, 0.12);
     color: var(--lm-primary);
 
@@ -35,57 +67,332 @@
     }
   }
 
+  &__text {
+    min-width: 0;
+  }
+
   &--good .kpi-card__icon {
     background: rgba(34, 160, 107, 0.14);
     color: var(--lm-success);
   }
 
   &--warn .kpi-card__icon {
+    background: rgba(225, 170, 54, 0.18);
+    color: var(--lm-warning);
+  }
+
+  &--danger .kpi-card__icon {
     background: rgba(193, 102, 107, 0.16);
     color: var(--lm-danger);
   }
 
   &__label {
-    font-size: 12px;
+    font-size: 11px;
     color: var(--lm-text-muted);
     font-weight: 500;
     display: block;
-    margin-bottom: 6px;
+    white-space: nowrap;
   }
 
   &__value {
     font-family: var(--lm-font-display);
-    font-size: 22px;
-    font-weight: 600;
+    font-size: 19px;
+    font-weight: 800;
     color: var(--lm-text);
-    margin-bottom: 10px;
+    margin-top: 2px;
   }
 
-  &__spark {
+  &__trend {
     display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 22px;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
+    color: var(--lm-text-muted);
+    margin-top: 10px;
+
+    mat-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+    }
+
+    &--good {
+      color: var(--lm-success);
+    }
+
+    &--bad {
+      color: var(--lm-danger);
+    }
   }
 
-  &__bar {
-    flex: 1;
-    background: var(--lm-primary-light);
-    border-radius: 2px;
-    min-height: 3px;
-    opacity: 0.55;
+  &__trend-label {
+    color: var(--lm-text-muted);
+    margin-left: 2px;
+  }
 
-    &--today {
-      background: var(--lm-amber);
-      opacity: 1;
+  &__chevron {
+    position: absolute;
+    top: 10px;
+    right: 8px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--lm-text-muted);
+    opacity: 0;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+
+  &--clickable {
+    cursor: pointer;
+    transition: box-shadow 0.15s, transform 0.15s;
+
+    &:hover,
+    &:focus-visible {
+      box-shadow: var(--lm-shadow-md) !important;
+      transform: translateY(-1px);
+
+      .kpi-card__chevron {
+        opacity: 1;
+        transform: translateX(2px);
+      }
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--lm-primary);
+      outline-offset: 2px;
     }
   }
 }
 
+// ---------------------------------------------------------
+// Charts row
+// ---------------------------------------------------------
+.charts-row {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 0.9fr;
+  gap: 14px;
+  margin-bottom: 14px;
+
+  @media (max-width: 1300px) {
+    grid-template-columns: 1fr;
+  }
+}
+
+.chart-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+  padding: 16px;
+
+  &__header {
+    margin-bottom: 6px;
+
+    h2 {
+      font-family: var(--lm-font-display);
+      font-size: 14px;
+      font-weight: 700;
+      margin: 0 0 2px;
+    }
+
+    p {
+      font-size: 10px;
+      color: var(--lm-text-muted);
+      margin: 0;
+    }
+  }
+}
+
+.chart-legend {
+  display: flex;
+  gap: 14px;
+  margin-bottom: 10px;
+
+  &__item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 10.5px;
+    color: var(--lm-text-muted);
+  }
+
+  &__dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+
+    &--this-year {
+      background: var(--lm-primary);
+    }
+
+    &--last-year {
+      background: var(--lm-border);
+    }
+  }
+}
+
+.bar-chart {
+  display: flex;
+  gap: 6px;
+  height: 190px;
+
+  &__grid {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    font-size: 9.5px;
+    color: var(--lm-text-muted);
+    text-align: right;
+    width: 36px;
+    flex-shrink: 0;
+    padding-bottom: 18px;
+  }
+
+  &__plot {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 3px;
+    border-left: 1px solid var(--lm-border);
+    border-bottom: 1px solid var(--lm-border);
+    padding-left: 4px;
+  }
+
+  &__group {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100%;
+  }
+
+  &__bars {
+    flex: 1;
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    width: 100%;
+  }
+
+  &__bar {
+    flex: 1;
+    min-height: 1px;
+    border-radius: 2px 2px 0 0;
+    cursor: default;
+
+    &--this-year {
+      background: var(--lm-primary);
+    }
+
+    &--last-year {
+      background: var(--lm-border);
+    }
+  }
+
+  &__label {
+    font-size: 9px;
+    color: var(--lm-text-muted);
+    margin-top: 5px;
+    white-space: nowrap;
+  }
+}
+
+.line-chart {
+  display: flex;
+  flex-direction: column;
+  height: 190px;
+
+  svg {
+    flex: 1;
+    width: 100%;
+    border-left: 1px solid var(--lm-border);
+    border-bottom: 1px solid var(--lm-border);
+  }
+
+  &__labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: var(--lm-text-muted);
+    margin-top: 5px;
+    padding-left: 4px;
+  }
+}
+
+// Donut left, legend right — matching the reference's .donut-wrap flex row
+// instead of stacking the legend below the circle, which is what made this
+// card noticeably taller than its siblings.
+.donut-chart {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  height: 190px;
+
+  svg {
+    width: 128px;
+    height: 128px;
+    flex-shrink: 0;
+  }
+
+  &__total {
+    font-family: var(--lm-font-display);
+    font-size: 17px;
+    font-weight: 800;
+    fill: var(--lm-text);
+  }
+
+  &__total-label {
+    font-size: 9px;
+    fill: var(--lm-text-muted);
+  }
+
+  &__legend {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    flex: 1;
+    min-width: 0;
+
+    li {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 0;
+      font-size: 10.5px;
+    }
+  }
+
+  &__dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  &__legend-label {
+    color: var(--lm-text);
+    flex-shrink: 0;
+  }
+
+  &__legend-value {
+    color: var(--lm-text-muted);
+    font-family: var(--lm-font-mono);
+    font-size: 9.5px;
+    text-align: right;
+    flex: 1;
+  }
+}
+
+// ---------------------------------------------------------
+// Recent Loans / Recent Payments — stretched to equal height by the grid
+// (no height:fit-content override), so a shorter feed list doesn't read as
+// a mismatched, differently-sized card next to the loans table.
+// ---------------------------------------------------------
 .two-col {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 16px;
+  grid-template-columns: 1.4fr 1fr;
+  align-items: stretch;
+  gap: 14px;
 
   @media (max-width: 1000px) {
     grid-template-columns: 1fr;
@@ -98,23 +405,31 @@
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
   padding: 4px 4px 0;
-  height: fit-content;
+  display: flex;
+  flex-direction: column;
 }
 
 .table-card__header {
-  padding: 16px 20px 4px;
+  padding: 14px 18px 4px;
 
   h2 {
     font-family: var(--lm-font-display);
-    font-size: 17px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     margin: 0 0 2px;
   }
 
   p {
-    font-size: 13px;
+    font-size: 10.5px;
     color: var(--lm-text-muted);
     margin: 0;
+  }
+
+  &--with-action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
   }
 }
 
@@ -124,38 +439,46 @@
 
 .loans-table {
   width: 100%;
+  @include tokens.lm-data-table;
+}
 
-  th.mat-mdc-header-cell {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--lm-text-muted);
-    font-weight: 600;
-  }
+.row-link {
+  color: var(--lm-primary);
+  font-weight: 600;
+  cursor: pointer;
 
-  tr.mat-mdc-row {
-    cursor: pointer;
-
-    &:hover {
-      background: rgba(108, 93, 211, 0.05);
-    }
+  &:hover {
+    text-decoration: underline;
   }
 }
 
-.mono {
-  font-family: var(--lm-font-mono);
-  font-feature-settings: 'tnum' 1;
-}
+.view-all-link {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--lm-primary);
+  cursor: pointer;
+  flex-shrink: 0;
+  white-space: nowrap;
 
-.right {
-  text-align: right;
+  mat-icon {
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
+  }
+
+  &:hover {
+    text-decoration: underline;
+  }
 }
 
 .chip {
   display: inline-block;
-  padding: 3px 10px;
+  padding: 3px 9px;
   border-radius: 999px;
-  font-size: 12px;
+  font-size: 10.5px;
   font-weight: 600;
 
   &--active {
@@ -177,19 +500,25 @@
     background: rgba(139, 143, 163, 0.14);
     color: var(--lm-text-muted);
   }
+
+  &--writtenoff {
+    background: rgba(139, 143, 163, 0.14);
+    color: var(--lm-text-muted);
+  }
 }
 
 .feed-list {
   list-style: none;
   margin: 0;
-  padding: 4px 0 12px;
+  padding: 4px 0 10px;
+  flex: 1;
 }
 
 .feed-item {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 20px;
+  padding: 8px 18px;
   border-bottom: 1px solid var(--lm-border);
 
   &:last-child {
@@ -197,8 +526,8 @@
   }
 
   &__icon {
-    width: 30px;
-    height: 30px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
     flex-shrink: 0;
     display: flex;
@@ -208,9 +537,9 @@
     color: var(--lm-success);
 
     mat-icon {
-      font-size: 16px;
-      width: 16px;
-      height: 16px;
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
     }
   }
 
@@ -222,12 +551,12 @@
   }
 
   &__customer {
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 500;
   }
 
   &__loan {
-    font-size: 11.5px;
+    font-size: 10.5px;
     color: var(--lm-text-muted);
   }
 
@@ -239,20 +568,21 @@
   }
 
   &__amount {
-    font-size: 13.5px;
+    font-size: 12.5px;
     font-weight: 600;
     color: var(--lm-primary);
   }
 
   &__date {
-    font-size: 11.5px;
+    font-size: 10.5px;
     color: var(--lm-text-muted);
   }
 }
 
-.feed-empty {
+.feed-empty,
+.empty-hint {
   padding: 20px;
   text-align: center;
   color: var(--lm-text-muted);
-  font-size: 13px;
+  font-size: 12px;
 }

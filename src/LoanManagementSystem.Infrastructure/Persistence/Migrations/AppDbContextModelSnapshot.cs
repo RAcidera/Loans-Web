@@ -36,6 +36,10 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
                         .HasColumnType("datetime2")
                         .HasColumnName("created_at");
 
+                    b.Property<bool>("IsCashIn")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_cash_in");
+
                     b.Property<string>("ReferenceId")
                         .HasMaxLength(36)
                         .HasColumnType("nvarchar(36)")
@@ -46,6 +50,10 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("nvarchar(500)")
                         .HasColumnName("remarks");
+
+                    b.Property<Guid?>("SourcePaymentId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("source_payment_id");
 
                     b.Property<DateOnly>("TransactionDate")
                         .HasColumnType("date")
@@ -258,6 +266,10 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("LoanNumber"));
 
+                    b.Property<int>("PaymentTermsMonths")
+                        .HasColumnType("int")
+                        .HasColumnName("payment_terms_months");
+
                     b.Property<decimal>("PrincipalAmount")
                         .HasColumnType("decimal(12,2)")
                         .HasColumnName("principal_amount");
@@ -399,9 +411,9 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(12,2)")
                         .HasColumnName("additional_charges_amount");
 
-                    b.Property<decimal>("AdditionalInterestAmount")
-                        .HasColumnType("decimal(12,2)")
-                        .HasColumnName("additional_interest_amount");
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
 
                     b.Property<DateOnly>("ExtensionDate")
                         .HasColumnType("date")

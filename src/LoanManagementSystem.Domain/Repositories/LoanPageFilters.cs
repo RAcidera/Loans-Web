@@ -8,9 +8,10 @@ namespace LoanManagementSystem.Domain.Repositories;
 /// ILoanRepository.GetPageAsync/GetFilteredAsync, which already carry
 /// paging/sort/search parameters of their own.
 /// </summary>
+/// <summary>Status/Classification are collections — the Loans list allows selecting multiple of each (e.g. Active + Extended) rather than one at a time; an empty/null collection means "no filter on this field".</summary>
 public sealed record LoanPageFilters(
-    LoanStatus? Status = null,
-    LoanClassification? Classification = null,
+    IReadOnlyCollection<LoanStatus>? Statuses = null,
+    IReadOnlyCollection<LoanClassification>? Classifications = null,
     DateOnly? LoanDateFrom = null,
     DateOnly? LoanDateTo = null,
     DateOnly? DueDateFrom = null,

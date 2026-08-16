@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Loans List</title>
+<style>
+:root{
+  --p:#5b21e8;--pd:#2d1b69;--t:#172033;--m:#68748a;--b:#e4e7ef;
+  --bg:#f6f7fb;--card:#fff;--g:#15966b;--gb:#e3f6ef;--r:#d94a50;
+  --rb:#fdebec;--blue:#2878d7;--bb:#e9f2ff;--orange:#d98b00;--ob:#fff4d8;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--t);font:13px Inter,system-ui,-apple-system,"Segoe UI",sans-serif}
+button,input,select{font:inherit}.page{max-width:1600px;margin:auto;padding:18px}
+.topbar{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}.page-title{font-size:22px;font-weight:750}
+.avatar{background:#8876e8;color:#fff;border-radius:50%;width:42px;height:42px;display:grid;place-items:center;font-weight:700}
+.card{background:#fff;border:1px solid var(--b);border-radius:12px;box-shadow:0 2px 10px rgba(20,30,50,.03)}
+.filter-card{padding:18px}.filter-top{display:flex;justify-content:space-between;gap:14px;align-items:flex-start}.filters{display:grid;grid-template-columns:1.2fr .8fr .9fr 1.2fr 1.2fr;gap:12px;flex:1}
+.field label{display:block;font-size:11px;font-weight:650;margin-bottom:6px}.input,.select{width:100%;height:42px;border:1px solid var(--b);border-radius:8px;background:#fff;padding:0 12px;color:var(--t)}
+.filter-actions{display:flex;gap:8px;align-items:center;margin-top:22px;flex-wrap:wrap}.btn{height:42px;padding:0 15px;border:1px solid var(--p);border-radius:8px;background:#fff;color:var(--p);font-weight:650;cursor:pointer}.btn.primary{background:var(--p);color:#fff}.btn.clear{border-color:#b5adcb}.btn:hover{filter:brightness(.98)}
+.metrics{display:grid;grid-template-columns:repeat(5,1fr);gap:14px;margin-top:18px}.metric{border:1px solid var(--b);border-radius:10px;padding:14px 16px;display:flex;gap:12px;align-items:center}
+.icon{width:44px;height:44px;border-radius:12px;background:#f0eaff;color:var(--p);display:grid;place-items:center;font-size:20px}.icon.green{background:var(--gb);color:var(--g)}.icon.orange{background:var(--ob);color:var(--orange)}.icon.blue{background:var(--bb);color:var(--blue)}.icon.red{background:var(--rb);color:var(--r)}
+.metric .label{font-size:11px;color:var(--m)}.metric .value{font-size:20px;font-weight:800;margin-top:2px}.metric .sub{font-size:10px;color:var(--m);margin-top:2px}
+.table-card{margin-top:14px;padding:0 0 10px;overflow:hidden}.table-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}.table-title{font-size:15px;font-weight:750}.table-tools{display:flex;gap:12px;align-items:center}.items{font-size:11px;color:var(--m)}.items select{height:34px;border:1px solid var(--b);border-radius:8px;padding:0 28px 0 10px;background:#fff}
+.wrap{overflow:auto;padding:0 16px}table{width:100%;border-collapse:collapse;min-width:1200px}th{background:var(--pd);color:#fff;text-align:left;padding:11px 12px;font-size:11px;white-space:nowrap}td{padding:10px 12px;border-bottom:1px solid #edf0f4;color:#41506a;white-space:nowrap}tbody tr:hover{background:#fafaff}.loan{color:var(--p);font-weight:750;text-decoration:none}.customer{color:#25324a}.phone{font-size:10px;color:var(--m);margin-top:2px}.amount{text-align:right;font-variant-numeric:tabular-nums}.balance{font-weight:800;color:#202b3e}.badge{display:inline-block;padding:4px 9px;border-radius:15px;font-size:10px;font-weight:700}.active{background:var(--gb);color:var(--g)}.paid{background:#edf0f4;color:#748096}.overdue{background:var(--rb);color:#b7383d}.normal{background:var(--gb);color:var(--g)}
+tfoot td{background:#f3f2fa;font-weight:800}.actions-cell{display:flex;gap:12px;justify-content:center}.icon-btn{border:0;background:none;cursor:pointer;color:#2d3c55;font-size:15px}
+.footer{display:flex;justify-content:space-between;align-items:center;padding:12px 16px 2px;color:var(--m);font-size:11px}.pages{display:flex;gap:6px;align-items:center}.page-btn{border:0;background:none;padding:6px 9px;border-radius:6px}.page-btn.active{border:1px solid var(--p);color:var(--p);background:#fff}
+@media(max-width:1200px){.filters{grid-template-columns:1.5fr 1fr 1fr}.field.date{grid-column:span 1}.metrics{grid-template-columns:repeat(3,1fr)}.filter-top{flex-direction:column}.filter-actions{align-self:flex-end}}
+@media(max-width:760px){.page{padding:12px}.filters{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.filter-actions{width:100%}.filter-actions .btn{flex:1}.table-head{align-items:flex-start;gap:10px;flex-direction:column}.footer{flex-direction:column;gap:10px;align-items:flex-start}}
+@media(max-width:480px){.metrics{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="topbar">
+    <div class="page-title">Loans</div>
+    <div style="display:flex;gap:18px;align-items:center;font-size:20px">⌕ ♧ <div class="avatar">AD</div></div>
+  </div>
+
+  <section class="card filter-card">
+    <div class="filter-top">
+      <div class="filters">
+        <div class="field">
+          <label>Search loans</label>
+          <input id="search" class="input" placeholder="Search by Loan ID or customer name..." oninput="filterRows()">
+        </div>
+        <div class="field">
+          <label>Status</label>
+          <select id="status" class="select" onchange="filterRows()">
+            <option value="">All Statuses</option>
+            <option>Active</option>
+            <option>Paid</option>
+            <option>Overdue</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Classification</label>
+          <select id="classification" class="select" onchange="filterRows()">
+            <option value="">All Classifications</option>
+            <option>Normal</option>
+            <option>Watch List</option>
+            <option>Bad Loan</option>
+          </select>
+        </div>
+        <div class="field date">
+          <label>Loan date range</label>
+          <input class="input" placeholder="Start date – End date">
+        </div>
+        <div class="field date">
+          <label>Due date range</label>
+          <input class="input" placeholder="Start date – End date">
+        </div>
+      </div>
+      <div class="filter-actions">
+        <button class="btn clear" onclick="clearFilters()">Clear</button>
+        <button class="btn primary" onclick="filterRows()">⚑ Apply</button>
+        <button class="btn primary" onclick="alert('Add loan')">＋ Add loan</button><button class="btn" onclick="alert('Export loans')">⇩ Export</button>
+      </div>
+    </div>
+
+    <div class="metrics">
+      <div class="metric"><div class="icon">▤</div><div><div class="label">Total Loans</div><div class="value">125</div><div class="sub">All time</div></div></div>
+      <div class="metric"><div class="icon green">✓</div><div><div class="label">Active Loans</div><div class="value">78</div><div class="sub">62.4% of total</div></div></div>
+      <div class="metric"><div class="icon orange">◷</div><div><div class="label">Overdue Loans</div><div class="value">18</div><div class="sub">14.4% of total</div></div></div>
+      <div class="metric"><div class="icon blue">▣</div><div><div class="label">Paid Loans</div><div class="value">29</div><div class="sub">23.2% of total</div></div></div>
+      <div class="metric"><div class="icon red">⚠</div><div><div class="label">Total Outstanding Balance</div><div class="value">₱134,550.00</div><div class="sub">Across all loans</div></div></div>
+    </div>
+  </section>
+
+  <section class="card table-card">
+    <div class="table-head">
+      <div class="table-title">Loans (125)</div>
+      <div class="table-tools">
+        <div class="items">Items per page:
+          <select><option>10</option><option>25</option><option>50</option></select>
+        </div>
+      </div>
+    </div>
+
+    <div class="wrap">
+      <table id="loanTable">
+        <thead>
+          <tr>
+            <th>Loan ID</th><th>Customer</th><th class="amount">Principal</th><th class="amount">Interest</th>
+            <th class="amount">Ext. Charges</th><th class="amount">Payments</th><th>Due Date</th>
+            <th class="amount">Balance</th><th>Status</th><th>Classification</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td><a class="loan" href="#">LOA00009</a></td><td><div class="customer">Ana Villanueva</div><div class="phone">+63 919 333 5566</div></td><td class="amount">10,000.00</td><td class="amount">1,407.00</td><td class="amount">1,100.00</td><td class="amount">1,380.00</td><td>12/09/2026</td><td class="amount balance">11,127.00</td><td><span class="badge active">Active</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00008</a></td><td><div class="customer">Ana Villanueva</div><div class="phone">+63 919 333 5566</div></td><td class="amount">1,000.00</td><td class="amount">30.00</td><td class="amount">0.00</td><td class="amount">1,030.00</td><td>10/08/2026</td><td class="amount balance">0.00</td><td><span class="badge paid">Paid</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00007</a></td><td><div class="customer">Jun Dela Cruz</div><div class="phone">+63 917 222 4444</div></td><td class="amount">50,000.00</td><td class="amount">1,600.00</td><td class="amount">0.00</td><td class="amount">0.00</td><td>11/03/2026</td><td class="amount balance">51,600.00</td><td><span class="badge active">Active</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00005</a></td><td><div class="customer">Maria Santos</div><div class="phone">+63 915 888 1122</div></td><td class="amount">3,500.00</td><td class="amount">210.00</td><td class="amount">0.00</td><td class="amount">500.00</td><td>07/29/2026</td><td class="amount balance">3,210.00</td><td><span class="badge overdue">Overdue</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00006</a></td><td><div class="customer">Ana Villanueva</div><div class="phone">+63 919 333 5566</div></td><td class="amount">1,000.00</td><td class="amount">30.00</td><td class="amount">0.00</td><td class="amount">411.00</td><td>08/24/2026</td><td class="amount balance">619.00</td><td><span class="badge active">Active</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00002</a></td><td><div class="customer">Ronnie Bautista</div><div class="phone">+63 916 777 3344</div></td><td class="amount">4,000.00</td><td class="amount">120.00</td><td class="amount">0.00</td><td class="amount">1,000.00</td><td>07/19/2026</td><td class="amount balance">3,120.00</td><td><span class="badge overdue">Overdue</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00004</a></td><td><div class="customer">Liza Ramos</div><div class="phone">+63 918 222 3344</div></td><td class="amount">2,000.00</td><td class="amount">60.00</td><td class="amount">0.00</td><td class="amount">0.00</td><td>08/19/2026</td><td class="amount balance">2,060.00</td><td><span class="badge active">Active</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00003</a></td><td><div class="customer">Jun Dela Cruz</div><div class="phone">+63 917 222 4444</div></td><td class="amount">3,000.00</td><td class="amount">90.00</td><td class="amount">0.00</td><td class="amount">3,090.00</td><td>06/30/2026</td><td class="amount balance">0.00</td><td><span class="badge paid">Paid</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+          <tr><td><a class="loan" href="#">LOA00001</a></td><td><div class="customer">Maria Santos</div><div class="phone">+63 915 888 1122</div></td><td class="amount">5,000.00</td><td class="amount">150.00</td><td class="amount">0.00</td><td class="amount">2,000.00</td><td>08/09/2026</td><td class="amount balance">3,150.00</td><td><span class="badge overdue">Overdue</span></td><td><span class="badge normal">Normal</span></td><td><div class="actions-cell"><button class="icon-btn">◉</button><button class="icon-btn">⋮</button></div></td></tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2">Totals</td><td class="amount">79,500.00</td><td class="amount">3,697.00</td><td class="amount">1,100.00</td><td class="amount">9,411.00</td><td></td><td class="amount">74,886.00</td><td colspan="3"></td></tr>
+        </tfoot>
+      </table>
+    </div>
+
+    <div class="footer">
+      <div>Showing 1 to 10 of 125 loans</div>
+      <div class="pages"><button class="page-btn active">1</button><button class="page-btn">2</button><button class="page-btn">3</button><span>...</span><button class="page-btn">13</button><button class="page-btn">›</button></div>
+    </div>
+  </section>
+</div>
+
+<script>
+function filterRows(){
+  const q=document.getElementById('search').value.toLowerCase();
+  const status=document.getElementById('status').value.toLowerCase();
+  const cls=document.getElementById('classification').value.toLowerCase();
+  document.querySelectorAll('#loanTable tbody tr').forEach(row=>{
+    const text=row.innerText.toLowerCase();
+    const rowStatus=row.cells[8].innerText.toLowerCase();
+    const rowClass=row.cells[9].innerText.toLowerCase();
+    row.style.display=(text.includes(q)&&(!status||rowStatus===status)&&(!cls||rowClass===cls))?'':'none';
+  });
+}
+function clearFilters(){
+  document.getElementById('search').value='';
+  document.getElementById('status').value='';
+  document.getElementById('classification').value='';
+  filterRows();
+}
+</script>
+</body>
+</html>

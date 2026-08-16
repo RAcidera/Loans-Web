@@ -1,3 +1,5 @@
+using LoanManagementSystem.Application.Common.Interest;
+using LoanManagementSystem.Application.Reports;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace LoanManagementSystem.Application;
@@ -13,6 +15,13 @@ public static class DependencyInjection
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
         services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(DependencyInjection).Assembly));
+
+        // Plain application services — no repository/infra dependency, so
+        // (unlike ILoanRepository etc.) these live and get registered here
+        // rather than in Infrastructure's DependencyInjection.
+        services.AddScoped<IInterestCalculationService, InterestCalculationService>();
+        services.AddScoped<InterestEarnedReportDataProvider>();
+
         return services;
     }
 }

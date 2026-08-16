@@ -48,7 +48,7 @@ export class LoanTimelineComponent implements OnChanges {
       const position = Math.min(Math.max(((extTime - start) / totalSpan) * 100, 0), 100);
       return {
         position,
-        label: `+${ext.extensionDays} days on ${ext.extensionDate} (+₱${ext.additionalInterestAmount})`,
+        label: `+${ext.extensionDays} days on ${ext.extensionDate} (+${ext.additionalChargesAmount})`,
       };
     });
   }

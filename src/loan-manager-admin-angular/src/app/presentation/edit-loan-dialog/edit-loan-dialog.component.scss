@@ -15,3 +15,21 @@
 .mono {
   font-family: var(--lm-font-mono);
 }
+
+// Overrides the shared dialog-form's single-column flex layout with a
+// tighter 2-column grid — this dialog has too many fields to fit a
+// smaller screen's viewport height as one column.
+.edit-loan-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 12px;
+  row-gap: 10px;
+
+  @include tokens.mobile {
+    grid-template-columns: 1fr;
+  }
+
+  .full-width {
+    grid-column: 1 / -1;
+  }
+}

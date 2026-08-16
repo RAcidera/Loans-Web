@@ -7,7 +7,7 @@ import { LoanRepository } from '../../domain/repositories/loan.repository';
 export class RecordPaymentUseCase {
   constructor(private readonly loanRepository: LoanRepository) {}
 
-  execute(loanId: string, amountPaid: number, paymentMethod: PaymentMethod, notes: string, referenceNumber?: string): Observable<Payment> {
-    return this.loanRepository.recordPayment(loanId, amountPaid, paymentMethod, notes, referenceNumber);
+  execute(loanId: string, amountPaid: number, paymentMethod: PaymentMethod, notes: string, referenceNumber?: string, paymentDate?: string): Observable<Payment> {
+    return this.loanRepository.recordPayment(loanId, amountPaid, paymentMethod, notes, referenceNumber, paymentDate);
   }
 }

@@ -29,9 +29,9 @@ public sealed class GetLoanDetailQueryHandler : IRequestHandler<GetLoanDetailQue
         loan.RefreshOverdueStatus(DateOnly.FromDateTime(DateTime.UtcNow));
 
         var customer = await _customerRepository.GetByIdAsync(loan.CustomerId, ct);
-        var loanDto = loan.ToDto(customer?.FullName ?? "Unknown");
+        var loanDto = loan.ToDto(customer?.FullName ?? "Unknown", customer?.ContactNumber);
 
-        var extensions = loan.Extensions.OrderBy(e => e.ExtensionDate).Select(e => e.ToDto()).ToList();
+        var extensions = loan.Extensions.OrderBy(e => e.ExtensionDate).ThenBy(e => e.CreatedAtUtc).Select(e => e.ToDto()).ToList();
         var payments = loan.Payments.OrderBy(p => p.PaymentDate).Select(p => p.ToDto()).ToList();
 
         return new LoanDetailDto(loanDto, extensions, payments);

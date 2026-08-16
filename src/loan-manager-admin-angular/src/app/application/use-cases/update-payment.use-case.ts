@@ -9,8 +9,8 @@ export class UpdatePaymentUseCase {
 
   execute(
     loanId: string, paymentId: string, amountPaid: number, paymentMethod: PaymentMethod,
-    notes?: string, referenceNumber?: string,
+    notes?: string, referenceNumber?: string, paymentDate?: string,
   ): Observable<Payment> {
-    return this.loanRepository.updatePayment(loanId, paymentId, amountPaid, paymentMethod, notes, referenceNumber);
+    return this.loanRepository.updatePayment(loanId, paymentId, amountPaid, paymentMethod, notes, referenceNumber, paymentDate);
   }
 }

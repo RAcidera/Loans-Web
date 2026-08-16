@@ -1,5 +1,6 @@
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Loans.Queries.GetLoansPage;
+using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.Repositories;
 using MediatR;
 
@@ -42,12 +43,24 @@ public sealed class GetLoansTotalsQueryHandler : IRequestHandler<GetLoansTotalsQ
 
         var loans = await _loanRepository.GetFilteredAsync(request.Search, matchingCustomerIds, filters, today, ct);
 
+        // RefreshOverdueStatus is read-time-only (never persisted — see
+        // ILoanRepository.GetPageAsync's doc comment), so the status-count
+        // KPIs need it applied here too, same as GetDashboardReceivablesQuery,
+        // or a loan whose stored Status hasn't caught up yet would be
+        // miscounted.
+        foreach (var loan in loans)
+            loan.RefreshOverdueStatus(today);
+
         return new LoanTotalsDto(
             TotalPrincipal: loans.Sum(l => l.PrincipalAmount.Amount),
             TotalInterest: loans.Sum(l => l.TotalInterest.Amount),
             TotalExtensionCharges: loans.Sum(l => l.TotalExtensionCharges.Amount),
             TotalPayments: loans.Sum(l => l.TotalPaid.Amount),
-            TotalOutstandingBalance: loans.Sum(l => l.Balance.Amount)
+            TotalOutstandingBalance: loans.Sum(l => l.Balance.Amount),
+            TotalLoansCount: loans.Count,
+            ActiveLoansCount: loans.Count(l => l.Status is LoanStatus.Active or LoanStatus.Extended),
+            OverdueLoansCount: loans.Count(l => l.Status == LoanStatus.Overdue),
+            PaidLoansCount: loans.Count(l => l.Status == LoanStatus.Paid)
         );
     }
 }

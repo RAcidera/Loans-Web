@@ -26,13 +26,12 @@ public class DeleteExtensionCommandHandlerTests
     {
         var loan = Loan.Originate(CustomerId.New(), Money.Of(1000), InterestRate.Of(0), new DateOnly(2026, 1, 1), 30);
         var dueDateBeforeExtension = loan.DueDate;
-        var extension = loan.Extend(15, Money.Of(50), Money.Of(10), "temporary", new DateOnly(2026, 1, 20));
+        var extension = loan.Extend(15, Money.Of(10), "temporary", new DateOnly(2026, 1, 20));
         _loanRepository.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>())).ReturnsAsync(loan);
 
         var result = await _handler.Handle(new DeleteExtensionCommand(loan.Id.ToString(), extension.Id.ToString()), CancellationToken.None);
 
         Assert.Equal(dueDateBeforeExtension.ToString("yyyy-MM-dd"), result.DueDate);
-        Assert.Equal(0m, result.TotalInterest);
         Assert.Equal(0m, result.TotalExtensionCharges);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }

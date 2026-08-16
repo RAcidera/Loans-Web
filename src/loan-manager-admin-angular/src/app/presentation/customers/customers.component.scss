@@ -9,6 +9,10 @@
   text-align: right;
 }
 
+.center {
+  text-align: center;
+}
+
 .bold {
   font-weight: 700;
 }
@@ -20,37 +24,92 @@
   font-style: italic;
 }
 
+.filter-card,
 .table-card {
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
+}
+
+.filter-card {
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.filter-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; // bottom-aligns the button row with the control row, not the labels above it
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.table-card {
   padding: 4px 4px 0;
 }
 
-.table-card__header {
+.filter-bar {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
   align-items: flex-start;
-  padding: 16px 20px 4px;
+  gap: 12px;
+  flex: 1;
+}
 
-  h2 {
-    font-family: var(--lm-font-display);
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0 0 2px;
+// Label-on-top control chrome, matching "customers-list-modern.html" (same
+// pattern as the Loans list's filter row) — an 11px bold label above a
+// plain 42px-tall boxed control, instead of Material's notched-outline
+// floating label.
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 140px;
+
+  label {
+    font-size: 11px;
+    font-weight: 650;
+    color: var(--lm-text);
+    margin-bottom: 6px;
   }
+}
 
-  p {
-    font-size: 13px;
+.field--search {
+  width: 220px;
+}
+
+// mat-select is used bare here (no mat-form-field host) — without one,
+// Material never applies its usual width:100%, so without this override
+// the trigger sizes to its own content instead of its container and spills
+// into whatever sits next to it in the row.
+.mat-mdc-select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  background: var(--lm-surface);
+  padding: 0 12px;
+  font-size: 13.5px;
+  color: var(--lm-text);
+
+  &.mat-mdc-select-empty .mat-mdc-select-min-line {
     color: var(--lm-text-muted);
-    margin: 0;
   }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
 
   button {
     display: flex;
     align-items: center;
     gap: 4px;
-    flex-shrink: 0;
   }
 }
 
@@ -59,11 +118,11 @@
   align-items: center;
   gap: 6px;
   border: 1px solid var(--lm-border);
-  border-radius: 10px;
-  padding: 6px 12px;
+  border-radius: var(--lm-radius-control);
+  padding: 0 12px;
   width: 100%;
-  max-width: 320px;
-  margin: 0 20px 12px;
+  box-sizing: border-box;
+  height: 42px;
 
   mat-icon {
     font-size: 18px;
@@ -86,27 +145,93 @@
   }
 }
 
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+
+  @include tokens.tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kpi-card {
+  border: 1px solid var(--lm-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(108, 93, 211, 0.12);
+    color: var(--lm-primary);
+  }
+
+  &--good .kpi-card__icon {
+    background: rgba(34, 160, 107, 0.14);
+    color: var(--lm-success);
+  }
+
+  &--warn .kpi-card__icon {
+    background: rgba(225, 170, 54, 0.18);
+    color: var(--lm-warning);
+  }
+
+  &--info .kpi-card__icon {
+    background: rgba(76, 141, 255, 0.14);
+    color: var(--lm-info);
+  }
+
+  &--danger .kpi-card__icon {
+    background: rgba(193, 102, 107, 0.16);
+    color: var(--lm-danger);
+  }
+
+  &__label {
+    font-size: 11px;
+    color: var(--lm-text-muted);
+    display: block;
+  }
+
+  &__value {
+    font-family: var(--lm-font-display);
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  &__sub {
+    font-size: 10px;
+    color: var(--lm-text-muted);
+    margin-top: 2px;
+  }
+}
+
 .table-scroll {
   overflow-x: auto;
 }
 
 .customers-table {
   width: 100%;
+  @include tokens.lm-data-table;
+}
 
-  th.mat-mdc-header-cell {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--lm-text-muted);
-    font-weight: 600;
-  }
+.row-link {
+  color: var(--lm-primary);
+  font-weight: 600;
+  cursor: pointer;
 
-  tr.mat-mdc-row {
-    cursor: pointer;
-
-    &:hover {
-      background: rgba(108, 93, 211, 0.05);
-    }
+  &:hover {
+    text-decoration: underline;
   }
 }
 

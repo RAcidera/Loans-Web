@@ -7,7 +7,7 @@ import { CashLedgerRepository } from '../../domain/repositories/cash-ledger.repo
 export class AddCashTransactionUseCase {
   constructor(private readonly cashLedgerRepository: CashLedgerRepository) {}
 
-  execute(transactionType: CashTransactionType, amount: number, remarks: string): Observable<CashLedgerEntry> {
-    return this.cashLedgerRepository.addTransaction(transactionType, amount, remarks);
+  execute(transactionType: CashTransactionType, amount: number, remarks: string, transactionDate?: string, isCashIn?: boolean): Observable<CashLedgerEntry> {
+    return this.cashLedgerRepository.addTransaction(transactionType, amount, remarks, transactionDate, isCashIn);
   }
 }

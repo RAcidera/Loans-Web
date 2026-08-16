@@ -4,7 +4,18 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { CashLedgerRepository } from '../../domain/repositories/cash-ledger.repository';
-import { CashLedgerEntry, CashSummary, CashTransactionType } from '../../domain/entities/cash-ledger-entry.entity';
+import { CashLedgerEntry, CashLedgerPageFilters, CashLedgerTotals, CashSummary, CashTransactionType } from '../../domain/entities/cash-ledger-entry.entity';
+import { PagedResult } from '../../domain/entities/paged-result.entity';
+
+function toFilterParams(filters?: CashLedgerPageFilters): Record<string, string> {
+  if (!filters) return {};
+  const params: Record<string, string> = {};
+  if (filters.search) params['search'] = filters.search;
+  if (filters.transactionType) params['type'] = filters.transactionType;
+  if (filters.dateFrom) params['dateFrom'] = filters.dateFrom;
+  if (filters.dateTo) params['dateTo'] = filters.dateTo;
+  return params;
+}
 
 /**
  * Talks to CashFundsController on the .NET backend. Registered in
@@ -22,24 +33,41 @@ export class HttpCashLedgerRepository extends CashLedgerRepository {
     return this.http.get<CashSummary>(`${this.baseUrl}/cash-funds/summary`);
   }
 
-  getLedgerEntries(): Observable<CashLedgerEntry[]> {
-    return this.http.get<CashLedgerEntry[]>(`${this.baseUrl}/cash-funds/ledger`);
+  getLedgerPage(pageIndex: number, pageSize: number, filters?: CashLedgerPageFilters): Observable<PagedResult<CashLedgerEntry>> {
+    const params: Record<string, string | number> = { pageIndex, pageSize, ...toFilterParams(filters) };
+    return this.http.get<PagedResult<CashLedgerEntry>>(`${this.baseUrl}/cash-funds/ledger/page`, { params });
   }
 
-  /**
-   * referenceId is accepted by this port for symmetry with the domain
-   * model, but the backend's manual-entry endpoint deliberately doesn't
-   * take one — loan_release and payment_received (the only entry types
-   * that would have a referenceId) are created automatically via domain
-   * events, never through this endpoint. See
-   * AddCashTransactionCommandHandler on the backend for why.
-   */
+  getLedgerTotals(filters?: CashLedgerPageFilters): Observable<CashLedgerTotals> {
+    return this.http.get<CashLedgerTotals>(`${this.baseUrl}/cash-funds/ledger/page/totals`, { params: toFilterParams(filters) });
+  }
+
+  exportLedger(filters?: CashLedgerPageFilters): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/cash-funds/ledger/export`, { params: toFilterParams(filters), responseType: 'blob' });
+  }
+
   addTransaction(
     transactionType: CashTransactionType,
     amount: number,
     remarks: string,
-    _referenceId?: string,
+    transactionDate?: string,
+    isCashIn?: boolean,
   ): Observable<CashLedgerEntry> {
-    return this.http.post<CashLedgerEntry>(`${this.baseUrl}/cash-funds/ledger`, { transactionType, amount, remarks });
+    return this.http.post<CashLedgerEntry>(`${this.baseUrl}/cash-funds/ledger`, { transactionType, amount, remarks, transactionDate, isCashIn });
+  }
+
+  editTransaction(
+    ledgerId: string,
+    transactionType: CashTransactionType,
+    amount: number,
+    remarks: string,
+    transactionDate: string,
+    isCashIn?: boolean,
+  ): Observable<CashLedgerEntry> {
+    return this.http.put<CashLedgerEntry>(`${this.baseUrl}/cash-funds/ledger/${ledgerId}`, { transactionType, amount, remarks, transactionDate, isCashIn });
+  }
+
+  deleteTransaction(ledgerId: string): Observable<void> {
+    return this.http.delete<void>(`${this.baseUrl}/cash-funds/ledger/${ledgerId}`);
   }
 }

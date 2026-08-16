@@ -1,5 +1,6 @@
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Loans.Queries.GetDashboardReceivables;
+using LoanManagementSystem.Application.Loans.Queries.GetDashboardSummary;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -23,4 +24,9 @@ public class DashboardController : ControllerBase
     [HttpGet("receivables")]
     public async Task<ActionResult<DashboardReceivablesDto>> GetReceivables(CancellationToken ct) =>
         Ok(await _mediator.Send(new GetDashboardReceivablesQuery(), ct));
+
+    /// <summary>GET /api/dashboard/summary — trend badges, Collections Overview/Past-7-Days charts, Receivables Breakdown, and Recent Loans.</summary>
+    [HttpGet("summary")]
+    public async Task<ActionResult<DashboardSummaryDto>> GetSummary(CancellationToken ct) =>
+        Ok(await _mediator.Send(new GetDashboardSummaryQuery(), ct));
 }

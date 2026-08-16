@@ -26,11 +26,11 @@ public class ExtendLoanCommandHandlerTests
         var loan = Loan.Originate(CustomerId.New(), Money.Of(3500), InterestRate.Default, new DateOnly(2026, 1, 1), 30);
         _loanRepository.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>())).ReturnsAsync(loan);
 
-        var command = new ExtendLoanCommand(loan.Id.ToString(), 30, 105, "business slow");
+        var command = new ExtendLoanCommand(loan.Id.ToString(), 30, "business slow", 105);
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal(30, result.ExtensionDays);
-        Assert.Equal(105m, result.AdditionalInterestAmount);
+        Assert.Equal(105m, result.AdditionalChargesAmount);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
 
@@ -40,7 +40,7 @@ public class ExtendLoanCommandHandlerTests
         _loanRepository.Setup(r => r.GetByIdAsync(It.IsAny<LoanId>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((Loan?)null);
 
-        var command = new ExtendLoanCommand(LoanId.New().ToString(), 30, 100, "x");
+        var command = new ExtendLoanCommand(LoanId.New().ToString(), 30, "x", 100);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
     }

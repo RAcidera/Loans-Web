@@ -9,6 +9,10 @@
   text-align: right;
 }
 
+.center {
+  text-align: center;
+}
+
 .back-link {
   display: flex;
   align-items: center;
@@ -23,31 +27,44 @@
   gap: 16px;
 }
 
-.header-card,
+.hero-card,
 .tabs-card {
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
 }
 
-.header-card {
+.hero-card {
   padding: 20px;
 }
 
-.header-card__top {
+.hero-card__top {
   display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  gap: 16px;
+  align-items: center;
   flex-wrap: wrap;
+  gap: 16px;
   margin-bottom: 16px;
 }
 
-.header-card__identity {
+.hero-card__icon {
+  flex-shrink: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(108, 93, 211, 0.14);
+  color: var(--lm-primary);
+}
+
+.hero-card__identity {
+  min-width: 180px;
+
   h2 {
     font-family: var(--lm-font-display);
     font-size: 20px;
-    font-weight: 600;
+    font-weight: 700;
     margin: 0;
   }
 
@@ -58,15 +75,41 @@
   }
 }
 
-.header-card__chips {
+// Icon-only link back to the owning customer, inline right after the
+// borrower's name (e.g. "Jun Dela Cruz ←") to save space — no separate
+// label/row of its own.
+.hero-card__back-to-customer {
+  display: inline-flex;
+  align-items: center;
+  vertical-align: middle;
+  border: none;
+  background: none;
+  padding: 0;
+  margin-left: 2px;
+  color: var(--lm-text-muted);
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 15px;
+    width: 15px;
+    height: 15px;
+  }
+
+  &:hover {
+    color: var(--lm-primary);
+  }
+}
+
+.hero-card__chips {
   display: flex;
   gap: 6px;
 }
 
-.header-card__actions {
+.hero-card__actions {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  margin-left: auto;
 
   button {
     display: flex;
@@ -75,37 +118,61 @@
   }
 }
 
-.header-card__stats {
+// Every hero action defaults to the app's standard outlined-button look
+// (mat-stroked-button color="primary" — purple border/text), except New
+// Payment, which the reference marks distinctly with green text/border
+// instead of a solid fill.
+.btn--success {
+  color: var(--lm-success) !important;
+  border-color: var(--lm-success) !important;
+}
+
+.btn--small {
+  height: 32px;
+  font-size: 12.5px;
+  margin-left: auto;
+}
+
+.hero-card__stats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(8, 1fr);
   gap: 12px;
-  background: var(--lm-bg);
-  border-radius: var(--lm-radius);
-  padding: 14px;
+  border-top: 1px solid var(--lm-border);
+  padding-top: 16px;
+
+  @media (max-width: 1300px) {
+    grid-template-columns: repeat(4, 1fr);
+  }
 
   @include tokens.mobile {
-    grid-template-columns: 1fr;
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 
-.summary-stat {
+.hero-stat {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 4px;
 
   &__label {
-    font-size: 11.5px;
+    font-size: 11px;
     color: var(--lm-text-muted);
   }
 
   &__value {
-    font-size: 16px;
-    font-weight: 600;
+    font-size: 14px;
+    font-weight: 700;
     color: var(--lm-text);
 
-    &--balance {
-      color: var(--lm-primary);
-    }
+    &--purple { color: var(--lm-primary); }
+    &--orange { color: var(--lm-warning); }
+    &--green { color: var(--lm-success); }
+    &--red { color: var(--lm-danger); }
+    // Distinct, vivid blue for Principal — the one hero stat not already
+    // covered by the warning/success/danger semantic colors above, chosen
+    // to stand out at a glance without implying "good" or "bad" the way
+    // green/red would for a plain informational figure.
+    &--blue { color: var(--lm-info); }
   }
 }
 
@@ -115,63 +182,252 @@
 
 .tab-content {
   padding: 20px;
+}
 
-  &--stub {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    color: var(--lm-text-muted);
-    padding: 48px 20px;
+// ---------------------------------------------------------
+// Overview tab — 3-column grid (Loan Information / Financial Summary /
+// Timeline), then a 2-column "lower" grid (Payment History / Extension
+// History mini widgets), per Loan-Profile-Page.html.
+// ---------------------------------------------------------
+.overview-grid {
+  display: grid;
+  grid-template-columns: 1fr 1.1fr 1fr;
+  gap: 14px;
+  margin-top: 18px;
 
-    mat-icon {
-      font-size: 32px;
-      width: 32px;
-      height: 32px;
-      opacity: 0.6;
+  @media (max-width: 1100px) {
+    grid-template-columns: 1fr 1fr;
+
+    .info-card:last-child {
+      grid-column: 1 / -1;
     }
+  }
 
-    p {
-      margin: 0;
-      font-size: 13.5px;
+  @include tokens.mobile {
+    grid-template-columns: 1fr;
+
+    .info-card:last-child {
+      grid-column: auto;
     }
   }
 }
 
-.overview-fields {
-  margin: 20px 0 0;
+.lower-grid {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
-  gap: 0 24px;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 14px;
+  margin-top: 14px;
 
   @include tokens.mobile {
     grid-template-columns: 1fr;
   }
+}
 
-  &__row {
+.info-card {
+  border: 1px solid var(--lm-border);
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--lm-surface);
+}
+
+.info-card__header {
+  padding: 13px 16px;
+  border-bottom: 1px solid var(--lm-border);
+  font-weight: 700;
+  font-size: 14px;
+
+  &--with-action {
     display: flex;
+    align-items: center;
     justify-content: space-between;
-    gap: 12px;
-    padding: 8px 0;
-    border-bottom: 1px solid var(--lm-border);
+  }
+}
 
-    &--full {
-      grid-column: 1 / -1;
-    }
+.info-card__body {
+  padding: 14px 16px;
+}
 
-    dt {
-      font-size: 12.5px;
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 7px 0;
+  color: var(--lm-text-muted);
+  font-size: 13px;
+  border-top: 1px solid var(--lm-border);
+
+  &:first-child {
+    border-top: none;
+  }
+
+  strong {
+    color: var(--lm-text);
+    font-weight: 600;
+  }
+}
+
+.finance {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  gap: 18px;
+  align-items: center;
+}
+
+.donut {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  position: relative;
+
+  &::after {
+    content: '';
+    width: 72px;
+    height: 72px;
+    background: var(--lm-surface);
+    border-radius: 50%;
+    position: absolute;
+  }
+
+  &__text {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    font-weight: 700;
+    font-size: 15px;
+
+    small {
+      display: block;
       color: var(--lm-text-muted);
-    }
-
-    dd {
-      margin: 0;
-      font-size: 13.5px;
       font-weight: 500;
-      text-align: right;
+      font-size: 10.5px;
     }
   }
+}
+
+.finance-legend div {
+  display: flex;
+  justify-content: space-between;
+  padding: 5px 0;
+  font-size: 12.5px;
+  color: var(--lm-text-muted);
+}
+
+.status-alert {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 13px;
+  border-radius: 8px;
+  padding: 11px;
+  font-size: 12.5px;
+  line-height: 1.5;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+  }
+
+  &--good {
+    background: rgba(34, 160, 107, 0.1);
+    color: #177957;
+  }
+
+  &--neutral {
+    background: var(--lm-bg);
+    color: var(--lm-text-muted);
+  }
+
+  &--warn {
+    background: rgba(225, 170, 54, 0.14);
+    color: #8a6414;
+  }
+
+  &--danger {
+    background: rgba(193, 102, 107, 0.12);
+    color: #8a3d42;
+  }
+}
+
+.timeline-events {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.timeline-event {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  padding: 8px 16px;
+  border-top: 1px solid var(--lm-border);
+
+  &:first-child {
+    border-top: none;
+  }
+
+  &__icon {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(34, 160, 107, 0.14);
+    color: var(--lm-success);
+
+    mat-icon {
+      font-size: 15px;
+      width: 15px;
+      height: 15px;
+    }
+
+    &--neutral {
+      background: rgba(108, 93, 211, 0.12);
+      color: var(--lm-primary);
+    }
+
+    &--info {
+      background: rgba(76, 141, 255, 0.14);
+      color: var(--lm-info);
+    }
+  }
+
+  &__main {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-width: 0;
+  }
+
+  &__title {
+    font-size: 12.5px;
+    font-weight: 650;
+  }
+
+  &__subtitle {
+    font-size: 11px;
+    color: var(--lm-text-muted);
+  }
+
+  &__date {
+    font-size: 11px;
+    color: var(--lm-text-muted);
+    flex-shrink: 0;
+  }
+}
+
+.lower-total {
+  display: flex;
+  justify-content: space-between;
+  border-top: 1px solid var(--lm-border);
+  padding: 12px 16px;
+  font-weight: 700;
+  font-size: 13px;
 }
 
 .table-scroll {
@@ -180,14 +436,7 @@
 
 .history-table {
   width: 100%;
-
-  th.mat-mdc-header-cell {
-    font-size: 11.5px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--lm-text-muted);
-    font-weight: 600;
-  }
+  @include tokens.lm-data-table;
 
   &__footer {
     font-weight: 600;
@@ -217,52 +466,4 @@
   text-align: center;
   color: var(--lm-text-muted);
   font-size: 13px;
-}
-
-.chip {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-
-  &--active {
-    background: rgba(34, 160, 107, 0.15);
-    color: #1a7a53;
-  }
-
-  &--extended {
-    background: rgba(225, 170, 54, 0.18);
-    color: #8a6414;
-  }
-
-  &--overdue {
-    background: rgba(193, 102, 107, 0.16);
-    color: #8a3d42;
-  }
-
-  &--paid {
-    background: rgba(139, 143, 163, 0.14);
-    color: var(--lm-text-muted);
-  }
-
-  &--writtenoff {
-    background: rgba(139, 143, 163, 0.14);
-    color: var(--lm-text-muted);
-  }
-
-  &--normal {
-    background: rgba(34, 160, 107, 0.15);
-    color: #1a7a53;
-  }
-
-  &--watchlist {
-    background: rgba(225, 170, 54, 0.18);
-    color: #8a6414;
-  }
-
-  &--badloan {
-    background: rgba(193, 102, 107, 0.16);
-    color: #8a3d42;
-  }
 }

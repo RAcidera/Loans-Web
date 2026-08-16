@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Customer Detail - Loan Management</title>
+<style>
+:root{
+  --primary:#5b21e8;
+  --primary-dark:#3b167d;
+  --text:#172033;
+  --muted:#68748a;
+  --border:#e6e8ef;
+  --bg:#f7f8fc;
+  --card:#fff;
+  --success:#15966b;
+  --success-bg:#e3f6ef;
+  --blue:#2878d7;
+  --blue-bg:#e8f2ff;
+  --danger:#df4c52;
+  --danger-bg:#fff0f1;
+  --shadow:0 1px 3px rgba(24,32,51,.04),0 8px 24px rgba(24,32,51,.035);
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  font-size:14px;
+}
+button,input,select{font:inherit}
+button{cursor:pointer}
+.page{max-width:1600px;margin:auto;padding:20px 24px 32px}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.back{color:#59677d;text-decoration:none;font-weight:500}
+.actions{display:flex;gap:10px}
+.btn{
+  border:1px solid var(--primary);
+  background:#fff;color:var(--primary);
+  padding:9px 16px;border-radius:8px;font-weight:600;
+}
+.btn.primary{background:var(--primary);color:#fff}
+.btn:hover{filter:brightness(.97)}
+.customer-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:12px;padding:22px 24px;box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:24px;
+}
+.avatar{
+  width:66px;height:66px;border-radius:50%;
+  background:#f0eaff;color:var(--primary);
+  display:grid;place-items:center;font-size:22px;font-weight:700;flex:none;
+}
+.customer-main{flex:1;min-width:240px}
+.customer-name{font-size:21px;font-weight:700;margin-bottom:5px}
+.customer-meta{color:var(--muted);font-size:13px}
+.tags{display:flex;gap:7px;margin-top:10px;flex-wrap:wrap}
+.tag{padding:4px 9px;border-radius:20px;font-size:12px;font-weight:600;background:#f1eaff;color:var(--primary)}
+.tag.good{background:var(--success-bg);color:var(--success)}
+.contact-strip{display:flex;gap:32px;align-items:center}
+.contact-item{display:flex;align-items:center;gap:10px;min-width:145px}
+.icon-circle{
+  width:34px;height:34px;border-radius:50%;background:#f5f6fb;
+  display:grid;place-items:center;color:var(--primary);font-size:16px
+}
+.contact-label{font-size:11px;color:var(--muted);margin-top:2px}
+.metric-grid{
+  display:grid;grid-template-columns:repeat(6,1fr);
+  gap:14px;margin:18px 0;
+}
+.metric{
+  background:#fff;border:1px solid var(--border);border-radius:11px;
+  padding:17px 18px;box-shadow:var(--shadow);min-height:112px;
+}
+.metric-head{display:flex;align-items:center;gap:9px;color:#69768b;font-size:12px;font-weight:600}
+.metric-icon{
+  width:34px;height:34px;border-radius:50%;display:grid;place-items:center;
+  background:#f0eaff;color:var(--primary);font-size:16px
+}
+.metric.success .metric-icon{background:var(--success-bg);color:var(--success)}
+.metric.danger .metric-icon{background:var(--danger-bg);color:var(--danger)}
+.metric.blue .metric-icon{background:var(--blue-bg);color:var(--blue)}
+.metric-value{font-size:20px;font-weight:700;margin-top:12px}
+.metric-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.metric-link{font-size:11px;color:var(--primary);font-weight:700;margin-top:8px}
+.tabs-card,.bottom-card{
+  background:#fff;border:1px solid var(--border);border-radius:12px;
+  box-shadow:var(--shadow)
+}
+.tabs{display:flex;border-bottom:1px solid var(--border);padding:0 28px}
+.tab{
+  padding:16px 28px 13px;border:0;background:none;color:#34415a;
+  font-weight:600;position:relative
+}
+.tab.active{color:var(--primary)}
+.tab.active:after{
+  content:"";position:absolute;left:8px;right:8px;bottom:-1px;height:3px;
+  background:var(--primary);border-radius:3px 3px 0 0
+}
+.tab-content{padding:18px 22px 22px}
+.toolbar{display:flex;justify-content:space-between;gap:12px;margin-bottom:12px}
+.filters{display:flex;gap:10px}
+.search,.select{
+  height:38px;border:1px solid var(--border);border-radius:8px;
+  background:#fff;padding:0 12px;color:var(--text)
+}
+.search{width:260px}
+.table-wrap{overflow:auto}
+table{width:100%;border-collapse:collapse;min-width:800px}
+thead th{
+  background:var(--primary-dark);color:#fff;text-align:left;
+  padding:11px 14px;font-size:12px;white-space:nowrap
+}
+tbody td{padding:13px 14px;border-bottom:1px solid #edf0f5;color:#42506a}
+tbody tr:hover{background:#fafaff}
+tbody tr:last-child td{border-bottom:0}
+.amount{text-align:right;font-variant-numeric:tabular-nums}
+.loan-link{color:#566f96;text-decoration:none;font-weight:600}
+.badge{display:inline-block;padding:4px 9px;border-radius:15px;font-size:11px;font-weight:700}
+.badge.paid{background:#edf0f4;color:#748096}
+.badge.active{background:var(--success-bg);color:var(--success)}
+.badge.normal{background:#e9f8f1;color:#17815f}
+.eye{border:0;background:none;font-size:17px;color:#46536a}
+tfoot td{background:#f1f2f8;font-weight:700;padding:12px 14px}
+.bottom-grid{
+  display:grid;grid-template-columns:1fr 1.05fr 1fr;gap:14px;margin-top:18px
+}
+.bottom-card{padding:18px 20px;min-height:220px}
+.card-title{font-size:14px;font-weight:700;margin-bottom:18px;display:flex;gap:9px;align-items:center}
+.info-row,.activity{
+  display:flex;justify-content:space-between;gap:18px;padding:6px 0;
+  color:#647188;font-size:12px
+}
+.info-row strong{color:#35425a;font-weight:600}
+.activity{align-items:flex-start;padding:8px 0}
+.activity-left{display:flex;gap:10px}
+.activity-icon{
+  width:28px;height:28px;border-radius:50%;background:#f0eaff;color:var(--primary);
+  display:grid;place-items:center;flex:none
+}
+.activity-icon.green{background:var(--success-bg);color:var(--success)}
+.activity-title{color:#29354b;font-weight:600}
+.activity-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.quick{display:flex;flex-direction:column;gap:14px}
+.quick button{
+  border:0;background:none;text-align:left;color:var(--primary);
+  font-weight:650;padding:0;display:flex;align-items:center;gap:10px
+}
+.quick-icon{
+  width:29px;height:29px;border-radius:50%;background:#f0eaff;
+  display:grid;place-items:center
+}
+@media(max-width:1100px){
+  .metric-grid{grid-template-columns:repeat(3,1fr)}
+  .contact-strip{gap:18px;flex-wrap:wrap}
+  .customer-card{align-items:flex-start}
+}
+@media(max-width:760px){
+  .page{padding:14px}
+  .topbar{align-items:flex-start;gap:12px}
+  .customer-card{flex-direction:column}
+  .contact-strip{width:100%;display:grid;grid-template-columns:1fr 1fr}
+  .metric-grid{grid-template-columns:1fr 1fr}
+  .tabs{overflow:auto;padding:0 8px}
+  .tab{white-space:nowrap;padding-left:16px;padding-right:16px}
+  .toolbar{flex-direction:column}
+  .search{width:100%}
+  .bottom-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+  .metric-grid{grid-template-columns:1fr}
+  .contact-strip{grid-template-columns:1fr}
+  .actions .btn{padding:8px 10px}
+}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="topbar">
+    <a class="back" href="#">← &nbsp;Back to customers</a>
+    <div class="actions">
+      <button class="btn" onclick="alert('Edit customer')">✎ &nbsp;Edit Customer</button>
+      <button class="btn primary" onclick="alert('New loan')">＋ &nbsp;New Loan</button>
+      <button class="btn" title="More actions">⋮</button>
+    </div>
+  </div>
+
+  <section class="customer-card">
+    <div class="avatar">AV</div>
+    <div class="customer-main">
+      <div class="customer-name">Ana Villanueva</div>
+      <div class="customer-meta">CUS00001 &nbsp;•&nbsp; Since Aug 5, 2026</div>
+      <div class="tags">
+        <span class="tag">Community member</span>
+        <span class="tag good">Good payer</span>
+      </div>
+    </div>
+    <div class="contact-strip">
+      <div class="contact-item">
+        <div class="icon-circle">☎</div>
+        <div><strong>+63 919 333 5566</strong><div class="contact-label">Mobile number</div></div>
+      </div>
+      <div class="contact-item">
+        <div class="icon-circle">⌖</div>
+        <div><strong>45 Rizal Ave.</strong><div class="contact-label">Address</div></div>
+      </div>
+      <div class="contact-item">
+        <div class="icon-circle">✉</div>
+        <div><strong>Email</strong><div class="contact-label">Not provided</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="metric-grid">
+    <div class="metric">
+      <div class="metric-head"><div class="metric-icon">▣</div>Active Loans</div>
+      <div class="metric-value">2</div>
+      <div class="metric-link">View loans →</div>
+    </div>
+    <div class="metric">
+      <div class="metric-head"><div class="metric-icon">▤</div>Gross Receivables</div>
+      <div class="metric-value">₱619.00</div>
+      <div class="metric-sub">Total outstanding</div>
+    </div>
+    <div class="metric success">
+      <div class="metric-head"><div class="metric-icon">₱</div>Collectible Receivables</div>
+      <div class="metric-value">₱619.00</div>
+      <div class="metric-sub">Excludes bad loans</div>
+    </div>
+    <div class="metric danger">
+      <div class="metric-head"><div class="metric-icon">⚠</div>Bad Loan Receivables</div>
+      <div class="metric-value">₱0.00</div>
+      <div class="metric-sub">High risk amount</div>
+    </div>
+    <div class="metric blue">
+      <div class="metric-head"><div class="metric-icon">▣</div>Total Paid</div>
+      <div class="metric-value">₱381.00</div>
+      <div class="metric-sub">All time payments</div>
+    </div>
+    <div class="metric">
+      <div class="metric-head"><div class="metric-icon">□</div>Last Payment</div>
+      <div class="metric-value">Aug 24, 2026</div>
+      <div class="metric-sub">2 months ago</div>
+    </div>
+  </section>
+
+  <section class="tabs-card">
+    <nav class="tabs">
+      <button class="tab active" onclick="switchTab(this,'loans')">Loans</button>
+      <button class="tab" onclick="switchTab(this,'documents')">Documents</button>
+      <button class="tab" onclick="switchTab(this,'notes')">Notes</button>
+      <button class="tab" onclick="switchTab(this,'payments')">Payment History</button>
+    </nav>
+
+    <div class="tab-content" id="loans">
+      <div class="toolbar">
+        <div class="filters">
+          <input class="search" id="loanSearch" placeholder="⌕  Search loans..." oninput="filterLoans()">
+          <select class="select" id="statusFilter" onchange="filterLoans()">
+            <option value="">Status: All</option>
+            <option>Active</option><option>Paid</option><option>Overdue</option>
+          </select>
+        </div>
+        <button class="btn" onclick="alert('View all loans')">View all loans</button>
+      </div>
+
+      <div class="table-wrap">
+      <table id="loanTable">
+        <thead>
+          <tr>
+            <th>Loan #</th><th>Loan Date</th><th>Principal</th><th>Due Date</th>
+            <th>Outstanding Balance</th><th>Status</th><th>Classification</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a class="loan-link" href="#">LOA00008</a></td>
+            <td>Aug 08, 2026</td><td class="amount">₱1,000.00</td><td>Oct 08, 2026</td>
+            <td class="amount">₱0.00</td><td><span class="badge paid">Paid</span></td>
+            <td><span class="badge normal">Normal</span></td><td><button class="eye">◉</button></td>
+          </tr>
+          <tr>
+            <td><a class="loan-link" href="#">LOA00006</a></td>
+            <td>Jun 25, 2026</td><td class="amount">₱1,000.00</td><td>Aug 24, 2026</td>
+            <td class="amount">₱619.00</td><td><span class="badge active">Active</span></td>
+            <td><span class="badge normal">Normal</span></td><td><button class="eye">◉</button></td>
+          </tr>
+        </tbody>
+        <tfoot>
+          <tr><td colspan="2">TOTAL</td><td class="amount">₱2,000.00</td><td></td><td class="amount">₱619.00</td><td colspan="3"></td></tr>
+        </tfoot>
+      </table>
+      </div>
+    </div>
+
+    <div class="tab-content" id="documents" style="display:none">
+      <p><strong>Documents</strong></p>
+      <p style="color:var(--muted)">Customer documents can be uploaded and managed here.</p>
+      <button class="btn primary">＋ Upload Document</button>
+    </div>
+
+    <div class="tab-content" id="notes" style="display:none">
+      <p><strong>Notes</strong></p>
+      <textarea style="width:100%;min-height:110px;border:1px solid var(--border);border-radius:8px;padding:12px" placeholder="Add customer notes..."></textarea>
+    </div>
+
+    <div class="tab-content" id="payments" style="display:none">
+      <p><strong>Payment History</strong></p>
+      <p style="color:var(--muted)">A consolidated payment history for this customer can be displayed here.</p>
+    </div>
+  </section>
+
+  <section class="bottom-grid">
+    <div class="bottom-card">
+      <div class="card-title">♙ &nbsp;Customer Information</div>
+      <div class="info-row"><span>Customer Code</span><strong>CUS00001</strong></div>
+      <div class="info-row"><span>Borrower Type</span><strong>Community member</strong></div>
+      <div class="info-row"><span>Contact Number</span><strong>+63 919 333 5566</strong></div>
+      <div class="info-row"><span>Address</span><strong>45 Rizal Ave.</strong></div>
+      <div class="info-row"><span>Customer Since</span><strong>Aug 5, 2026</strong></div>
+      <div class="info-row"><span>Notes</span><strong>—</strong></div>
+    </div>
+
+    <div class="bottom-card">
+      <div class="card-title">＄ &nbsp;Recent Activity</div>
+      <div class="activity">
+        <div class="activity-left"><div class="activity-icon green">$</div><div><div class="activity-title">Payment received</div><div class="activity-sub">Loan LOA00006 - ₱381.00</div></div></div>
+        <span>Aug 24, 2026</span>
+      </div>
+      <div class="activity">
+        <div class="activity-left"><div class="activity-icon">▣</div><div><div class="activity-title">Loan created</div><div class="activity-sub">LOA00008 - ₱1,000.00</div></div></div>
+        <span>Aug 08, 2026</span>
+      </div>
+      <div class="activity">
+        <div class="activity-left"><div class="activity-icon green">♙</div><div><div class="activity-title">Customer created</div></div></div>
+        <span>Aug 05, 2026</span>
+      </div>
+    </div>
+
+    <div class="bottom-card">
+      <div class="card-title">⌘ &nbsp;Quick Actions</div>
+      <div class="quick">
+        <button onclick="alert('New loan')"><span class="quick-icon">＋</span>New Loan</button>
+        <button onclick="alert('Upload document')"><span class="quick-icon">▣</span>Upload Document</button>
+        <button onclick="alert('Add note')"><span class="quick-icon">▤</span>Add Note</button>
+        <button onclick="alert('Statement of Account')"><span class="quick-icon">▤</span>View Statement of Account</button>
+      </div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+function switchTab(button,id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(c=>c.style.display='none');
+  button.classList.add('active');
+  document.getElementById(id).style.display='block';
+}
+function filterLoans(){
+  const q=document.getElementById('loanSearch').value.toLowerCase();
+  const status=document.getElementById('statusFilter').value.toLowerCase();
+  document.querySelectorAll('#loanTable tbody tr').forEach(row=>{
+    const text=row.innerText.toLowerCase();
+    const rowStatus=row.cells[5].innerText.toLowerCase();
+    row.style.display=(text.includes(q) && (!status || rowStatus===status))?'':'none';
+  });
+}
+</script>
+</body>
+</html>

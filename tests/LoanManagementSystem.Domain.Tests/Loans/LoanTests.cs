@@ -137,24 +137,13 @@ public class LoanTests
         var dueBeforeExtension = loan.DueDate;
         var balanceBeforeExtension = loan.Balance.Amount;
 
-        loan.Extend(30, Money.Of(105), Money.Zero, "Business slow this week", new DateOnly(2026, 6, 29));
+        loan.Extend(30, Money.Of(105), "Business slow this week", new DateOnly(2026, 6, 29));
 
         Assert.Equal(dueBeforeExtension.AddDays(30), loan.DueDate);
+        Assert.Equal(105m, loan.TotalExtensionCharges.Amount);
         Assert.Equal(balanceBeforeExtension + 105m, loan.Balance.Amount);
         Assert.Equal(LoanStatus.Extended, loan.Status);
         Assert.Single(loan.Extensions);
-    }
-
-    [Fact]
-    public void Extend_WithAdditionalCharges_AddsToTotalExtensionChargesAndBalance_SeparateFromInterest()
-    {
-        var loan = Loan.Originate(SomeCustomer, Money.Of(3500), InterestRate.Default, new DateOnly(2026, 4, 15), 75);
-        var balanceBeforeExtension = loan.Balance.Amount;
-
-        loan.Extend(30, Money.Of(105), Money.Of(50), "Processing fee + interest", new DateOnly(2026, 6, 29));
-
-        Assert.Equal(50m, loan.TotalExtensionCharges.Amount);
-        Assert.Equal(balanceBeforeExtension + 105m + 50m, loan.Balance.Amount);
     }
 
     [Fact]
@@ -164,7 +153,7 @@ public class LoanTests
         loan.RecordPayment(Money.Of(1000), PaymentMethod.Cash, "", new DateOnly(2026, 1, 10));
 
         Assert.Throws<DomainException>(() =>
-            loan.Extend(30, Money.Of(50), Money.Zero, "too late", new DateOnly(2026, 2, 1)));
+            loan.Extend(30, Money.Of(50), "too late", new DateOnly(2026, 2, 1)));
     }
 
     [Fact]
@@ -173,7 +162,7 @@ public class LoanTests
         var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Default, new DateOnly(2026, 1, 1));
 
         Assert.Throws<DomainException>(() =>
-            loan.Extend(0, Money.Of(50), Money.Zero, "invalid", new DateOnly(2026, 2, 1)));
+            loan.Extend(0, Money.Of(50), "invalid", new DateOnly(2026, 2, 1)));
     }
 
     // --- Overdue status (used by GetLoansQuery on every read) ---
@@ -217,7 +206,7 @@ public class LoanTests
         // also passes unpaid, the loan should read as Overdue, not sit at
         // Extended forever.
         var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Default, new DateOnly(2026, 1, 1), 30);
-        loan.Extend(30, Money.Of(30), Money.Zero, "grace period", new DateOnly(2026, 1, 31));
+        loan.Extend(30, Money.Of(30), "grace period", new DateOnly(2026, 1, 31));
         // New due date: 2026-03-02
 
         loan.RefreshOverdueStatus(new DateOnly(2026, 4, 1));
@@ -310,16 +299,16 @@ public class LoanTests
     }
 
     [Fact]
-    public void EditLoan_OverridesInterestRateOnly_RecomputesInterestFromNewRate_PreservesExtensionInterest()
+    public void EditLoan_OverridesInterestRateOnly_RecomputesInterestFromNewRate()
     {
         var loan = Loan.Originate(SomeCustomer, Money.Of(5000), InterestRate.Of(0.03m), new DateOnly(2026, 1, 1));
-        loan.Extend(30, Money.Of(40), Money.Zero, "grace", new DateOnly(2026, 2, 1));
-        // TotalInterest is now 150 (origination) + 40 (extension) = 190.
+        loan.Extend(30, Money.Of(40), "grace", new DateOnly(2026, 2, 1));
+        // Extensions only add Additional Charges now, never interest — TotalInterest stays at 150 (origination only).
 
         loan.EditLoan(startDate: null, dueDate: null, interestRate: InterestRate.Of(0.01m), interestAmount: null, remarks: null, editedBy: "admin");
 
-        // New origination interest: 5000 * 1% = 50, plus the untouched 40 extension interest = 90.
-        Assert.Equal(90m, loan.TotalInterest.Amount);
+        // New origination interest: 5000 * 1% = 50.
+        Assert.Equal(50m, loan.TotalInterest.Amount);
         Assert.Equal(0.01m, loan.InterestRate.Value);
     }
 
@@ -433,31 +422,29 @@ public class LoanTests
     {
         var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0), new DateOnly(2026, 1, 1), 30);
         // Due date 2026-01-31, balance 1000.
-        var extension = loan.Extend(10, Money.Of(50), Money.Of(20), "initial", new DateOnly(2026, 1, 20));
-        // Due date now 2026-02-10, TotalInterest 50, TotalExtensionCharges 20, balance 1070.
+        var extension = loan.Extend(10, Money.Of(20), "initial", new DateOnly(2026, 1, 20));
+        // Due date now 2026-02-10, TotalExtensionCharges 20, balance 1020.
 
-        loan.EditExtension(extension.Id, 20, Money.Of(80), Money.Of(30), "revised", new DateOnly(2026, 1, 21));
+        loan.EditExtension(extension.Id, 20, Money.Of(30), "revised", new DateOnly(2026, 1, 21));
 
         Assert.Equal(new DateOnly(2026, 2, 20), loan.DueDate); // 2026-01-31 rolled back to, then +20
-        Assert.Equal(80m, loan.TotalInterest.Amount);
         Assert.Equal(30m, loan.TotalExtensionCharges.Amount);
-        Assert.Equal(1110m, loan.Balance.Amount); // 1000 + 80 + 30
+        Assert.Equal(1030m, loan.Balance.Amount); // 1000 + 30
         Assert.Equal(20, extension.ExtensionDays);
         Assert.Equal("revised", extension.Remarks);
     }
 
     [Fact]
-    public void DeleteExtension_RevertsDueDateAndChargesAndInterest()
+    public void DeleteExtension_RevertsDueDateAndCharges()
     {
         var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0), new DateOnly(2026, 1, 1), 30);
         var dueDateBeforeExtension = loan.DueDate;
-        var extension = loan.Extend(15, Money.Of(50), Money.Of(25), "temporary", new DateOnly(2026, 1, 20));
+        var extension = loan.Extend(15, Money.Of(25), "temporary", new DateOnly(2026, 1, 20));
 
         loan.DeleteExtension(extension.Id);
 
         Assert.Empty(loan.Extensions);
         Assert.Equal(dueDateBeforeExtension, loan.DueDate);
-        Assert.Equal(0m, loan.TotalInterest.Amount);
         Assert.Equal(0m, loan.TotalExtensionCharges.Amount);
         Assert.Equal(1000m, loan.Balance.Amount);
     }
@@ -474,11 +461,11 @@ public class LoanTests
     public void EditExtension_OnWrittenOffLoan_Throws()
     {
         var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Default, new DateOnly(2026, 1, 1), 30);
-        var extension = loan.Extend(10, Money.Of(10), Money.Zero, "x", new DateOnly(2026, 1, 15));
+        var extension = loan.Extend(10, Money.Of(10), "x", new DateOnly(2026, 1, 15));
         loan.WriteOff("admin");
 
         Assert.Throws<DomainException>(() =>
-            loan.EditExtension(extension.Id, 20, Money.Of(20), Money.Zero, "y", new DateOnly(2026, 1, 16)));
+            loan.EditExtension(extension.Id, 20, Money.Of(20), "y", new DateOnly(2026, 1, 16)));
     }
 
     // --- Documents (Loan Details "Documents" tab) ---

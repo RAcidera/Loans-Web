@@ -1,25 +1,63 @@
-<mat-card class="table-card">
-  <div class="table-card__header">
-    <div>
-      <h2>Customers</h2>
-      <p>Every customer profile on record</p>
+<mat-card class="filter-card">
+  <div class="filter-top">
+    <form [formGroup]="filters" class="filter-bar">
+      <div class="field field--search">
+        <label>Search customers</label>
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input type="text" (input)="applySearch($any($event.target).value)" placeholder="Search customers…" aria-label="Search customers" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Status</label>
+        <mat-select formControlName="status" panelClass="lm-select-panel" placeholder="All Statuses">
+          <mat-option [value]="null">All Statuses</mat-option>
+          <mat-option value="active">Active</mat-option>
+          <mat-option value="inactive">Inactive</mat-option>
+        </mat-select>
+      </div>
+    </form>
+
+    <div class="filter-actions">
+      <button mat-stroked-button type="button" (click)="clearFilters()">Clear</button>
+      <button mat-stroked-button type="button" (click)="applyFilters()">
+        <mat-icon>filter_alt</mat-icon>
+        Apply
+      </button>
+      <button mat-stroked-button type="button" (click)="export()" [disabled]="exporting">
+        <mat-icon>file_download</mat-icon>
+        Export
+      </button>
+      <button mat-flat-button color="primary" (click)="openAddCustomer()" *ngIf="authService.hasRole('admin')">
+        <mat-icon>person_add</mat-icon>
+        Add customer
+      </button>
     </div>
-    <button mat-flat-button color="primary" (click)="openAddCustomer()" *ngIf="authService.hasRole('admin')">
-      <mat-icon>person_add</mat-icon>
-      Add customer
-    </button>
   </div>
 
-  <div class="search-box">
-    <mat-icon>search</mat-icon>
-    <input type="text" (input)="applyFilter($any($event.target).value)" placeholder="Name, contact, borrower type…" aria-label="Search customers" />
+  <div class="kpi-row">
+    <div class="kpi-card" *ngFor="let kpi of kpis" [ngClass]="'kpi-card--' + kpi.tone">
+      <div class="kpi-card__icon">
+        <mat-icon>{{ kpi.icon }}</mat-icon>
+      </div>
+      <div>
+        <span class="kpi-card__label">{{ kpi.label }}</span>
+        <div class="kpi-card__value">{{ kpi.value }}</div>
+        <div class="kpi-card__sub">{{ kpi.sub }}</div>
+      </div>
+    </div>
   </div>
+</mat-card>
 
+<mat-card class="table-card">
   <div class="table-scroll">
   <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSort($event)" class="customers-table">
     <ng-container matColumnDef="customerCode">
       <th mat-header-cell *matHeaderCellDef>Code</th>
-      <td mat-cell *matCellDef="let c" class="mono bold">{{ c.customerCode }}</td>
+      <td mat-cell *matCellDef="let c" class="mono bold">
+        <a class="row-link" (click)="openCustomerProfile(c)">{{ c.customerCode }}</a>
+      </td>
     </ng-container>
 
     <ng-container matColumnDef="name">
@@ -48,12 +86,31 @@
     </ng-container>
 
     <ng-container matColumnDef="loanCount">
-      <th mat-header-cell *matHeaderCellDef>Loans</th>
-      <td mat-cell *matCellDef="let c" class="mono right">{{ c.loanCount }}</td>
+      <th mat-header-cell *matHeaderCellDef class="center">Total Loans</th>
+      <td mat-cell *matCellDef="let c" class="mono center">{{ c.loanCount }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="outstandingBalance">
+      <th mat-header-cell *matHeaderCellDef class="right">Outstanding Balance</th>
+      <td mat-cell *matCellDef="let c" class="mono right bold">₱{{ c.outstandingBalance | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="createdAt">
+      <th mat-header-cell *matHeaderCellDef>Date Added</th>
+      <td mat-cell *matCellDef="let c" class="mono">{{ c.createdAt | date:'MM/dd/yyyy' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let c">
+        <button mat-icon-button (click)="openCustomerProfile(c)" aria-label="View customer profile">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </td>
     </ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openCustomerProfile(row)"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
   </table>
   </div>
 

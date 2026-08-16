@@ -7,8 +7,11 @@ using LoanManagementSystem.Application.Common.Models;
 using LoanManagementSystem.Application.Customers.Queries.GetCustomerById;
 using LoanManagementSystem.Application.Customers.Queries.GetCustomerDocumentContent;
 using LoanManagementSystem.Application.Customers.Queries.GetCustomerDocuments;
+using LoanManagementSystem.Application.Customers.Queries.ExportCustomersXlsx;
 using LoanManagementSystem.Application.Customers.Queries.GetCustomers;
 using LoanManagementSystem.Application.Customers.Queries.GetCustomersPage;
+using LoanManagementSystem.Application.Customers.Queries.GetCustomersTotals;
+using LoanManagementSystem.Application.Loans.Queries.GetCustomerPaymentsPage;
 using LoanManagementSystem.Application.Loans.Queries.GetCustomerReceivables;
 using LoanManagementSystem.Application.Loans.Queries.GetLoansByCustomer;
 using LoanManagementSystem.Domain.Common;
@@ -35,12 +38,28 @@ public class CustomersController : ControllerBase
     public async Task<ActionResult<List<CustomerDto>>> GetAll(CancellationToken ct) =>
         Ok(await _mediator.Send(new GetCustomersQuery(), ct));
 
-    /// <summary>GET /api/customers/page?pageIndex=&amp;pageSize=&amp;search=&amp;sortBy=&amp;sortDir= — server-side paging for the Customers list table.</summary>
+    /// <summary>GET /api/customers/page?pageIndex=&amp;pageSize=&amp;search=&amp;sortBy=&amp;sortDir=&amp;status= — server-side paging for the Customers list table.</summary>
     [HttpGet("page")]
     public async Task<ActionResult<PagedResult<CustomerListItemDto>>> GetPage(
         [FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 10, [FromQuery] string? search = null,
-        [FromQuery] string? sortBy = null, [FromQuery] string? sortDir = null, CancellationToken ct = default) =>
-        Ok(await _mediator.Send(new GetCustomersPageQuery(pageIndex, pageSize, search, sortBy, sortDir), ct));
+        [FromQuery] string? sortBy = null, [FromQuery] string? sortDir = null, [FromQuery] string? status = null,
+        CancellationToken ct = default) =>
+        Ok(await _mediator.Send(new GetCustomersPageQuery(pageIndex, pageSize, search, sortBy, sortDir, status), ct));
+
+    /// <summary>GET /api/customers/page/totals — same filters as GetPage, no paging. Backs the Customers list's KPI strip.</summary>
+    [HttpGet("page/totals")]
+    public async Task<ActionResult<CustomerTotalsDto>> GetPageTotals(
+        [FromQuery] string? search = null, [FromQuery] string? status = null, CancellationToken ct = default) =>
+        Ok(await _mediator.Send(new GetCustomersTotalsQuery(search, status), ct));
+
+    /// <summary>GET /api/customers/export — same filters as GetPage, no paging. The Customers list's "Export" button, downloaded as .xlsx.</summary>
+    [HttpGet("export")]
+    public async Task<IActionResult> Export(
+        [FromQuery] string? search = null, [FromQuery] string? status = null, CancellationToken ct = default)
+    {
+        var file = await _mediator.Send(new ExportCustomersXlsxQuery(search, status), ct);
+        return File(file.Content, file.ContentType, file.OriginalFileName);
+    }
 
     /// <summary>GET /api/customers/{id} — Angular's LoanRepository.getCustomerById().</summary>
     [HttpGet("{id}")]
@@ -59,6 +78,13 @@ public class CustomersController : ControllerBase
     [HttpGet("{id}/receivables")]
     public async Task<ActionResult<DashboardReceivablesDto>> GetReceivables(string id, CancellationToken ct) =>
         Ok(await _mediator.Send(new GetCustomerReceivablesQuery(id), ct));
+
+    /// <summary>GET /api/customers/{id}/payments/page?pageIndex=&amp;pageSize= — server-side paging for the Customer Profile "Payment History" tab, newest first across all of this customer's loans.</summary>
+    [HttpGet("{id}/payments/page")]
+    public async Task<ActionResult<PagedResult<PaymentWithLoanDto>>> GetPaymentsPage(
+        string id, [FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortBy = null, [FromQuery] string? sortDir = null, CancellationToken ct = default) =>
+        Ok(await _mediator.Send(new GetCustomerPaymentsPageQuery(id, pageIndex, pageSize, sortBy, sortDir), ct));
 
     /// <summary>POST /api/customers — SRS 3.1 "Add ... customer profiles". Admin only; not yet called by the Angular UI (no Customers page built), but available for it.</summary>
     [HttpPost]

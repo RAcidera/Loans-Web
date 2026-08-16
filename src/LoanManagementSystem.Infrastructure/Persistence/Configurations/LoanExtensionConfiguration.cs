@@ -25,16 +25,13 @@ public class LoanExtensionConfiguration : IEntityTypeConfiguration<LoanExtension
         builder.Property(e => e.ExtensionDate).HasColumnName("extension_date").HasColumnType("date");
         builder.Property(e => e.ExtensionDays).HasColumnName("extension_days");
 
-        builder.Property(e => e.AdditionalInterestAmount)
-            .HasConversion(new ValueConverter<Money, decimal>(m => m.Amount, v => Money.Of(v)))
-            .HasColumnName("additional_interest_amount")
-            .HasColumnType("decimal(12,2)");
-
         builder.Property(e => e.AdditionalChargesAmount)
             .HasConversion(new ValueConverter<Money, decimal>(m => m.Amount, v => Money.Of(v)))
             .HasColumnName("additional_charges_amount")
             .HasColumnType("decimal(12,2)");
 
         builder.Property(e => e.Remarks).HasColumnName("remarks").HasMaxLength(500);
+
+        builder.Property(e => e.CreatedAtUtc).HasColumnName("created_at");
     }
 }

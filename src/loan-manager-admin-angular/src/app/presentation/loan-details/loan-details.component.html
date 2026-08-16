@@ -4,31 +4,44 @@
 </button>
 
 <div class="loan-details" *ngIf="!loading && loan; else loadingOrNotFound">
-  <mat-card class="header-card">
-    <div class="header-card__top">
-      <div class="header-card__identity">
+  <mat-card class="hero-card">
+    <div class="hero-card__top">
+      <div class="hero-card__icon"><mat-icon>receipt_long</mat-icon></div>
+
+      <div class="hero-card__identity">
         <h2 class="mono">{{ loan.loanNumber }}</h2>
-        <p>{{ loan.customerName }}</p>
-        <div class="header-card__chips">
+        <p>
+          {{ loan.customerName }}
+          <button
+            type="button"
+            class="hero-card__back-to-customer"
+            (click)="openCustomerProfile()"
+            matTooltip="Back to customer profile"
+            aria-label="Back to customer profile"
+          >
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+        </p>
+        <div class="hero-card__chips">
           <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
           <span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span>
         </div>
       </div>
 
-      <div class="header-card__actions">
-        <button mat-stroked-button (click)="openEditLoan()" *ngIf="authService.hasRole('admin')">
+      <div class="hero-card__actions">
+        <button mat-stroked-button color="primary" (click)="openEditLoan()" *ngIf="authService.hasRole('admin')">
           <mat-icon>edit</mat-icon> Edit Loan
         </button>
-        <button mat-stroked-button (click)="openExtendLoan()" [disabled]="loan.status === 'writtenoff'" *ngIf="authService.hasRole('admin')">
+        <button mat-stroked-button color="primary" (click)="openExtendLoan()" [disabled]="loan.status === 'writtenoff'" *ngIf="authService.hasRole('admin')">
           <mat-icon>update</mat-icon> New Extension
         </button>
-        <button mat-flat-button color="primary" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
+        <button mat-stroked-button class="btn--success" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
           <mat-icon>payments</mat-icon> New Payment
         </button>
-        <button mat-stroked-button (click)="generateSoa()" [disabled]="generatingSoa" matTooltip="Download Statement of Account PDF">
+        <button mat-stroked-button color="primary" (click)="generateSoa()" [disabled]="generatingSoa" matTooltip="Download Statement of Account PDF">
           <mat-icon>picture_as_pdf</mat-icon> {{ generatingSoa ? 'Generating…' : 'Generate SOA' }}
         </button>
-        <button mat-stroked-button [matMenuTriggerFor]="classificationMenu">
+        <button mat-stroked-button color="primary" [matMenuTriggerFor]="classificationMenu">
           <mat-icon>flag</mat-icon> Change Classification
         </button>
         <mat-menu #classificationMenu="matMenu">
@@ -39,59 +52,186 @@
       </div>
     </div>
 
-    <div class="header-card__stats">
-      <div class="summary-stat">
-        <span class="summary-stat__label">Principal</span>
-        <span class="summary-stat__value mono">₱{{ loan.principalAmount | number }}</span>
+    <div class="hero-card__stats">
+      <div class="hero-stat">
+        <span class="hero-stat__label">Borrower</span>
+        <span class="hero-stat__value">{{ loan.customerName }}</span>
       </div>
-      <div class="summary-stat">
-        <span class="summary-stat__label">Outstanding balance</span>
-        <span class="summary-stat__value summary-stat__value--balance mono">₱{{ loan.balance | number }}</span>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Contact</span>
+        <span class="hero-stat__value mono">{{ loan.customerContactNumber || '—' }}</span>
       </div>
-      <div class="summary-stat">
-        <span class="summary-stat__label">Due date</span>
-        <span class="summary-stat__value mono">{{ loan.dueDate }}</span>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Principal</span>
+        <span class="hero-stat__value hero-stat__value--blue mono">₱{{ loan.principalAmount | number:'1.2-2' }}</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Interest Amount</span>
+        <span class="hero-stat__value hero-stat__value--purple mono">₱{{ loan.totalInterest | number:'1.2-2' }}</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Extension Charges</span>
+        <span class="hero-stat__value hero-stat__value--orange mono">₱{{ loan.totalExtensionCharges | number:'1.2-2' }}</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Total Payments</span>
+        <span class="hero-stat__value hero-stat__value--green mono">₱{{ loan.totalPaid | number:'1.2-2' }}</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Outstanding Balance</span>
+        <span class="hero-stat__value hero-stat__value--red mono">₱{{ loan.balance | number:'1.2-2' }}</span>
+      </div>
+      <div class="hero-stat">
+        <span class="hero-stat__label">Due Date</span>
+        <span class="hero-stat__value mono">{{ loan.dueDate | date:'MMM dd, yyyy' }}</span>
       </div>
     </div>
   </mat-card>
 
   <mat-card class="tabs-card">
-    <mat-tab-group>
+    <mat-tab-group [mat-stretch-tabs]="false" mat-align-tabs="start">
       <mat-tab label="Overview">
         <div class="tab-content">
           <lm-loan-timeline [loan]="loan" [extensions]="extensions"></lm-loan-timeline>
 
-          <dl class="overview-fields">
-            <div class="overview-fields__row"><dt>Loan date</dt><dd class="mono">{{ loan.startDate }}</dd></div>
-            <div class="overview-fields__row"><dt>Due date</dt><dd class="mono">{{ loan.dueDate }}</dd></div>
-            <div class="overview-fields__row"><dt>Principal</dt><dd class="mono">₱{{ loan.principalAmount | number }}</dd></div>
-            <div class="overview-fields__row"><dt>Interest rate</dt><dd class="mono">{{ loan.interestRate * 100 }}%</dd></div>
-            <div class="overview-fields__row"><dt>Interest amount</dt><dd class="mono">₱{{ loan.totalInterest | number }}</dd></div>
-            <div class="overview-fields__row"><dt>Total extension charges</dt><dd class="mono">₱{{ loan.totalExtensionCharges | number }}</dd></div>
-            <div class="overview-fields__row"><dt>Total payments</dt><dd class="mono">₱{{ loan.totalPaid | number }}</dd></div>
-            <div class="overview-fields__row"><dt>Outstanding balance</dt><dd class="mono">₱{{ loan.balance | number }}</dd></div>
-            <div class="overview-fields__row"><dt>Loan status</dt><dd><span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span></dd></div>
-            <div class="overview-fields__row"><dt>Loan classification</dt><dd><span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span></dd></div>
-            <div class="overview-fields__row overview-fields__row--full" *ngIf="loan.remarks">
-              <dt>Remarks</dt><dd>{{ loan.remarks }}</dd>
-            </div>
-          </dl>
+          <div class="overview-grid">
+            <section class="info-card">
+              <div class="info-card__header">Loan Information</div>
+              <div class="info-card__body">
+                <div class="info-row"><span>Loan Date</span><strong class="mono">{{ loan.startDate | date:'MMM dd, yyyy' }}</strong></div>
+                <div class="info-row"><span>Due Date</span><strong class="mono">{{ loan.dueDate | date:'MMM dd, yyyy' }}</strong></div>
+                <div class="info-row"><span>Loan Term</span><strong>{{ loan.paymentTermsMonths }} month{{ loan.paymentTermsMonths === 1 ? '' : 's' }}</strong></div>
+                <div class="info-row"><span>Interest Rate</span><strong class="mono">{{ loan.interestRate * 100 | number:'1.2-2' }}%</strong></div>
+                <div class="info-row"><span>Interest Amount</span><strong class="mono">₱{{ loan.totalInterest | number:'1.2-2' }}</strong></div>
+                <div class="info-row"><span>Loan Status</span><strong><span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span></strong></div>
+                <div class="info-row"><span>Loan Classification</span><strong><span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span></strong></div>
+                <div class="info-row"><span>Created At</span><strong class="mono">{{ loan.createdAt | date:'MMM dd, yyyy' }}</strong></div>
+                <div class="info-row info-row--full" *ngIf="loan.remarks"><span>Remarks</span><strong>{{ loan.remarks }}</strong></div>
+              </div>
+            </section>
+
+            <section class="info-card">
+              <div class="info-card__header">Financial Summary</div>
+              <div class="info-card__body">
+                <div class="finance">
+                  <div class="donut" [style.background]="'conic-gradient(var(--lm-primary) ' + paidPercent + '%, var(--lm-border) 0)'">
+                    <div class="donut__text">{{ paidPercent }}%<small>{{ loan.status === 'paid' ? 'Paid' : 'Collected' }}</small></div>
+                  </div>
+                  <div class="finance-legend">
+                    <div><span>Principal</span><strong class="mono">₱{{ loan.principalAmount | number:'1.2-2' }}</strong></div>
+                    <div><span>Interest</span><strong class="mono">₱{{ loan.totalInterest | number:'1.2-2' }}</strong></div>
+                    <div><span>Extension Charges</span><strong class="mono">₱{{ loan.totalExtensionCharges | number:'1.2-2' }}</strong></div>
+                    <div><span>Payments</span><strong class="mono">₱{{ loan.totalPaid | number:'1.2-2' }}</strong></div>
+                  </div>
+                </div>
+                <div class="status-alert" [ngClass]="'status-alert--' + statusMessage.tone">
+                  <mat-icon>{{ statusMessage.icon }}</mat-icon>
+                  <span>{{ statusMessage.text }}</span>
+                </div>
+              </div>
+            </section>
+
+            <section class="info-card">
+              <div class="info-card__header">Timeline</div>
+              <ul class="timeline-events">
+                <li class="timeline-event" *ngFor="let ev of timelineEvents">
+                  <div class="timeline-event__icon" [ngClass]="'timeline-event__icon--' + ev.tone">
+                    <mat-icon>{{ ev.icon }}</mat-icon>
+                  </div>
+                  <div class="timeline-event__main">
+                    <span class="timeline-event__title">{{ ev.title }}</span>
+                    <span class="timeline-event__subtitle">{{ ev.subtitle }}</span>
+                  </div>
+                  <span class="timeline-event__date mono">{{ ev.date | date:'MMM dd, yyyy' }}</span>
+                </li>
+                <li class="empty-note" *ngIf="timelineEvents.length === 0">No activity yet.</li>
+              </ul>
+            </section>
+          </div>
+
+          <div class="lower-grid">
+            <section class="info-card">
+              <div class="info-card__header info-card__header--with-action">
+                Payment History
+                <button mat-stroked-button class="btn--success btn--small" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
+                  <mat-icon>add</mat-icon> New Payment
+                </button>
+              </div>
+              <div class="table-scroll">
+              <table mat-table [dataSource]="recentPayments" class="history-table">
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>Payment Date</th>
+                  <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="amount">
+                  <th mat-header-cell *matHeaderCellDef class="right">Amount</th>
+                  <td mat-cell *matCellDef="let p" class="mono right">₱{{ p.amountPaid | number:'1.2-2' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="method">
+                  <th mat-header-cell *matHeaderCellDef>Method</th>
+                  <td mat-cell *matCellDef="let p">{{ getPaymentMethodLabel(p.paymentMethod) }}</td>
+                </ng-container>
+                <ng-container matColumnDef="reference">
+                  <th mat-header-cell *matHeaderCellDef>Reference</th>
+                  <td mat-cell *matCellDef="let p" class="mono">{{ p.referenceNumber || '—' }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['date', 'amount', 'method', 'reference']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['date', 'amount', 'method', 'reference']"></tr>
+              </table>
+              </div>
+              <p class="empty-note" *ngIf="recentPayments.length === 0">No payments recorded yet.</p>
+            </section>
+
+            <section class="info-card">
+              <div class="info-card__header info-card__header--with-action">
+                Extension History
+                <button mat-stroked-button color="primary" class="btn--small" (click)="openExtendLoan()" [disabled]="loan.status === 'writtenoff'" *ngIf="authService.hasRole('admin')">
+                  <mat-icon>add</mat-icon> New Extension
+                </button>
+              </div>
+              <div class="table-scroll">
+              <table mat-table [dataSource]="extensions" class="history-table">
+                <ng-container matColumnDef="date">
+                  <th mat-header-cell *matHeaderCellDef>Date</th>
+                  <td mat-cell *matCellDef="let e" class="mono">{{ e.extensionDate | date:'MMM dd, yyyy' }}</td>
+                </ng-container>
+                <ng-container matColumnDef="days">
+                  <th mat-header-cell *matHeaderCellDef class="right">Days</th>
+                  <td mat-cell *matCellDef="let e" class="mono right">+{{ e.extensionDays }}</td>
+                </ng-container>
+                <ng-container matColumnDef="charges">
+                  <th mat-header-cell *matHeaderCellDef class="right">Charges</th>
+                  <td mat-cell *matCellDef="let e" class="mono right">₱{{ e.additionalChargesAmount | number:'1.2-2' }}</td>
+                </ng-container>
+
+                <tr mat-header-row *matHeaderRowDef="['date', 'days', 'charges']"></tr>
+                <tr mat-row *matRowDef="let row; columns: ['date', 'days', 'charges']"></tr>
+              </table>
+              </div>
+              <p class="empty-note" *ngIf="extensions.length === 0">This loan has no extension records.</p>
+              <div class="lower-total" *ngIf="extensions.length > 0">
+                Total Extension Charges
+                <span class="hero-stat__value--orange mono">₱{{ totalExtensionCharges | number:'1.2-2' }}</span>
+              </div>
+            </section>
+          </div>
         </div>
       </mat-tab>
 
       <mat-tab label="Payments">
         <div class="tab-content">
           <div class="table-scroll">
-          <table mat-table [dataSource]="payments" class="history-table">
+          <table mat-table [dataSource]="paymentsPageItems" matSort (matSortChange)="onPaymentsSort($event)" class="history-table">
             <ng-container matColumnDef="date">
-              <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate }}</td>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
+              <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</td>
               <td mat-footer-cell *matFooterCellDef>Total</td>
             </ng-container>
             <ng-container matColumnDef="amount">
-              <th mat-header-cell *matHeaderCellDef>Amount</th>
-              <td mat-cell *matCellDef="let p" class="mono right">₱{{ p.amountPaid | number }}</td>
-              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ totalPaymentsAmount | number }}</td>
+              <th mat-header-cell *matHeaderCellDef class="right">Amount</th>
+              <td mat-cell *matCellDef="let p" class="mono right">₱{{ p.amountPaid | number:'1.2-2' }}</td>
+              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ totalPaymentsAmount | number:'1.2-2' }}</td>
             </ng-container>
             <ng-container matColumnDef="method">
               <th mat-header-cell *matHeaderCellDef>Method</th>
@@ -100,7 +240,7 @@
             </ng-container>
             <ng-container matColumnDef="balance">
               <th mat-header-cell *matHeaderCellDef>Running Balance</th>
-              <td mat-cell *matCellDef="let p" class="mono right">₱{{ getPaymentRunningBalance(p) | number }}</td>
+              <td mat-cell *matCellDef="let p" class="mono right">₱{{ getPaymentRunningBalance(p) | number:'1.2-2' }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="reference">
@@ -124,10 +264,19 @@
 
             <tr mat-header-row *matHeaderRowDef="paymentColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: paymentColumns"></tr>
-            <tr mat-footer-row *matFooterRowDef="paymentColumns" class="history-table__footer" [hidden]="payments.length === 0"></tr>
+            <tr mat-footer-row *matFooterRowDef="paymentColumns" class="history-table__footer" [hidden]="paymentsPageItems.length === 0"></tr>
           </table>
           </div>
-          <p class="empty-note" *ngIf="payments.length === 0">No payments recorded yet.</p>
+          <p class="empty-note" *ngIf="paymentsPageItems.length === 0">No payments recorded yet.</p>
+          <mat-paginator
+            *ngIf="paymentsPageTotalCount > 0"
+            [length]="paymentsPageTotalCount"
+            [pageIndex]="paymentsPageIndex"
+            [pageSize]="paymentsPageSize"
+            [pageSizeOptions]="[10, 25, 50]"
+            showFirstLastButtons
+            (page)="onPaymentsPage($event)"
+          ></mat-paginator>
         </div>
       </mat-tab>
 
@@ -137,7 +286,7 @@
           <table mat-table [dataSource]="extensions" class="history-table">
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let e" class="mono">{{ e.extensionDate }}</td>
+              <td mat-cell *matCellDef="let e" class="mono">{{ e.extensionDate | date:'MMM dd, yyyy' }}</td>
               <td mat-footer-cell *matFooterCellDef>Total</td>
             </ng-container>
             <ng-container matColumnDef="days">
@@ -145,19 +294,14 @@
               <td mat-cell *matCellDef="let e" class="mono right">+{{ e.extensionDays }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
-            <ng-container matColumnDef="interest">
-              <th mat-header-cell *matHeaderCellDef>Interest</th>
-              <td mat-cell *matCellDef="let e" class="mono right">₱{{ e.additionalInterestAmount | number }}</td>
-              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ totalExtensionInterest | number }}</td>
-            </ng-container>
             <ng-container matColumnDef="charges">
               <th mat-header-cell *matHeaderCellDef>Charges</th>
-              <td mat-cell *matCellDef="let e" class="mono right">₱{{ e.additionalChargesAmount | number }}</td>
-              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ totalExtensionCharges | number }}</td>
+              <td mat-cell *matCellDef="let e" class="mono right">₱{{ e.additionalChargesAmount | number:'1.2-2' }}</td>
+              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ totalExtensionCharges | number:'1.2-2' }}</td>
             </ng-container>
             <ng-container matColumnDef="balance">
               <th mat-header-cell *matHeaderCellDef>Running Balance</th>
-              <td mat-cell *matCellDef="let e" class="mono right">₱{{ getExtensionRunningBalance(e) | number }}</td>
+              <td mat-cell *matCellDef="let e" class="mono right">₱{{ getExtensionRunningBalance(e) | number:'1.2-2' }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="remarks">
@@ -197,7 +341,7 @@
           <table mat-table [dataSource]="auditLog" class="history-table">
             <ng-container matColumnDef="occurredAt">
               <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let a" class="mono">{{ a.occurredAt | date: 'yyyy-MM-dd HH:mm' }}</td>
+              <td mat-cell *matCellDef="let a" class="mono">{{ a.occurredAt | date: 'MMM dd, yyyy HH:mm' }}</td>
             </ng-container>
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>

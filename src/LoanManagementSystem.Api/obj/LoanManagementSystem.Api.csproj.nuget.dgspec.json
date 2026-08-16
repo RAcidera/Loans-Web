@@ -302,6 +302,10 @@
         "net8.0": {
           "targetAlias": "net8.0",
           "dependencies": {
+            "ClosedXML": {
+              "target": "Package",
+              "version": "[0.105.1, )"
+            },
             "MediatR": {
               "target": "Package",
               "version": "[12.4.1, )"

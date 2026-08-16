@@ -1,4 +1,4 @@
-<h2 class="dialog-title">Add cash transaction</h2>
+<h2 class="dialog-title">{{ isEditMode ? 'Edit cash transaction' : 'Add cash transaction' }}</h2>
 
 <form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
   <mat-form-field appearance="outline">
@@ -8,10 +8,20 @@
     </mat-select>
   </mat-form-field>
 
+  <mat-button-toggle-group *ngIf="isAdjustment" formControlName="isCashIn" class="direction-toggle" aria-label="Adjustment direction">
+    <mat-button-toggle [value]="true">Increases cash (in)</mat-button-toggle>
+    <mat-button-toggle [value]="false">Decreases cash (out)</mat-button-toggle>
+  </mat-button-toggle-group>
+  <p class="dialog-form__error" *ngIf="isAdjustment && directionRequiredButMissing">Please choose whether this adjustment increases or decreases cash on hand.</p>
+
   <mat-form-field appearance="outline">
     <mat-label>Amount</mat-label>
-    <span matTextPrefix>₱&nbsp;</span>
     <input matInput type="number" formControlName="amount" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Transaction date</mat-label>
+    <input matInput type="date" formControlName="transactionDate" />
   </mat-form-field>
 
   <mat-form-field appearance="outline">
@@ -21,6 +31,6 @@
 
   <div class="dialog-form__actions">
     <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
-    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || submitting">Add transaction</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || submitting">{{ isEditMode ? 'Save changes' : 'Add transaction' }}</button>
   </div>
 </form>

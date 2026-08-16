@@ -1,0 +1,80 @@
+@use '../../styles/tokens';
+
+.confirm-dialog {
+  // box-sizing:border-box is load-bearing here, not decoration — without
+  // it, width + padding add up to MORE than the MatDialog surface's own
+  // width (set via ConfirmDialogService's dialogRef config), so this content
+  // box was rendering wider than the visible white card and clipping the
+  // message text past its right edge (confirmed via getBoundingClientRect:
+  // content 428px vs. surface 380px).
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  width: 100%;
+  padding: 28px 24px 24px;
+
+  @include tokens.mobile {
+    padding: 24px 16px 20px;
+  }
+
+  &__icon {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    background: rgba(108, 93, 211, 0.12);
+    color: var(--lm-primary);
+
+    mat-icon {
+      font-size: 26px;
+      width: 26px;
+      height: 26px;
+    }
+
+    &--danger {
+      background: rgba(193, 102, 107, 0.14);
+      color: var(--lm-danger);
+    }
+  }
+
+  &__title {
+    font-family: var(--lm-font-display);
+    font-size: 17px;
+    font-weight: 700;
+    margin: 0 0 8px;
+    color: var(--lm-text);
+  }
+
+  &__message {
+    font-size: 13.5px;
+    line-height: 1.5;
+    color: var(--lm-text-muted);
+    margin: 0 0 24px;
+    overflow-wrap: break-word; // safety net for a long filename/remarks value with no natural break points
+  }
+
+  &__actions {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+
+    button {
+      flex: 1;
+    }
+  }
+
+  // Overrides Material's primary-palette flat-button fill — this app's
+  // destructive actions use --lm-danger throughout (chips, KPI values),
+  // not Material's own separate "warn" red, so the confirm button matches
+  // that same rose tone instead of introducing a second, different red.
+  &__confirm--danger {
+    background-color: var(--lm-danger) !important;
+    color: #fff !important;
+  }
+}

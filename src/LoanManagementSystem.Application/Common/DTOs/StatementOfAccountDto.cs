@@ -8,9 +8,11 @@ namespace LoanManagementSystem.Application.Common.DTOs;
 /// </summary>
 public sealed record StatementOfAccountDto(
     string CustomerName,
+    string CustomerCode,
     string CustomerAddress,
     string CustomerContactNumber,
     string LoanNumber,
+    string StatementDate,
     string LoanDate,
     string DueDate,
     decimal PrincipalAmount,
@@ -26,6 +28,9 @@ public sealed record StatementOfAccountDto(
     string Classification
 );
 
-public sealed record SoaExtensionRowDto(string ExtensionDate, decimal AdditionalCharges, decimal AdditionalInterest, string NewDueDate);
+public sealed record SoaExtensionRowDto(string ExtensionDate, decimal AdditionalCharges, string NewDueDate);
 
-public sealed record SoaPaymentRowDto(string PaymentDate, decimal PaymentAmount, decimal RunningBalance);
+/// <summary>PaymentMethod is the wire-format string (see MappingExtensions.ToWireString) — the PDF generator owns turning it into a display label, same split as everywhere else in this codebase.</summary>
+public sealed record SoaPaymentRowDto(
+    string PaymentDate, decimal PaymentAmount, string PaymentMethod, string? ReferenceNumber, decimal RunningBalance, string? Remarks
+);

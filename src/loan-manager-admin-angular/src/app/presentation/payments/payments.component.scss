@@ -1,0 +1,219 @@
+@use '../../styles/tokens';
+
+.mono {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+.left {
+  text-align: left;
+}
+
+.right {
+  text-align: right;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.filter-card,
+.table-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+}
+
+.filter-card {
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.filter-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.table-card {
+  padding: 4px 4px 0;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+// Label-on-top control chrome, matching the Loans/Customers list pages —
+// see loans.component.scss's own comment for the full rationale.
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 190px;
+
+  label {
+    font-size: 11px;
+    font-weight: 650;
+    color: var(--lm-text);
+    margin-bottom: 6px;
+  }
+}
+
+.field--range {
+  width: 230px;
+}
+
+.field--search {
+  width: 200px;
+}
+
+.range-field {
+  width: 100%;
+  display: block;
+  --mat-form-field-container-height: 42px;
+  --mat-form-field-container-vertical-padding: 9px;
+
+  input {
+    font-size: 13.5px;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  padding: 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--lm-text-muted);
+  }
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--lm-text);
+    width: 100%;
+
+    &::placeholder {
+      color: var(--lm-text-muted);
+    }
+  }
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.payments-table {
+  width: 100%;
+  // table-layout:fixed is required for "every other column keeps its own
+  // exact width, Notes alone absorbs the leftover space" — under the
+  // default auto layout, a wide/100%-width column pulls space away from
+  // every other flexible column (confirmed: it squeezed Customer names
+  // onto two lines), not just the leftover. With fixed layout, only
+  // columns with NO declared width (just Notes, below) share whatever
+  // width remains after every declared-width column is subtracted.
+  table-layout: fixed;
+  @include tokens.lm-data-table;
+
+  tr.payments-table__footer {
+    font-weight: 600;
+
+    td.mat-mdc-footer-cell {
+      border-top: 2px solid var(--lm-border);
+    }
+  }
+
+  th.mat-column-loanNumber,
+  td.mat-column-loanNumber {
+    width: 131px;
+  }
+
+  th.mat-column-customer,
+  td.mat-column-customer {
+    width: 250px;
+  }
+
+  th.mat-column-paymentDate,
+  td.mat-column-paymentDate {
+    width: 150px;
+  }
+
+  th.mat-column-amountPaid,
+  td.mat-column-amountPaid {
+    width: 150px;
+  }
+
+  th.mat-column-paymentMethod,
+  td.mat-column-paymentMethod {
+    width: 120px;
+  }
+
+  th.mat-column-referenceNumber,
+  td.mat-column-referenceNumber {
+    width: 120px;
+  }
+
+  // Notes has no declared width, so it's the sole column that absorbs
+  // whatever's left of the table's own 100% width.
+
+  td.mat-column-customer,
+  td.mat-column-paymentMethod,
+  td.mat-column-referenceNumber {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  // Amount paid header right-alignment lives in the global styles.scss,
+  // not here — .mat-sort-header-container is Material's own internal
+  // element and carries Material's _ngcontent attribute, not this
+  // component's, so a scoped selector here would silently never match
+  // (same gotcha documented on styles.scss's .range-field rule).
+}
+
+.row-link {
+  color: var(--lm-primary);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+.empty-hint {
+  padding: 20px;
+  text-align: center;
+  color: var(--lm-text-muted);
+  font-size: 13px;
+}

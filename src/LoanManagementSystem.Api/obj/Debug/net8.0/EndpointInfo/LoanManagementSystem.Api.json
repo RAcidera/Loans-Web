@@ -166,6 +166,262 @@
         }
       }
     },
+    "/api/cash-funds/ledger/page": {
+      "get": {
+        "tags": [
+          "CashFunds"
+        ],
+        "parameters": [
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 15
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerEntryDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerEntryDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerEntryDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cash-funds/ledger/page/totals": {
+      "get": {
+        "tags": [
+          "CashFunds"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerTotalsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerTotalsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerTotalsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/cash-funds/ledger/export": {
+      "get": {
+        "tags": [
+          "CashFunds"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/cash-funds/ledger/{id}": {
+      "put": {
+        "tags": [
+          "CashFunds"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditCashTransactionRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditCashTransactionRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/EditCashTransactionRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerEntryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerEntryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CashLedgerEntryDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "delete": {
+        "tags": [
+          "CashFunds"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/customers": {
       "get": {
         "tags": [
@@ -294,6 +550,13 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -316,6 +579,79 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/customers/page/totals": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerTotalsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerTotalsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerTotalsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/export": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -495,6 +831,77 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DashboardReceivablesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{id}/payments/page": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentWithLoanDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentWithLoanDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentWithLoanDtoPagedResult"
                 }
               }
             }
@@ -687,6 +1094,35 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/DashboardReceivablesDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard/summary": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DashboardSummaryDto"
                 }
               }
             }
@@ -1006,6 +1442,89 @@
                 }
               }
             }
+          }
+        }
+      }
+    },
+    "/api/loans/export": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classification",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "loanDateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "loanDateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dueDateFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "dueDateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "badLoansOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          },
+          {
+            "name": "overdueOnly",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "default": false
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
           }
         }
       }
@@ -1345,6 +1864,77 @@
               "text/json": {
                 "schema": {
                   "$ref": "#/components/schemas/PaymentDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/loans/{id}/payments/page": {
+      "get": {
+        "tags": [
+          "Loans"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 10
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaymentDtoPagedResult"
                 }
               }
             }
@@ -2152,6 +2742,427 @@
         }
       }
     },
+    "/api/reports/interest-earned/page": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "pageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 0
+            }
+          },
+          {
+            "name": "pageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32",
+              "default": 25
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classification",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interestType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortBy",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "sortDir",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedRowDtoPagedResult"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedRowDtoPagedResult"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedRowDtoPagedResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/interest-earned/overview": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classification",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interestType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedOverviewDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedOverviewDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedOverviewDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/interest-earned/monthly-chart": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classification",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interestType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InterestEarnedMonthlyPointDto"
+                  }
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InterestEarnedMonthlyPointDto"
+                  }
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/InterestEarnedMonthlyPointDto"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/interest-earned/{loanId}/breakdown": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "name": "loanId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedLoanBreakdownDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedLoanBreakdownDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InterestEarnedLoanBreakdownDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reports/interest-earned/export/xlsx": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classification",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interestType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
+    "/api/reports/interest-earned/export/pdf": {
+      "get": {
+        "tags": [
+          "Reports"
+        ],
+        "parameters": [
+          {
+            "name": "fromDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "toDate",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "search",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "classification",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "interestType",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK"
+          }
+        }
+      }
+    },
     "/api/users": {
       "get": {
         "tags": [
@@ -2306,6 +3317,14 @@
           "remarks": {
             "type": "string",
             "nullable": true
+          },
+          "transactionDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCashIn": {
+            "type": "boolean",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -2333,6 +3352,17 @@
             "type": "number",
             "format": "double"
           },
+          "isCashIn": {
+            "type": "boolean"
+          },
+          "isAutomatic": {
+            "type": "boolean"
+          },
+          "runningBalance": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
           "remarks": {
             "type": "string",
             "nullable": true
@@ -2344,35 +3374,86 @@
         },
         "additionalProperties": false
       },
+      "CashLedgerEntryDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CashLedgerEntryDto"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "CashLedgerTotalsDto": {
+        "type": "object",
+        "properties": {
+          "cashIn": {
+            "type": "number",
+            "format": "double"
+          },
+          "cashOut": {
+            "type": "number",
+            "format": "double"
+          },
+          "netChange": {
+            "type": "number",
+            "format": "double"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "CashSummaryDto": {
         "type": "object",
         "properties": {
-          "totalCashIn": {
-            "type": "number",
-            "format": "double"
-          },
-          "totalCashOut": {
-            "type": "number",
-            "format": "double"
-          },
           "cashOnHand": {
             "type": "number",
             "format": "double"
           },
-          "revolvingFunds": {
+          "asOfDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "cashInThisMonth": {
             "type": "number",
             "format": "double"
           },
-          "outstandingPrincipal": {
+          "cashOutThisMonth": {
             "type": "number",
             "format": "double"
           },
-          "sevenDayTrend": {
-            "type": "array",
-            "items": {
-              "type": "number",
-              "format": "double"
-            },
+          "netChangeThisMonth": {
+            "type": "number",
+            "format": "double"
+          },
+          "cashOnHandChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cashInChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "cashOutChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "netChangePercent": {
+            "type": "number",
+            "format": "double",
             "nullable": true
           }
         },
@@ -2448,13 +3529,18 @@
             "format": "double",
             "nullable": true
           },
-          "termDays": {
+          "paymentTermsMonths": {
             "type": "integer",
             "format": "int32",
             "nullable": true
           },
           "startDate": {
             "type": "string",
+            "nullable": true
+          },
+          "interestAmount": {
+            "type": "number",
+            "format": "double",
             "nullable": true
           }
         },
@@ -2604,6 +3690,10 @@
           "loanCount": {
             "type": "integer",
             "format": "int32"
+          },
+          "outstandingBalance": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -2651,6 +3741,46 @@
         },
         "additionalProperties": false
       },
+      "CustomerTotalsDto": {
+        "type": "object",
+        "properties": {
+          "totalCustomersCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeCustomersCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "inactiveCustomersCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalLoansCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalOutstandingBalance": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "DailyCollectionDto": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "DashboardReceivablesDto": {
         "type": "object",
         "properties": {
@@ -2685,16 +3815,117 @@
         },
         "additionalProperties": false
       },
+      "DashboardSummaryDto": {
+        "type": "object",
+        "properties": {
+          "grossReceivables": {
+            "type": "number",
+            "format": "double"
+          },
+          "grossReceivablesChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "collectibleReceivables": {
+            "type": "number",
+            "format": "double"
+          },
+          "collectibleReceivablesChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "badLoanReceivables": {
+            "type": "number",
+            "format": "double"
+          },
+          "badLoanReceivablesChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "activeLoansCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeLoansChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "overdueLoansCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overdueLoansChangePercent": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "loansDueThisWeekCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "monthlyCollections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MonthlyCollectionDto"
+            },
+            "nullable": true
+          },
+          "last7DaysCollections": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DailyCollectionDto"
+            },
+            "nullable": true
+          },
+          "receivablesBreakdown": {
+            "$ref": "#/components/schemas/ReceivablesBreakdownDto"
+          },
+          "recentLoans": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/LoanDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "EditCashTransactionRequest": {
+        "type": "object",
+        "properties": {
+          "transactionType": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double"
+          },
+          "remarks": {
+            "type": "string",
+            "nullable": true
+          },
+          "transactionDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "isCashIn": {
+            "type": "boolean",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "ExtendLoanRequest": {
         "type": "object",
         "properties": {
           "extensionDays": {
             "type": "integer",
             "format": "int32"
-          },
-          "additionalInterestAmount": {
-            "type": "number",
-            "format": "double"
           },
           "remarks": {
             "type": "string",
@@ -2703,6 +3934,288 @@
           "additionalChargesAmount": {
             "type": "number",
             "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedLoanBreakdownDto": {
+        "type": "object",
+        "properties": {
+          "loanId": {
+            "type": "string",
+            "nullable": true
+          },
+          "loanNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "originalContractInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "adjustedContractInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "interestAdjustment": {
+            "type": "number",
+            "format": "double"
+          },
+          "periods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InterestEarnedPeriodDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedMonthlyPointDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentYear": {
+            "type": "number",
+            "format": "double"
+          },
+          "previousYear": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedOverviewDto": {
+        "type": "object",
+        "properties": {
+          "summary": {
+            "$ref": "#/components/schemas/InterestEarnedSummaryDto"
+          },
+          "totals": {
+            "$ref": "#/components/schemas/InterestEarnedTotalsDto"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedPeriodDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string",
+            "nullable": true
+          },
+          "periodStart": {
+            "type": "string",
+            "nullable": true
+          },
+          "periodEndInclusive": {
+            "type": "string",
+            "nullable": true
+          },
+          "termDays": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "contractAmount": {
+            "type": "number",
+            "format": "double"
+          },
+          "dailyInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "earnedDaysThisPeriod": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "earnedBeforePeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "earnedThisPeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalEarned": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedRowDto": {
+        "type": "object",
+        "properties": {
+          "loanId": {
+            "type": "string",
+            "nullable": true
+          },
+          "loanNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerName": {
+            "type": "string",
+            "nullable": true
+          },
+          "loanDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "dueDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "principal": {
+            "type": "number",
+            "format": "double"
+          },
+          "contractInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "extensionInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "earnedBeforePeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "earnedThisPeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "adjustment": {
+            "type": "number",
+            "format": "double"
+          },
+          "finalEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "status": {
+            "type": "string",
+            "nullable": true
+          },
+          "classification": {
+            "type": "string",
+            "nullable": true
+          },
+          "originalEarnedThisPeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "extensionEarnedThisPeriod": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedRowDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InterestEarnedRowDto"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedSummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalEarnedInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "originalInterestEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "extensionInterestEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "interestAdjustments": {
+            "type": "number",
+            "format": "double"
+          },
+          "interestCollected": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "interestReceivable": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "InterestEarnedTotalsDto": {
+        "type": "object",
+        "properties": {
+          "principal": {
+            "type": "number",
+            "format": "double"
+          },
+          "contractInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "extensionInterest": {
+            "type": "number",
+            "format": "double"
+          },
+          "earnedBeforePeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "earnedThisPeriod": {
+            "type": "number",
+            "format": "double"
+          },
+          "totalEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "adjustment": {
+            "type": "number",
+            "format": "double"
+          },
+          "finalEarned": {
+            "type": "number",
+            "format": "double"
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -2839,6 +4352,10 @@
             "type": "string",
             "nullable": true
           },
+          "paymentTermsMonths": {
+            "type": "integer",
+            "format": "int32"
+          },
           "totalInterest": {
             "type": "number",
             "format": "double"
@@ -2859,6 +4376,10 @@
             "type": "number",
             "format": "double"
           },
+          "dailyPayment": {
+            "type": "number",
+            "format": "double"
+          },
           "status": {
             "type": "string",
             "nullable": true
@@ -2872,6 +4393,10 @@
             "nullable": true
           },
           "createdAt": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerContactNumber": {
             "type": "string",
             "nullable": true
           }
@@ -2913,10 +4438,6 @@
           "extensionDays": {
             "type": "integer",
             "format": "int32"
-          },
-          "additionalInterestAmount": {
-            "type": "number",
-            "format": "double"
           },
           "additionalChargesAmount": {
             "type": "number",
@@ -2997,6 +4518,22 @@
           "totalOutstandingBalance": {
             "type": "number",
             "format": "double"
+          },
+          "totalLoansCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "activeLoansCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "overdueLoansCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "paidLoansCount": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -3037,6 +4574,24 @@
         },
         "additionalProperties": false
       },
+      "MonthlyCollectionDto": {
+        "type": "object",
+        "properties": {
+          "month": {
+            "type": "string",
+            "nullable": true
+          },
+          "thisYear": {
+            "type": "number",
+            "format": "double"
+          },
+          "lastYear": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "PaymentDto": {
         "type": "object",
         "properties": {
@@ -3067,6 +4622,23 @@
           "referenceNumber": {
             "type": "string",
             "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaymentDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentDto"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
           }
         },
         "additionalProperties": false
@@ -3113,6 +4685,61 @@
         },
         "additionalProperties": false
       },
+      "PaymentWithLoanDto": {
+        "type": "object",
+        "properties": {
+          "paymentId": {
+            "type": "string",
+            "nullable": true
+          },
+          "loanId": {
+            "type": "string",
+            "nullable": true
+          },
+          "loanNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentDate": {
+            "type": "string",
+            "nullable": true
+          },
+          "amountPaid": {
+            "type": "number",
+            "format": "double"
+          },
+          "paymentMethod": {
+            "type": "string",
+            "nullable": true
+          },
+          "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "referenceNumber": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
+      "PaymentWithLoanDtoPagedResult": {
+        "type": "object",
+        "properties": {
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PaymentWithLoanDto"
+            },
+            "nullable": true
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "PeriodSummaryDto": {
         "type": "object",
         "properties": {
@@ -3143,6 +4770,28 @@
         },
         "additionalProperties": false
       },
+      "ReceivablesBreakdownDto": {
+        "type": "object",
+        "properties": {
+          "current": {
+            "type": "number",
+            "format": "double"
+          },
+          "overdue": {
+            "type": "number",
+            "format": "double"
+          },
+          "badLoan": {
+            "type": "number",
+            "format": "double"
+          },
+          "paid": {
+            "type": "number",
+            "format": "double"
+          }
+        },
+        "additionalProperties": false
+      },
       "RecordPaymentRequest": {
         "type": "object",
         "properties": {
@@ -3159,6 +4808,10 @@
             "nullable": true
           },
           "referenceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "paymentDate": {
             "type": "string",
             "nullable": true
           }
@@ -3202,10 +4855,6 @@
             "type": "integer",
             "format": "int32"
           },
-          "additionalInterestAmount": {
-            "type": "number",
-            "format": "double"
-          },
           "remarks": {
             "type": "string",
             "nullable": true
@@ -3224,6 +4873,11 @@
       "UpdateLoanRequest": {
         "type": "object",
         "properties": {
+          "principal": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
           "startDate": {
             "type": "string",
             "nullable": true
@@ -3240,6 +4894,11 @@
           "interestAmount": {
             "type": "number",
             "format": "double",
+            "nullable": true
+          },
+          "paymentTermsMonths": {
+            "type": "integer",
+            "format": "int32",
             "nullable": true
           },
           "remarks": {

@@ -34,4 +34,16 @@ export class HttpUserRepository extends UserRepository {
   deactivateUser(userId: string): Observable<void> {
     return this.http.post<void>(`${this.baseUrl}/users/${userId}/deactivate`, {});
   }
+
+  activateUser(userId: string): Observable<void> {
+    return this.http.post<void>(`${this.baseUrl}/users/${userId}/activate`, {});
+  }
+
+  changeUserRole(userId: string, role: UserRole): Observable<AppUser> {
+    return this.http.put<AppUser>(`${this.baseUrl}/users/${userId}/role`, { role });
+  }
+
+  resetUserPassword(userId: string, newPassword: string): Observable<void> {
+    return this.http.put<void>(`${this.baseUrl}/users/${userId}/password`, { newPassword });
+  }
 }

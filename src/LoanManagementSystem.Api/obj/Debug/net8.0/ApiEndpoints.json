@@ -73,6 +73,176 @@
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.CashFundsController",
+    "Method": "EditTransaction",
+    "RelativePath": "api/cash-funds/ledger/{id}",
+    "HttpMethod": "PUT",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "request",
+        "Type": "LoanManagementSystem.Api.Controllers.EditCashTransactionRequest",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.DTOs.CashLedgerEntryDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CashFundsController",
+    "Method": "DeleteTransaction",
+    "RelativePath": "api/cash-funds/ledger/{id}",
+    "HttpMethod": "DELETE",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CashFundsController",
+    "Method": "Export",
+    "RelativePath": "api/cash-funds/ledger/export",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "type",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateFrom",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateTo",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CashFundsController",
+    "Method": "GetPage",
+    "RelativePath": "api/cash-funds/ledger/page",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "pageIndex",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "type",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateFrom",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateTo",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.Models.PagedResult\u00601[[LoanManagementSystem.Application.Common.DTOs.CashLedgerEntryDto, LoanManagementSystem.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CashFundsController",
+    "Method": "GetPageTotals",
+    "RelativePath": "api/cash-funds/ledger/page/totals",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "type",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateFrom",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "dateTo",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.DTOs.CashLedgerTotalsDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CashFundsController",
     "Method": "GetSummary",
     "RelativePath": "api/cash-funds/summary",
     "HttpMethod": "GET",
@@ -321,6 +491,52 @@
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.CustomersController",
+    "Method": "GetPaymentsPage",
+    "RelativePath": "api/customers/{id}/payments/page",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "pageIndex",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sortBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "sortDir",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.Models.PagedResult\u00601[[LoanManagementSystem.Application.Common.DTOs.PaymentWithLoanDto, LoanManagementSystem.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CustomersController",
     "Method": "GetReceivables",
     "RelativePath": "api/customers/{id}/receivables",
     "HttpMethod": "GET",
@@ -344,6 +560,27 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CustomersController",
+    "Method": "Export",
+    "RelativePath": "api/customers/export",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.CustomersController",
@@ -377,11 +614,47 @@
         "Name": "sortDir",
         "Type": "System.String",
         "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
       }
     ],
     "ReturnTypes": [
       {
         "Type": "LoanManagementSystem.Application.Common.Models.PagedResult\u00601[[LoanManagementSystem.Application.Common.DTOs.CustomerListItemDto, LoanManagementSystem.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.CustomersController",
+    "Method": "GetPageTotals",
+    "RelativePath": "api/customers/page/totals",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.DTOs.CustomerTotalsDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -402,6 +675,26 @@
     "ReturnTypes": [
       {
         "Type": "LoanManagementSystem.Application.Common.DTOs.DashboardReceivablesDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.DashboardController",
+    "Method": "GetSummary",
+    "RelativePath": "api/dashboard/summary",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.DTOs.DashboardSummaryDto",
         "MediaTypes": [
           "text/plain",
           "application/json",
@@ -972,6 +1265,52 @@
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.LoansController",
+    "Method": "GetPaymentsPage",
+    "RelativePath": "api/loans/{id}/payments/page",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "pageIndex",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "sortBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "sortDir",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.Models.PagedResult\u00601[[LoanManagementSystem.Application.Common.DTOs.PaymentDto, LoanManagementSystem.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.LoansController",
     "Method": "GenerateSoa",
     "RelativePath": "api/loans/{id}/soa",
     "HttpMethod": "GET",
@@ -1011,6 +1350,62 @@
         "StatusCode": 200
       }
     ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.LoansController",
+    "Method": "Export",
+    "RelativePath": "api/loans/export",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "classification",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "loanDateFrom",
+        "Type": "System.Nullable\u00601[[System.DateOnly, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "loanDateTo",
+        "Type": "System.Nullable\u00601[[System.DateOnly, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "dueDateFrom",
+        "Type": "System.Nullable\u00601[[System.DateOnly, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "dueDateTo",
+        "Type": "System.Nullable\u00601[[System.DateOnly, System.Private.CoreLib, Version=8.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]",
+        "IsRequired": false
+      },
+      {
+        "Name": "badLoansOnly",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      },
+      {
+        "Name": "overdueOnly",
+        "Type": "System.Boolean",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.LoansController",
@@ -1235,6 +1630,287 @@
       }
     ],
     "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.ReportsController",
+    "Method": "GetInterestEarnedLoanBreakdown",
+    "RelativePath": "api/reports/interest-earned/{loanId}/breakdown",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "loanId",
+        "Type": "System.String",
+        "IsRequired": true
+      },
+      {
+        "Name": "fromDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.DTOs.InterestEarnedLoanBreakdownDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.ReportsController",
+    "Method": "ExportInterestEarnedPdf",
+    "RelativePath": "api/reports/interest-earned/export/pdf",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fromDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "classification",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "interestType",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.ReportsController",
+    "Method": "ExportInterestEarnedXlsx",
+    "RelativePath": "api/reports/interest-earned/export/xlsx",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fromDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "classification",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "interestType",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.ReportsController",
+    "Method": "GetInterestEarnedMonthlyChart",
+    "RelativePath": "api/reports/interest-earned/monthly-chart",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "classification",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "interestType",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "System.Collections.Generic.List\u00601[[LoanManagementSystem.Application.Common.DTOs.InterestEarnedMonthlyPointDto, LoanManagementSystem.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.ReportsController",
+    "Method": "GetInterestEarnedOverview",
+    "RelativePath": "api/reports/interest-earned/overview",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fromDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "classification",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "interestType",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.DTOs.InterestEarnedOverviewDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.ReportsController",
+    "Method": "GetInterestEarnedPage",
+    "RelativePath": "api/reports/interest-earned/page",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "fromDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "toDate",
+        "Type": "System.DateOnly",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageIndex",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "pageSize",
+        "Type": "System.Int32",
+        "IsRequired": false
+      },
+      {
+        "Name": "search",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "status",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "classification",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "interestType",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "sortBy",
+        "Type": "System.String",
+        "IsRequired": false
+      },
+      {
+        "Name": "sortDir",
+        "Type": "System.String",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.Models.PagedResult\u00601[[LoanManagementSystem.Application.Common.DTOs.InterestEarnedRowDto, LoanManagementSystem.Application, Version=1.0.0.0, Culture=neutral, PublicKeyToken=null]]",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.ReportsController",

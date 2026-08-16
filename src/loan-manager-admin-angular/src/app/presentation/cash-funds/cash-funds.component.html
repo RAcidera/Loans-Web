@@ -1,78 +1,199 @@
-<section class="funds-row" *ngIf="summary">
-  <mat-card class="funds-card funds-card--primary">
-    <span class="funds-card__label">Current cash on hand</span>
-    <div class="funds-card__value">₱{{ summary.cashOnHand | number }}</div>
-    <div class="funds-card__spark" aria-hidden="true">
-      <span
-        class="funds-card__bar"
-        *ngFor="let h of sparkBars(summary.sevenDayTrend); let last = last"
-        [class.funds-card__bar--today]="last"
-        [style.height.%]="h"
-      ></span>
+<mat-card class="summary-card" *ngIf="summary">
+  <div class="cash-main">
+    <div class="cash-icon"><mat-icon>account_balance_wallet</mat-icon></div>
+    <div class="cash-main__text">
+      <span class="cash-title">Cash on Hand</span>
+      <div class="cash-value">{{ fmtMoney(summary.cashOnHand) }}</div>
+      <div class="cash-sub">Available cash based on all recorded cash transactions</div>
     </div>
-    <p class="funds-card__hint">Total cash in − total cash out, per the ledger below</p>
-  </mat-card>
-
-  <mat-card class="funds-card">
-    <span class="funds-card__label">Total revolving funds</span>
-    <div class="funds-card__value">₱{{ summary.revolvingFunds | number }}</div>
-    <p class="funds-card__hint">Cash-based — available to release as new loans</p>
-  </mat-card>
-
-  <mat-card class="funds-card">
-    <span class="funds-card__label">Outstanding principal</span>
-    <div class="funds-card__value">₱{{ summary.outstandingPrincipal | number }}</div>
-    <p class="funds-card__hint">Receivable, not yet counted as available cash</p>
-  </mat-card>
-</section>
-
-<mat-card class="ledger-card">
-  <div class="ledger-card__header">
-    <div>
-      <h2>Cash transaction history</h2>
-      <p>Every movement of cash in or out of the business</p>
-    </div>
-    <button mat-flat-button color="primary" (click)="openAddTransaction()" *ngIf="authService.hasRole('admin')">
-      <mat-icon>add</mat-icon>
-      Add cash transaction
-    </button>
   </div>
 
+  <div class="summary-stat">
+    <div class="label">Cash In (This Month)</div>
+    <div class="value good">{{ fmtMoney(summary.cashInThisMonth) }}</div>
+    <div class="sub" *ngIf="summary.cashInChangePercent !== null" [ngClass]="trendClass(summary.cashInChangePercent)">
+      <mat-icon>{{ trendIcon(summary.cashInChangePercent) }}</mat-icon>
+      {{ (summary.cashInChangePercent! > 0 ? '+' : '') + summary.cashInChangePercent + '%' }}
+      <span class="muted">vs last month</span>
+    </div>
+  </div>
+
+  <div class="summary-stat">
+    <div class="label">Cash Out (This Month)</div>
+    <div class="value bad">{{ fmtMoney(summary.cashOutThisMonth) }}</div>
+    <div class="sub" *ngIf="summary.cashOutChangePercent !== null" [ngClass]="trendClass(summary.cashOutChangePercent)">
+      <mat-icon>{{ trendIcon(summary.cashOutChangePercent) }}</mat-icon>
+      {{ (summary.cashOutChangePercent! > 0 ? '+' : '') + summary.cashOutChangePercent + '%' }}
+      <span class="muted">vs last month</span>
+    </div>
+  </div>
+
+  <div class="summary-stat">
+    <div class="label">Net Change (This Month)</div>
+    <div class="value" [ngClass]="summary.netChangeThisMonth >= 0 ? 'good' : 'bad'">
+      {{ (summary.netChangeThisMonth >= 0 ? '+' : '') + fmtMoney(summary.netChangeThisMonth) }}
+    </div>
+    <div class="sub" *ngIf="summary.netChangePercent !== null" [ngClass]="trendClass(summary.netChangePercent)">
+      <mat-icon>{{ trendIcon(summary.netChangePercent) }}</mat-icon>
+      {{ (summary.netChangePercent! > 0 ? '+' : '') + summary.netChangePercent + '%' }}
+      <span class="muted">vs last month</span>
+    </div>
+  </div>
+</mat-card>
+
+<mat-card class="filter-card">
+  <div class="filter-top">
+    <form [formGroup]="filters" class="filter-bar">
+      <div class="field field--search">
+        <label>Search</label>
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input type="text" (input)="applySearch($any($event.target).value)" placeholder="Search reference or remarks…" aria-label="Search transactions" />
+        </div>
+      </div>
+
+      <div class="field">
+        <label>Transaction Type</label>
+        <mat-select formControlName="transactionType" panelClass="lm-select-panel" placeholder="All Transactions">
+          <mat-option [value]="null">All Transactions</mat-option>
+          <mat-option value="payment_received">Payment Received</mat-option>
+          <mat-option value="loan_release">Loan Release</mat-option>
+          <mat-option value="owner_deposit">Cash Deposit / Capital Added</mat-option>
+          <mat-option value="owner_withdrawal">Cash Withdrawal</mat-option>
+          <mat-option value="expense">Expense</mat-option>
+          <mat-option value="adjustment">Adjustment</mat-option>
+        </mat-select>
+      </div>
+
+      <div class="field field--range">
+        <label>Date Range</label>
+        <mat-form-field appearance="outline" class="range-field">
+          <mat-date-range-input [rangePicker]="dateRangePicker">
+            <input matStartDate formControlName="dateFrom" placeholder="Start" />
+            <input matEndDate formControlName="dateTo" placeholder="End" />
+          </mat-date-range-input>
+          <mat-datepicker-toggle matIconSuffix [for]="dateRangePicker"></mat-datepicker-toggle>
+          <mat-date-range-picker #dateRangePicker></mat-date-range-picker>
+        </mat-form-field>
+      </div>
+    </form>
+
+    <div class="filter-actions">
+      <button mat-stroked-button type="button" (click)="clearFilters()">Clear</button>
+      <button mat-stroked-button type="button" (click)="applyFilters()">
+        <mat-icon>filter_alt</mat-icon>
+        Apply
+      </button>
+      <button mat-stroked-button type="button" (click)="export()" [disabled]="exporting">
+        <mat-icon>file_download</mat-icon>
+        Export
+      </button>
+      <button mat-flat-button color="primary" (click)="openAddTransaction()" *ngIf="authService.hasRole('admin')">
+        <mat-icon>add</mat-icon>
+        Add Transaction
+      </button>
+    </div>
+  </div>
+</mat-card>
+
+<mat-card class="table-card">
   <div class="table-scroll">
-  <table mat-table [dataSource]="ledger" class="ledger-table">
+  <table mat-table [dataSource]="dataSource" class="ledger-table">
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let e" class="mono">{{ e.transactionDate }}</td>
+      <td mat-cell *matCellDef="let e" class="mono">{{ e.transactionDate | date:'MMM d, y' }}</td>
+      <td mat-footer-cell *matFooterCellDef>TOTALS (This Period)</td>
     </ng-container>
 
-    <ng-container matColumnDef="type">
-      <th mat-header-cell *matHeaderCellDef>Type</th>
+    <ng-container matColumnDef="transaction">
+      <th mat-header-cell *matHeaderCellDef>Transaction</th>
       <td mat-cell *matCellDef="let e">
-        <span class="chip" [ngClass]="isCashIn(e.transactionType) ? 'chip--in' : 'chip--out'">
-          {{ getTypeLabel(e.transactionType) }}
-        </span>
+        <span class="chip" [ngClass]="e.isCashIn ? 'chip--in' : 'chip--out'">{{ getTypeLabel(e.transactionType) }}</span>
       </td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="reference">
       <th mat-header-cell *matHeaderCellDef>Reference</th>
       <td mat-cell *matCellDef="let e" class="mono">{{ e.referenceId || '—' }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
-    <ng-container matColumnDef="amount">
-      <th mat-header-cell *matHeaderCellDef>Amount</th>
-      <td mat-cell *matCellDef="let e" class="mono right" [ngClass]="isCashIn(e.transactionType) ? 'amount--in' : 'amount--out'">
-        {{ isCashIn(e.transactionType) ? '+' : '−' }}₱{{ e.amount | number }}
-      </td>
+    <ng-container matColumnDef="cashIn">
+      <th mat-header-cell *matHeaderCellDef class="right">Cash In</th>
+      <td mat-cell *matCellDef="let e" class="mono right cash-in">{{ e.isCashIn ? (e.amount | number:'1.2-2') : '—' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right cash-in">{{ (totals?.cashIn ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="cashOut">
+      <th mat-header-cell *matHeaderCellDef class="right">Cash Out</th>
+      <td mat-cell *matCellDef="let e" class="mono right cash-out">{{ e.isCashIn ? '—' : (e.amount | number:'1.2-2') }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right cash-out">{{ (totals?.cashOut ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="balance">
+      <th mat-header-cell *matHeaderCellDef class="right">Running Balance</th>
+      <td mat-cell *matCellDef="let e" class="mono right balance">{{ e.runningBalance !== null ? (e.runningBalance | number:'1.2-2') : '—' }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="remarks">
       <th mat-header-cell *matHeaderCellDef>Remarks</th>
       <td mat-cell *matCellDef="let e">{{ e.remarks }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let e">
+        <button mat-icon-button [matMenuTriggerFor]="rowMenu" *ngIf="!e.isAutomatic && authService.hasRole('admin')" aria-label="Transaction actions">
+          <mat-icon>more_vert</mat-icon>
+        </button>
+        <mat-icon *ngIf="e.isAutomatic" class="auto-lock" matTooltip="Auto-generated — edit from the Loan or Payment record">lock</mat-icon>
+        <mat-menu #rowMenu="matMenu">
+          <button mat-menu-item (click)="openEditTransaction(e)"><mat-icon>edit</mat-icon> Edit</button>
+          <button mat-menu-item (click)="confirmDelete(e)"><mat-icon>delete</mat-icon> Delete</button>
+        </mat-menu>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <!-- A second footer row, plain columns of its own (netLabel/netBlank*/netValue)
+         rather than reusing the columns above — mat-table only lets one
+         *matFooterCellDef bind per column, so distinct content for a second
+         footer row needs its own columnDefs. Because it's still a real <tr>
+         in the same <table>, native column layout aligns netValue with the
+         Cash In column above it regardless. -->
+    <ng-container matColumnDef="netLabel">
+      <td mat-footer-cell *matFooterCellDef>Net Cash Movement</td>
+    </ng-container>
+    <ng-container matColumnDef="netBlank1"><td mat-footer-cell *matFooterCellDef></td></ng-container>
+    <ng-container matColumnDef="netBlank2"><td mat-footer-cell *matFooterCellDef></td></ng-container>
+    <ng-container matColumnDef="netBlank3"><td mat-footer-cell *matFooterCellDef></td></ng-container>
+    <ng-container matColumnDef="netValue">
+      <td mat-footer-cell *matFooterCellDef class="mono right" [ngClass]="(totals?.netChange ?? 0) >= 0 ? 'cash-in' : 'cash-out'">
+        {{ ((totals?.netChange ?? 0) >= 0 ? '+' : '') + fmtMoney(totals?.netChange ?? 0) }}
+      </td>
+    </ng-container>
+    <ng-container matColumnDef="netBlank4"><td mat-footer-cell *matFooterCellDef></td></ng-container>
+    <ng-container matColumnDef="netBlank5"><td mat-footer-cell *matFooterCellDef></td></ng-container>
+    <ng-container matColumnDef="netBlank6"><td mat-footer-cell *matFooterCellDef></td></ng-container>
 
     <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
     <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr mat-footer-row *matFooterRowDef="displayedColumns" class="ledger-table__footer"></tr>
+    <tr mat-footer-row *matFooterRowDef="netRowColumns" class="net-row"></tr>
   </table>
   </div>
+
+  <p class="empty-hint" *ngIf="dataSource.data.length === 0">No cash transactions match these filters.</p>
+
+  <mat-paginator
+    [length]="totalCount"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[15, 25, 50, 100]"
+    showFirstLastButtons
+    (page)="onPage($event)"
+  ></mat-paginator>
 </mat-card>

@@ -20,7 +20,7 @@ $lm-theme: mat.define-theme((
   ),
   typography: (
     plain-family: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-    brand-family: 'Space Grotesk, Inter, sans-serif',
+    brand-family: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
   ),
   density: (
     scale: 0,
@@ -29,6 +29,34 @@ $lm-theme: mat.define-theme((
 
 html {
   @include mat.all-component-themes($lm-theme);
+}
+
+// ---------------------------------------------------------
+// Global letter-spacing reset — standing user preference, applies to every
+// current and future page/component. Angular Material's M3 typography
+// scale gives buttons, chips, tabs, form labels, etc. their own non-zero
+// letter-spacing by default; !important is needed since Material's own
+// rules are class-based (higher specificity than a bare `*` at equal
+// source order). New components should NOT set their own letter-spacing —
+// this single rule is meant to be the only source of truth for it app-wide.
+// ---------------------------------------------------------
+* {
+  letter-spacing: normal !important;
+}
+
+// ---------------------------------------------------------
+// Global button shape — Material 3's default is a fully-rounded/pill
+// corner on every text/flat/stroked/raised button; the app's standard
+// (Customer-detail-page.png/.html) is a less-round 8px rectangle instead.
+// Applied once, globally, so every button across the app matches without
+// per-component overrides — mat-icon-button is deliberately excluded, it
+// keeps its circular shape.
+// ---------------------------------------------------------
+.mat-mdc-unelevated-button,
+.mat-mdc-outlined-button,
+.mat-mdc-raised-button,
+.mat-mdc-button {
+  border-radius: var(--lm-radius-control) !important;
 }
 
 // ---------------------------------------------------------
@@ -114,4 +142,222 @@ html {
 // same M3 surface tint as mat-card/mat-table did.
 .mat-mdc-paginator {
   background-color: var(--lm-surface) !important;
+}
+
+// mat-datepicker/mat-date-range-picker's calendar popup and mat-select's
+// option panel render into a CDK overlay appended to <body>, outside any
+// component's view encapsulation — same M3 surface-tinting issue as
+// card/table/paginator above, plus the calendar's default MDC type scale
+// (13-14px cells, 14px nav label) reads slightly large next to this app's
+// compact 13px UI. Themed globally here since scoped component styles
+// can't reach an overlay's content.
+.mat-datepicker-content {
+  background-color: var(--lm-surface) !important;
+  color: var(--lm-text);
+  // Material's M3 datepicker theme resolves its elevation shadow token to
+  // "0px 0px 0px 0px" for every layer in this app's theme config, leaving
+  // the popup with zero drop-shadow — combined with the picker's
+  // intentionally-transparent backdrop, the panel had nothing visually
+  // separating it from the page content underneath it (KPI cards/table
+  // rows bled through behind it). Set explicitly rather than relying on
+  // Material's own token.
+  box-shadow: var(--lm-shadow-md) !important;
+
+  .mat-calendar {
+    font-family: var(--lm-font-body);
+  }
+
+  .mat-calendar-body-cell-content {
+    font-size: 12px;
+  }
+
+  .mat-calendar-table-header,
+  .mat-calendar-period-button {
+    font-size: 12px;
+  }
+
+  .mat-calendar-body-selected {
+    background-color: var(--lm-primary);
+  }
+
+  .mat-calendar-body-in-range::before {
+    background-color: rgba(108, 93, 211, 0.12);
+  }
+}
+
+// The Loans list's compact date-range filter (.range-field, on the
+// mat-form-field host in loans.component.html) needs to reach INSIDE
+// mat-form-field's own template — the hint/error subscript wrapper, the
+// text-field background, the toggle icon-button's size. A selector written
+// in loans.component.scss like ".range-field .mat-mdc-form-field-subscript-wrapper"
+// compiles with Angular's per-component attribute scoping on BOTH sides
+// (".range-field[_ngcontent-xxx] .mat-mdc-form-field-subscript-wrapper[_ngcontent-xxx]"),
+// but that inner div carries mat-form-field's OWN internal template's
+// attribute, not the Loans component's — so the scoped rule silently never
+// matches anything (confirmed via getComputedStyle: display stayed "block"
+// despite a display:none rule). Only the CSS custom properties on
+// .range-field itself (--mat-form-field-container-height, set in the
+// component's own scoped SCSS) get through, since custom properties
+// inherit through the DOM regardless of style scoping. Everything else
+// that targets mat-form-field's internals has to live here, unscoped.
+.range-field {
+  .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--lm-surface);
+  }
+
+  .mat-mdc-icon-button {
+    width: 32px;
+    height: 32px;
+    padding: 4px;
+  }
+}
+
+// The Payments list's Amount paid column header needs its mat-sort-header
+// label+arrow right-aligned to match the right-aligned money column below
+// it. mat-sort-header renders that label+arrow inside its own internal
+// .mat-sort-header-container div, which carries Material's own component
+// scoping attribute, not payments.component.scss's — a selector written
+// there (".payments-table th.mat-column-amountPaid .mat-sort-header-container")
+// compiles with Angular's scoping on both compounds and silently never
+// matches, same gotcha as .range-field above. Scoped by .payments-table so
+// it can't affect any other page's sort headers.
+.payments-table th.mat-column-amountPaid .mat-sort-header-container {
+  justify-content: flex-end;
+}
+
+.lm-select-panel {
+  background-color: var(--lm-surface) !important;
+
+  .mat-mdc-option {
+    font-size: 13.5px;
+    min-height: 38px;
+  }
+}
+
+// ---------------------------------------------------------
+// Global status/classification pill and KPI-card chrome — these two blocks
+// were being hand-copied verbatim into nearly every page's own SCSS
+// (customers/loans/reports/dashboard/settings/loan-details/customer-profile),
+// which is fine at small sizes but pushed customer-profile.component.scss
+// over the per-component style budget (8kB) once its page grew a 6-card
+// summary row on top of everything else. Defined once, globally, here
+// instead — a page's own SCSS no longer needs to redeclare `.chip`/
+// `.kpi-card` at all, only page-specific extensions (e.g. `.kpi-card__caption`).
+// The status/classification color pairings share a palette (active & normal
+// are both "good", extended & watchlist both "caution", overdue & badloan
+// both "bad") so one rule covers both taxonomies.
+// ---------------------------------------------------------
+.chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &--active, &--normal {
+    background: rgba(34, 160, 107, 0.15);
+    color: #1a7a53;
+  }
+
+  &--inactive, &--paid, &--writtenoff {
+    background: rgba(139, 143, 163, 0.14);
+    color: var(--lm-text-muted);
+  }
+
+  &--extended, &--watchlist {
+    background: rgba(225, 170, 54, 0.18);
+    color: #8a6414;
+  }
+
+  &--overdue, &--badloan {
+    background: rgba(193, 102, 107, 0.16);
+    color: #8a3d42;
+  }
+
+  &--tag {
+    background: rgba(108, 93, 211, 0.12);
+    color: var(--lm-primary);
+  }
+}
+
+.kpi-card {
+  padding: 16px 16px 14px;
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+
+  &__icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 10px;
+    background: rgba(108, 93, 211, 0.12);
+    color: var(--lm-primary);
+
+    .mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  &--good &__icon {
+    background: rgba(34, 160, 107, 0.14);
+    color: var(--lm-success);
+  }
+
+  &--warn &__icon {
+    background: rgba(193, 102, 107, 0.16);
+    color: var(--lm-danger);
+  }
+
+  &__label {
+    font-size: 12px;
+    color: var(--lm-text-muted);
+    font-weight: 500;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  &__value {
+    font-family: var(--lm-font-display);
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--lm-text);
+    margin-bottom: 6px;
+  }
+}
+
+// ---------------------------------------------------------
+// Fast chart-hover tooltip (ChartTooltipDirective/ChartTooltipService) —
+// a single shared element appended directly to <body>, outside any
+// component's view encapsulation, so this has to live here rather than in
+// a component's own scoped SCSS (same reasoning as the .mat-datepicker-content
+// rule above). Dark, high-contrast "modern tooltip" box — shows instantly
+// on hover (no native browser delay) and follows the cursor, replacing the
+// slow native [title]/SVG <title> tooltips on the Dashboard and Interest
+// Earned Report charts.
+// ---------------------------------------------------------
+.lm-chart-tooltip {
+  position: fixed;
+  z-index: 10000;
+  visibility: hidden;
+  pointer-events: none;
+  background: var(--lm-text);
+  color: #fff;
+  font-family: var(--lm-font-body);
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 1.4;
+  padding: 6px 11px;
+  border-radius: 7px;
+  box-shadow: 0 6px 16px rgba(20, 18, 31, 0.22);
+  white-space: nowrap;
 }

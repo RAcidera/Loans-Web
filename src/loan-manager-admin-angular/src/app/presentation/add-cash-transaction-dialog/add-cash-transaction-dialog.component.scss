@@ -1,1 +1,11 @@
 @use '../_shared-dialog-form' as *;
+
+.direction-toggle {
+  width: 100%;
+  margin-top: -6px;
+
+  ::ng-deep .mat-button-toggle {
+    flex: 1;
+    text-align: center;
+  }
+}

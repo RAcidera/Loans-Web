@@ -49,10 +49,10 @@ public sealed class GenerateLoanSoaQueryHandler : IRequestHandler<GenerateLoanSo
 
         var extensions = loan.Extensions
             .OrderBy(e => e.ExtensionDate)
+            .ThenBy(e => e.CreatedAtUtc)
             .Select(e => new SoaExtensionRowDto(
                 e.ExtensionDate.ToString("yyyy-MM-dd"),
                 e.AdditionalChargesAmount.Amount,
-                e.AdditionalInterestAmount.Amount,
                 loan.DueDate.ToString("yyyy-MM-dd")))
             .ToList();
 
@@ -61,14 +61,19 @@ public sealed class GenerateLoanSoaQueryHandler : IRequestHandler<GenerateLoanSo
             .Select(p => new SoaPaymentRowDto(
                 p.PaymentDate.ToString("yyyy-MM-dd"),
                 p.AmountPaid.Amount,
-                paymentBalanceByPaymentId.GetValueOrDefault(p.Id.ToString(), loan.Balance.Amount)))
+                p.PaymentMethod.ToWireString(),
+                p.ReferenceNumber,
+                paymentBalanceByPaymentId.GetValueOrDefault(p.Id.ToString(), loan.Balance.Amount),
+                p.Notes))
             .ToList();
 
         var statement = new StatementOfAccountDto(
             CustomerName: customer.FullName,
+            CustomerCode: MappingExtensions.FormatCustomerCode(customer.CustomerNumber),
             CustomerAddress: customer.Address,
             CustomerContactNumber: customer.ContactNumber,
             LoanNumber: MappingExtensions.FormatLoanNumber(loan.LoanNumber),
+            StatementDate: DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd"),
             LoanDate: loan.StartDate.ToString("yyyy-MM-dd"),
             DueDate: loan.DueDate.ToString("yyyy-MM-dd"),
             PrincipalAmount: loan.PrincipalAmount.Amount,

@@ -1,34 +1,33 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormsModule } from '@angular/forms';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
+import { MatSelectModule } from '@angular/material/select';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { AppUser, UserStatus } from '../../domain/entities/app-user.entity';
+import { UserRole } from '../../application/auth/auth.service';
 import { GetUsersUseCase } from '../../application/use-cases/get-users.use-case';
-import { ChangePasswordUseCase } from '../../application/use-cases/change-password.use-case';
 import { DeactivateUserUseCase } from '../../application/use-cases/deactivate-user.use-case';
+import { ActivateUserUseCase } from '../../application/use-cases/activate-user.use-case';
+import { ChangeUserRoleUseCase } from '../../application/use-cases/change-user-role.use-case';
 import { AddUserDialogComponent } from '../add-user-dialog/add-user-dialog.component';
+import { ResetPasswordDialogComponent } from '../reset-password-dialog/reset-password-dialog.component';
+import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AuthService } from '../../application/auth/auth.service';
 
 type StatusFilter = 'all' | UserStatus;
 
-function passwordsMatchValidator(group: AbstractControl): ValidationErrors | null {
-  const newPassword = group.get('newPassword')?.value;
-  const confirmNewPassword = group.get('confirmNewPassword')?.value;
-  return newPassword === confirmNewPassword ? null : { passwordsMismatch: true };
-}
-
 /**
  * Presentation layer — Phase 3 "User Management": the user list (Admin
  * only, per the plan's "Staff cannot see the user list" acceptance
- * criterion) plus a self-service "change my password" form (both roles).
+ * criterion). Self-service "change my password" now lives in the topbar's
+ * account menu (ChangeMyPasswordDialogComponent) — this page only ever
+ * acts on OTHER users' accounts (activate/deactivate, role, password reset).
  */
 @Component({
   selector: 'lm-settings',
@@ -36,13 +35,11 @@ function passwordsMatchValidator(group: AbstractControl): ValidationErrors | nul
   imports: [
     CommonModule,
     FormsModule,
-    ReactiveFormsModule,
     MatCardModule,
     MatTableModule,
     MatButtonModule,
     MatIconModule,
-    MatFormFieldModule,
-    MatInputModule,
+    MatSelectModule,
     MatTooltipModule,
     MatDialogModule,
   ],
@@ -57,26 +54,13 @@ export class SettingsComponent implements OnInit {
   statusFilter: StatusFilter = 'all';
   searchTerm = '';
 
-  passwordSubmitting = false;
-  passwordSuccess = false;
-  passwordError: string | null = null;
-
-  private readonly fb = new FormBuilder();
-
-  passwordForm: FormGroup = this.fb.group(
-    {
-      currentPassword: ['', Validators.required],
-      newPassword: ['', [Validators.required, Validators.minLength(8)]],
-      confirmNewPassword: ['', Validators.required],
-    },
-    { validators: passwordsMatchValidator },
-  );
-
   constructor(
     private readonly getUsers: GetUsersUseCase,
-    private readonly changePassword: ChangePasswordUseCase,
     private readonly deactivateUser: DeactivateUserUseCase,
+    private readonly activateUser: ActivateUserUseCase,
+    private readonly changeUserRole: ChangeUserRoleUseCase,
     private readonly dialog: MatDialog,
+    private readonly confirmDialog: ConfirmDialogService,
     readonly authService: AuthService,
   ) {}
 
@@ -118,7 +102,19 @@ export class SettingsComponent implements OnInit {
       });
   }
 
-  deactivate(user: AppUser): void {
+  /** Backend also enforces this (400 on self-deactivate) — checked here too so the button itself can be hidden rather than just erroring after the click. */
+  isSelf(user: AppUser): boolean {
+    return user.username === this.authService.username();
+  }
+
+  async deactivate(user: AppUser): Promise<void> {
+    const ok = await this.confirmDialog.confirm({
+      title: 'Deactivate user?',
+      message: `Deactivate "${user.username}"? They won't be able to log in until reactivated.`,
+      confirmText: 'Yes, deactivate',
+    });
+    if (!ok) return;
+
     this.usersError = null;
     this.deactivateUser.execute(user.userId).subscribe({
       next: () => this.loadUsers(),
@@ -128,26 +124,35 @@ export class SettingsComponent implements OnInit {
     });
   }
 
-  submitPasswordChange(): void {
-    if (this.passwordForm.invalid) return;
-
-    this.passwordSubmitting = true;
-    this.passwordSuccess = false;
-    this.passwordError = null;
-    const { currentPassword, newPassword } = this.passwordForm.getRawValue();
-
-    this.changePassword.execute(currentPassword, newPassword).subscribe({
-      next: () => {
-        this.passwordSubmitting = false;
-        this.passwordSuccess = true;
-        this.passwordForm.reset();
+  activate(user: AppUser): void {
+    this.usersError = null;
+    this.activateUser.execute(user.userId).subscribe({
+      next: () => this.loadUsers(),
+      error: () => {
+        this.usersError = 'Something went wrong. Please try again.';
       },
-      error: (err) => {
-        this.passwordSubmitting = false;
-        this.passwordError = err.status === 401
-          ? 'Current password is incorrect.'
-          : 'Something went wrong. Please try again.';
+    });
+  }
+
+  changeRole(user: AppUser, role: UserRole): void {
+    if (role === user.role) return;
+    this.usersError = null;
+    const previousRole = user.role;
+    user.role = role; // optimistic — the mat-select is already bound to it, avoids a visible snap-back on success
+
+    this.changeUserRole.execute(user.userId, role).subscribe({
+      error: () => {
+        user.role = previousRole;
+        this.usersError = 'Something went wrong changing the role. Please try again.';
       },
+    });
+  }
+
+  openResetPassword(user: AppUser): void {
+    this.dialog.open(ResetPasswordDialogComponent, {
+      width: '420px',
+      maxWidth: '95vw',
+      data: { userId: user.userId, username: user.username },
     });
   }
 }

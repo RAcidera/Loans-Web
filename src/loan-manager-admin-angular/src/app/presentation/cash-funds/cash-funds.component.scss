@@ -9,121 +9,268 @@
   text-align: right;
 }
 
-.funds-row {
-  display: grid;
-  grid-template-columns: 1.4fr 1fr 1fr;
-  gap: 16px;
-  margin-bottom: 20px;
-
-  @media (max-width: 900px) {
-    grid-template-columns: 1fr;
-  }
-}
-
-.funds-card {
-  padding: 18px 18px 16px;
+// ---------------------------------------------------------
+// Cash on Hand summary card — one compact card instead of three, with
+// This Month's Cash In/Cash Out/Net Change as secondary stats to the right
+// (why the total moved), not separate KPI cards of their own.
+// ---------------------------------------------------------
+.summary-card {
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+  display: grid;
+  grid-template-columns: 1.5fr 0.9fr 0.9fr 0.9fr;
+  align-items: center;
 
-  &--primary {
-    background: linear-gradient(155deg, var(--lm-primary) 0%, var(--lm-primary-dark) 100%);
-    color: #fff;
+  @include tokens.tablet {
+    grid-template-columns: 1fr;
 
-    .funds-card__label,
-    .funds-card__hint {
-      color: rgba(255, 255, 255, 0.72);
+    .summary-stat {
+      border-left: 0;
+      border-top: 1px solid var(--lm-border);
+      padding: 14px 0;
+    }
+  }
+}
+
+.cash-main {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-right: 20px;
+
+  &__text {
+    min-width: 0;
+  }
+}
+
+.cash-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  flex-shrink: 0;
+  background: linear-gradient(135deg, var(--lm-primary), var(--lm-primary-dark));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  mat-icon {
+    font-size: 26px;
+    width: 26px;
+    height: 26px;
+  }
+}
+
+.cash-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--lm-text-muted);
+}
+
+.cash-value {
+  font-family: var(--lm-font-display);
+  font-size: 27px;
+  font-weight: 800;
+  margin-top: 3px;
+}
+
+.cash-sub {
+  color: var(--lm-text-muted);
+  font-size: 11px;
+  margin-top: 3px;
+}
+
+.summary-stat {
+  padding: 6px 20px;
+  border-left: 1px solid var(--lm-border);
+
+  .label {
+    color: var(--lm-text-muted);
+    font-size: 11px;
+  }
+
+  .value {
+    font-family: var(--lm-font-display);
+    font-size: 18px;
+    font-weight: 800;
+    margin-top: 6px;
+
+    &.good {
+      color: var(--lm-success);
     }
 
-    .funds-card__value {
-      color: #fff;
-    }
-
-    .funds-card__bar {
-      background: rgba(255, 255, 255, 0.35);
-
-      &--today {
-        background: var(--lm-amber);
-      }
+    &.bad {
+      color: var(--lm-danger);
     }
   }
 
-  &__label {
-    font-size: 12.5px;
+  .sub {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    font-size: 10px;
     color: var(--lm-text-muted);
-    font-weight: 500;
-    display: block;
+    margin-top: 7px;
+
+    mat-icon {
+      font-size: 13px;
+      width: 13px;
+      height: 13px;
+    }
+
+    &.good {
+      color: var(--lm-success);
+    }
+
+    &.bad {
+      color: var(--lm-danger);
+    }
+  }
+
+  .muted {
+    color: var(--lm-text-muted);
+    margin-left: 2px;
+  }
+}
+
+// ---------------------------------------------------------
+// Filter card — same label-on-top control chrome as the Loans/Customers
+// pages ("loans-list-modern.html" pattern): bare mat-select styled
+// directly (no mat-form-field host), .range-field for the date range
+// (its internals themed globally, see styles.scss's ".range-field" rule).
+// ---------------------------------------------------------
+.filter-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.filter-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 12px;
+  flex: 1;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 190px;
+
+  label {
+    font-size: 11px;
+    font-weight: 650;
+    color: var(--lm-text);
     margin-bottom: 6px;
   }
+}
 
-  &__value {
-    font-family: var(--lm-font-display);
-    font-size: 28px;
-    font-weight: 600;
-    color: var(--lm-text);
-    margin-bottom: 10px;
-  }
+.field--search {
+  width: 253px; // 220px + 15%
+}
 
-  &__spark {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 26px;
-    margin-bottom: 10px;
-  }
+.field--range {
+  width: 230px;
+}
 
-  &__bar {
-    flex: 1;
-    background: var(--lm-primary-light);
-    border-radius: 2px;
-    min-height: 3px;
-    opacity: 0.6;
+.mat-mdc-select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  background: var(--lm-surface);
+  padding: 0 12px;
+  font-size: 13.5px;
+  color: var(--lm-text);
 
-    &--today {
-      background: var(--lm-amber);
-      opacity: 1;
-    }
-  }
-
-  &__hint {
-    font-size: 12px;
-    margin: 0;
+  &.mat-mdc-select-empty .mat-mdc-select-min-line {
     color: var(--lm-text-muted);
   }
 }
 
-.ledger-card {
+.range-field {
+  width: 100%;
+  display: block;
+  --mat-form-field-container-height: 42px;
+  --mat-form-field-container-vertical-padding: 9px;
+
+  input {
+    font-size: 13.5px;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  padding: 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--lm-text-muted);
+  }
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--lm-text);
+    width: 100%;
+
+    &::placeholder {
+      color: var(--lm-text-muted);
+    }
+  }
+}
+
+// ---------------------------------------------------------
+// Table
+// ---------------------------------------------------------
+.table-card {
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
   padding: 4px 4px 0;
-
-  &__header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    padding: 16px 20px 4px;
-
-    h2 {
-      font-family: var(--lm-font-display);
-      font-size: 17px;
-      font-weight: 600;
-      margin: 0 0 2px;
-    }
-
-    p {
-      font-size: 13px;
-      color: var(--lm-text-muted);
-      margin: 0;
-    }
-
-    button {
-      display: flex;
-      align-items: center;
-      gap: 4px;
-      flex-shrink: 0;
-    }
-  }
 }
 
 .table-scroll {
@@ -132,22 +279,76 @@
 
 .ledger-table {
   width: 100%;
+  @include tokens.lm-data-table;
 
-  th.mat-mdc-header-cell {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--lm-text-muted);
-    font-weight: 600;
+  tr.ledger-table__footer {
+    font-weight: 700;
+
+    td.mat-mdc-footer-cell {
+      border-top: 2px solid var(--lm-border);
+    }
   }
+
+  // A second footer row (see the template's netLabel/netBlank*/netValue
+  // columnDefs) — a lighter band than the TOTALS row above it so the two
+  // read as distinct lines, not one merged block.
+  tr.net-row {
+    td.mat-mdc-footer-cell {
+      background-color: var(--lm-bg) !important;
+      border-top: 1px solid var(--lm-border);
+    }
+  }
+}
+
+.cash-in {
+  color: rgb(26, 122, 83);
+  font-weight: 700;
+}
+
+.cash-out {
+  color: rgb(138, 61, 66);
+  font-weight: 700;
+}
+
+// tokens.lm-data-table (included by .ledger-table below) sets `color` via
+// ".ledger-table td.mat-mdc-cell" / ".ledger-table td.mat-mdc-footer-cell" —
+// a two-compound descendant selector that, once Angular stamps its
+// per-component [_ngcontent] attribute onto BOTH compounds, outranks even
+// a three-class single-compound override like "td.mat-mdc-cell.cash-in".
+// The mixin itself already reaches for !important for this exact same
+// "override the shared table color/background for one case" need (see its
+// td.mat-mdc-header-cell/td.mat-mdc-footer-cell background-color rules) —
+// following that precedent here rather than fighting specificity further.
+td.mat-mdc-cell.cash-in,
+td.mat-mdc-footer-cell.cash-in {
+  color: rgb(26, 122, 83) !important;
+}
+
+td.mat-mdc-cell.cash-out,
+td.mat-mdc-footer-cell.cash-out {
+  color: rgb(138, 61, 66) !important;
+}
+
+.balance {
+  font-weight: 800;
+  color: var(--lm-text);
+}
+
+.auto-lock {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--lm-text-muted);
+  vertical-align: middle;
+  cursor: default;
 }
 
 .chip {
   display: inline-block;
   padding: 3px 10px;
   border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 10.5px;
+  font-weight: 700;
 
   &--in {
     background: rgba(34, 160, 107, 0.15);
@@ -155,15 +356,15 @@
   }
 
   &--out {
-    background: rgba(193, 102, 107, 0.15);
-    color: var(--lm-rose);
+    background: rgba(193, 102, 107, 0.16);
+    color: #8a3d42;
   }
 }
 
-.amount--in {
-  color: var(--lm-success);
-}
 
-.amount--out {
-  color: var(--lm-rose);
+.empty-hint {
+  padding: 20px;
+  text-align: center;
+  color: var(--lm-text-muted);
+  font-size: 13px;
 }

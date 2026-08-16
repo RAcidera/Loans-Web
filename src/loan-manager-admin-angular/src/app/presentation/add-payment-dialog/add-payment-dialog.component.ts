@@ -10,10 +10,13 @@ import { MatButtonModule } from '@angular/material/button';
 import { Payment, PaymentMethod } from '../../domain/entities/payment.entity';
 import { RecordPaymentUseCase } from '../../application/use-cases/record-payment.use-case';
 import { UpdatePaymentUseCase } from '../../application/use-cases/update-payment.use-case';
+import { todayLocalDateString } from '../shared/date-utils';
 
 export interface AddPaymentDialogData {
   loanId: string;
   balance: number;
+  /** The loan's suggested default payment amount — used to prefill Amount paid for a new payment; ignored when editing an existing one. */
+  dailyPayment?: number;
   /** When set, the dialog edits this existing payment instead of recording a new one. */
   editing?: Payment;
 }
@@ -49,8 +52,16 @@ export class AddPaymentDialogComponent {
   // balance (which would make the existing amount itself invalid).
   private readonly maxAmount = this.data.balance + (this.editing?.amountPaid ?? 0);
 
+  // New payment: defaults to the loan's Daily Payment (its collection-schedule
+  // installment) rather than the full outstanding balance, capped so the
+  // default itself is never already invalid on a near-fully-paid loan.
+  private readonly defaultAmount = this.data.dailyPayment
+    ? Math.min(this.data.dailyPayment, this.data.balance)
+    : this.data.balance;
+
   form = this.fb.group({
-    amountPaid: [this.editing?.amountPaid ?? this.data.balance, [Validators.required, Validators.min(1), Validators.max(this.maxAmount)]],
+    paymentDate: [this.editing?.paymentDate ?? todayLocalDateString(), Validators.required],
+    amountPaid: [this.editing?.amountPaid ?? this.defaultAmount, [Validators.required, Validators.min(1), Validators.max(this.maxAmount)]],
     paymentMethod: [(this.editing?.paymentMethod ?? 'cash') as PaymentMethod, Validators.required],
     referenceNumber: [this.editing?.referenceNumber ?? ''],
     notes: [this.editing?.notes ?? ''],
@@ -65,11 +76,11 @@ export class AddPaymentDialogComponent {
   submit(): void {
     if (this.form.invalid) return;
     this.submitting = true;
-    const { amountPaid, paymentMethod, notes, referenceNumber } = this.form.getRawValue();
+    const { paymentDate, amountPaid, paymentMethod, notes, referenceNumber } = this.form.getRawValue();
 
     const result$ = this.editing
-      ? this.updatePayment.execute(this.data.loanId, this.editing.paymentId, amountPaid!, paymentMethod!, notes ?? '', referenceNumber || undefined)
-      : this.recordPayment.execute(this.data.loanId, amountPaid!, paymentMethod!, notes ?? '', referenceNumber || undefined);
+      ? this.updatePayment.execute(this.data.loanId, this.editing.paymentId, amountPaid!, paymentMethod!, notes ?? '', referenceNumber || undefined, paymentDate!)
+      : this.recordPayment.execute(this.data.loanId, amountPaid!, paymentMethod!, notes ?? '', referenceNumber || undefined, paymentDate!);
 
     result$.subscribe(() => {
       this.dialogRef.close({ recorded: true });

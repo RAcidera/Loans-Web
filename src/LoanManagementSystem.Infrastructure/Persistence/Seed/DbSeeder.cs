@@ -17,7 +17,19 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Seed;
 /// </summary>
 public static class DbSeeder
 {
-    public static async Task SeedAsync(AppDbContext db, IPasswordHasher passwordHasher)
+    /// <summary>
+    /// Creates/updates the schema — must run in EVERY environment, not just
+    /// Development. This used to live inline at the top of SeedAsync, which
+    /// silently made schema creation itself dev-only once Program.cs gated
+    /// the SeedAsync call behind IsDevelopment() (to stop demo data from
+    /// seeding in Production) — a fresh Production database then had no
+    /// schema at all, and the very next startup step, BackfillLoanLedgerAsync
+    /// (which runs unconditionally in every environment), crashed the whole
+    /// process querying a table that was never created. Split out so
+    /// Program.cs can call this unconditionally while keeping demo-data
+    /// seeding dev-only.
+    /// </summary>
+    public static async Task EnsureSchemaAsync(AppDbContext db)
     {
         // The generated migrations are produced against the relational
         // provider (SQL Server), which bakes provider-specific relational
@@ -37,7 +49,10 @@ public static class DbSeeder
         {
             await db.Database.EnsureCreatedAsync();
         }
+    }
 
+    public static async Task SeedAsync(AppDbContext db, IPasswordHasher passwordHasher)
+    {
         if (await db.Customers.AnyAsync())
             return; // already seeded
 
@@ -75,7 +90,7 @@ public static class DbSeeder
         // L-2039 equivalent: Maria again, extended once
         var loan6 = Loan.Originate(maria.Id, Money.Of(3500), rate, new DateOnly(2026, 4, 15), 75); // due 2026-06-29 before extension
         loan6.RecordPayment(Money.Of(500), PaymentMethod.Cash, "Partial payment before extension", new DateOnly(2026, 5, 30));
-        loan6.Extend(30, Money.Of(105), Money.Zero, "Customer requested extra month, business slow this week", new DateOnly(2026, 6, 29));
+        loan6.Extend(30, Money.Of(105), "Customer requested extra month, business slow this week", new DateOnly(2026, 6, 29));
 
         db.Loans.AddRange(loan1, loan2, loan3, loan4, loan5, loan6);
 
@@ -134,14 +149,13 @@ public static class DbSeeder
                 loan.Id, LoanLedgerTransactionType.LoanReleased, loan.PrincipalAmount, Money.Zero, runningBalance,
                 "Loan released", loan.StartDate));
 
-            var originationInterest = loan.TotalInterest.Subtract(loan.Extensions.Aggregate(Money.Zero, (sum, e) => sum.Add(e.AdditionalInterestAmount)));
-            runningBalance = runningBalance.Add(originationInterest);
+            runningBalance = runningBalance.Add(loan.TotalInterest);
             db.LoanLedgerEntries.Add(LoanLedgerEntry.Record(
-                loan.Id, LoanLedgerTransactionType.InterestAdded, originationInterest, Money.Zero, runningBalance,
+                loan.Id, LoanLedgerTransactionType.InterestAdded, loan.TotalInterest, Money.Zero, runningBalance,
                 "Interest added", loan.StartDate));
 
             var movements = loan.Extensions
-                .Select(e => (Date: e.ExtensionDate, IsPayment: false, Amount: e.AdditionalInterestAmount.Add(e.AdditionalChargesAmount), ReferenceId: e.Id.ToString(), Remarks: $"Extension +{e.ExtensionDays} days"))
+                .Select(e => (Date: e.ExtensionDate, IsPayment: false, Amount: e.AdditionalChargesAmount, ReferenceId: e.Id.ToString(), Remarks: $"Extension +{e.ExtensionDays} days"))
                 .Concat(loan.Payments.Select(p => (Date: p.PaymentDate, IsPayment: true, Amount: p.AmountPaid, ReferenceId: p.Id.ToString(), Remarks: "Payment received")))
                 .OrderBy(m => m.Date);
 

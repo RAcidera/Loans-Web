@@ -51,4 +51,35 @@ public class LoanLedgerEntry : AggregateRoot<LoanLedgerEntryId>
         LoanId loanId, LoanLedgerTransactionType type, Money debit, Money credit, Money runningBalance,
         string remarks, DateOnly transactionDate, string? referenceId = null) =>
         new(LoanLedgerEntryId.New(), loanId, transactionDate, type, referenceId, debit, credit, runningBalance, remarks);
+
+    /// <summary>
+    /// Revises this row's Credit/TransactionDate/RunningBalance in place
+    /// when the Payment it mirrors (ReferenceId == PaymentId) is edited —
+    /// the same narrow exception to "ledgers are append-only" that
+    /// CashLedgerEntry.ReviseForPaymentEdit documents; see that method.
+    /// </summary>
+    public void ReviseForPaymentEdit(Money credit, Money runningBalance, DateOnly transactionDate)
+    {
+        Credit = credit;
+        RunningBalance = runningBalance;
+        TransactionDate = transactionDate;
+    }
+
+    /// <summary>
+    /// Shifts this row's stamped RunningBalance by a signed amount — used
+    /// by PaymentDeletedEventHandler/LoanExtensionDeletedEventHandler to
+    /// bring every row AFTER a deleted payment/extension back into
+    /// agreement with the loan's real, post-deletion Balance. RunningBalance
+    /// is a snapshot of the loan's Balance at the moment each row was
+    /// recorded (see this class's doc comment); removing an earlier row
+    /// changes what that trajectory should have been for every later one,
+    /// so they must move too, not just the deleted row's own entry. Takes a
+    /// plain decimal (not Money, which can't represent a negative delta)
+    /// and clamps at zero, matching Money.Subtract's existing "overpayment
+    /// clamps rather than throws" convention.
+    /// </summary>
+    public void ShiftRunningBalance(decimal delta)
+    {
+        RunningBalance = Money.Of(Math.Max(RunningBalance.Amount + delta, 0));
+    }
 }

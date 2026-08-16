@@ -34,11 +34,20 @@ public interface ICustomerRepository
 
     /// <summary>
     /// One page of customers (filtered by <paramref name="search"/> against
-    /// full name/contact number, if provided), plus the total count of
-    /// matching rows — backs the Customers list page's server-side paging.
+    /// full name/contact number, and by <paramref name="status"/> if given),
+    /// plus the total count of matching rows — backs the Customers list
+    /// page's server-side paging.
     /// </summary>
     Task<(List<Customer> Items, int TotalCount)> GetPageAsync(
-        int pageIndex, int pageSize, string? search, string? sortBy, string? sortDir, CancellationToken ct = default);
+        int pageIndex, int pageSize, string? search, string? sortBy, string? sortDir,
+        CustomerStatus? status = null, CancellationToken ct = default);
+
+    /// <summary>
+    /// Every customer matching the same search/status filters as GetPageAsync,
+    /// with no paging — backs the Customers list page's KPI strip, which
+    /// counts/sums across the whole filtered set, not just the visible page.
+    /// </summary>
+    Task<List<Customer>> GetFilteredAsync(string? search, CustomerStatus? status, CancellationToken ct = default);
 
     /// <summary>
     /// Customer IDs whose full name contains <paramref name="search"/>

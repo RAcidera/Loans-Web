@@ -1,0 +1,38 @@
+<h2 class="dialog-title">Edit customer</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
+  <mat-form-field appearance="outline">
+    <mat-label>Full name</mat-label>
+    <input matInput formControlName="fullName" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Address</mat-label>
+    <input matInput formControlName="address" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Contact number</mat-label>
+    <input matInput formControlName="contactNumber" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Borrower type</mat-label>
+    <input matInput formControlName="borrowerType" placeholder="e.g. Fish vendor" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Nickname / Alias (optional)</mat-label>
+    <input matInput formControlName="nicknameAlias" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Notes (optional)</mat-label>
+    <textarea matInput formControlName="notes" rows="2"></textarea>
+  </mat-form-field>
+
+  <div class="dialog-form__actions">
+    <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || submitting">Save changes</button>
+  </div>
+</form>

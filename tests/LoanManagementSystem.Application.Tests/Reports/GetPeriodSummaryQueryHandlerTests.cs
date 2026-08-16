@@ -29,7 +29,7 @@ public class GetPeriodSummaryQueryHandlerTests
         // those should still count even though the loan itself doesn't count as "originated" in range.
         var loanB = Loan.Originate(CustomerId.New(), Money.Of(2000), InterestRate.Default, new DateOnly(2026, 1, 1));
         loanB.RecordPayment(Money.Of(500), PaymentMethod.Cash, "", new DateOnly(2026, 6, 10));
-        loanB.Extend(15, Money.Of(50), Money.Zero, "late", new DateOnly(2026, 6, 25));
+        loanB.Extend(15, Money.Of(50), "late", new DateOnly(2026, 6, 25));
 
         // Entirely outside the range — nothing about it should affect any total.
         var loanC = Loan.Originate(CustomerId.New(), Money.Of(5000), InterestRate.Default, new DateOnly(2026, 7, 1));

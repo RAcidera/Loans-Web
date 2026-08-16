@@ -1,7 +1,19 @@
 <h2 class="dialog-title">Edit loan</h2>
 <p class="dialog-subtitle">Loan <span class="mono">{{ data.loan.loanNumber }}</span></p>
 
-<form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
+<form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form edit-loan-form">
+  <mat-form-field appearance="outline">
+    <mat-label>Principal amount</mat-label>
+    <input matInput type="number" formControlName="principal" min="1" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Payment Terms (in months)</mat-label>
+    <mat-select formControlName="paymentTermsMonths">
+      <mat-option *ngFor="let m of paymentTermsOptions" [value]="m">{{ m }} {{ m === 1 ? 'month' : 'months' }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
   <mat-form-field appearance="outline">
     <mat-label>Loan date</mat-label>
     <input matInput type="date" formControlName="startDate" />
@@ -14,23 +26,26 @@
 
   <mat-form-field appearance="outline">
     <mat-label>Interest rate</mat-label>
-    <input matInput type="number" formControlName="interestRatePercent" step="0.1" />
+    <input matInput type="number" formControlName="interestRatePercent" step="0.01" min="0" />
     <span matTextSuffix>&nbsp;%</span>
   </mat-form-field>
 
   <mat-form-field appearance="outline">
     <mat-label>Interest amount</mat-label>
-    <span matTextPrefix>₱&nbsp;</span>
-    <input matInput type="number" formControlName="interestAmount" />
-    <mat-hint>Direct override — not recalculated from the rate above. Use this for a goodwill discount.</mat-hint>
+    <input matInput type="number" formControlName="interestAmount" step="0.01" min="0" />
   </mat-form-field>
 
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" class="full-width">
+    <mat-label>Daily payment</mat-label>
+    <input matInput type="number" formControlName="dailyPayment" step="0.01" readonly />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" class="full-width">
     <mat-label>Remarks</mat-label>
-    <textarea matInput formControlName="remarks" rows="2"></textarea>
+    <textarea matInput formControlName="remarks" rows="1"></textarea>
   </mat-form-field>
 
-  <div class="dialog-form__actions">
+  <div class="dialog-form__actions full-width">
     <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
     <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || submitting">Save changes</button>
   </div>

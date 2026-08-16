@@ -12,7 +12,6 @@ public sealed record UpdateExtensionCommand(
     string LoanId,
     string ExtensionId,
     int ExtensionDays,
-    decimal AdditionalInterestAmount,
     string? Remarks,
     decimal AdditionalChargesAmount = 0,
     string? ExtensionDate = null
@@ -41,7 +40,6 @@ public sealed class UpdateExtensionCommandHandler : IRequestHandler<UpdateExtens
         var extension = loan.EditExtension(
             extensionId,
             request.ExtensionDays,
-            Money.Of(request.AdditionalInterestAmount),
             Money.Of(request.AdditionalChargesAmount),
             request.Remarks ?? string.Empty,
             request.ExtensionDate is not null ? DateOnly.Parse(request.ExtensionDate) : existing.ExtensionDate);

@@ -12,12 +12,14 @@ using LoanManagementSystem.Application.Loans.Commands.UpdateLoan;
 using LoanManagementSystem.Application.Loans.Commands.UpdatePayment;
 using LoanManagementSystem.Application.Loans.Commands.UploadLoanDocument;
 using LoanManagementSystem.Application.Loans.Commands.WriteOffLoan;
+using LoanManagementSystem.Application.Loans.Queries.ExportLoansXlsx;
 using LoanManagementSystem.Application.Loans.Queries.GenerateLoanSoa;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanAuditLog;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanDetail;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanDocumentContent;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanDocuments;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanLedger;
+using LoanManagementSystem.Application.Loans.Queries.GetLoanPaymentsPage;
 using LoanManagementSystem.Application.Loans.Queries.GetLoans;
 using LoanManagementSystem.Application.Loans.Queries.GetLoansPage;
 using LoanManagementSystem.Application.Loans.Queries.GetLoansTotals;
@@ -69,6 +71,19 @@ public class LoansController : ControllerBase
         Ok(await _mediator.Send(new GetLoansTotalsQuery(
             search, status, classification, loanDateFrom, loanDateTo, dueDateFrom, dueDateTo, badLoansOnly, overdueOnly), ct));
 
+    /// <summary>GET /api/loans/export — same filters as GetPage, no paging. The Loans list's "Export" button, downloaded as .xlsx.</summary>
+    [HttpGet("export")]
+    public async Task<IActionResult> Export(
+        [FromQuery] string? search = null, [FromQuery] string? status = null, [FromQuery] string? classification = null,
+        [FromQuery] DateOnly? loanDateFrom = null, [FromQuery] DateOnly? loanDateTo = null,
+        [FromQuery] DateOnly? dueDateFrom = null, [FromQuery] DateOnly? dueDateTo = null,
+        [FromQuery] bool badLoansOnly = false, [FromQuery] bool overdueOnly = false, CancellationToken ct = default)
+    {
+        var file = await _mediator.Send(new ExportLoansXlsxQuery(
+            search, status, classification, loanDateFrom, loanDateTo, dueDateFrom, dueDateTo, badLoansOnly, overdueOnly), ct);
+        return File(file.Content, file.ContentType, file.OriginalFileName);
+    }
+
     /// <summary>GET /api/loans/{id} — Angular's LoanRepository.getLoanById(), used inside GetLoanDetailUseCase.</summary>
     [HttpGet("{id}")]
     public async Task<ActionResult<LoanDto>> GetById(string id, CancellationToken ct)
@@ -103,6 +118,13 @@ public class LoansController : ControllerBase
         return Ok(detail.Payments);
     }
 
+    /// <summary>GET /api/loans/{id}/payments/page?pageIndex=&amp;pageSize= — server-side paging for the Loan Details "Payments" tab. sortBy is "date" (the tab's only sortable column).</summary>
+    [HttpGet("{id}/payments/page")]
+    public async Task<ActionResult<PagedResult<PaymentDto>>> GetPaymentsPage(
+        string id, [FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 10,
+        [FromQuery] string? sortBy = null, [FromQuery] string? sortDir = null, CancellationToken ct = default) =>
+        Ok(await _mediator.Send(new GetLoanPaymentsPageQuery(id, pageIndex, pageSize, sortBy, sortDir), ct));
+
     /// <summary>GET /api/payments/recent?limit= is routed here too, kept for discoverability — see PaymentsController for the actual route.</summary>
 
     /// <summary>POST /api/loans — SRS 3.2, originates a new loan. Admin only.</summary>
@@ -118,7 +140,7 @@ public class LoansController : ControllerBase
     [HttpPost("{id}/payments")]
     public async Task<ActionResult<PaymentDto>> RecordPayment(string id, RecordPaymentRequest request, CancellationToken ct)
     {
-        var command = new RecordPaymentCommand(id, request.AmountPaid, request.PaymentMethod, request.Notes ?? string.Empty, request.ReferenceNumber);
+        var command = new RecordPaymentCommand(id, request.AmountPaid, request.PaymentMethod, request.Notes ?? string.Empty, request.ReferenceNumber, request.PaymentDate);
         return Ok(await _mediator.Send(command, ct));
     }
 
@@ -140,16 +162,16 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<LoanExtensionDto>> Extend(string id, ExtendLoanRequest request, CancellationToken ct)
     {
-        var command = new ExtendLoanCommand(id, request.ExtensionDays, request.AdditionalInterestAmount, request.Remarks ?? string.Empty, request.AdditionalChargesAmount);
+        var command = new ExtendLoanCommand(id, request.ExtensionDays, request.Remarks ?? string.Empty, request.AdditionalChargesAmount);
         return Ok(await _mediator.Send(command, ct));
     }
 
-    /// <summary>PUT /api/loans/{id}/extensions/{extensionId} — edits an extension, rolling its old contribution out of DueDate/TotalInterest/TotalExtensionCharges first. Admin only, same rationale as Extend.</summary>
+    /// <summary>PUT /api/loans/{id}/extensions/{extensionId} — edits an extension, rolling its old contribution out of DueDate/TotalExtensionCharges first. Admin only, same rationale as Extend.</summary>
     [HttpPut("{id}/extensions/{extensionId}")]
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<LoanExtensionDto>> UpdateExtension(string id, string extensionId, UpdateExtensionRequest request, CancellationToken ct)
     {
-        var command = new UpdateExtensionCommand(id, extensionId, request.ExtensionDays, request.AdditionalInterestAmount, request.Remarks, request.AdditionalChargesAmount, request.ExtensionDate);
+        var command = new UpdateExtensionCommand(id, extensionId, request.ExtensionDays, request.Remarks, request.AdditionalChargesAmount, request.ExtensionDate);
         return Ok(await _mediator.Send(command, ct));
     }
 
@@ -164,7 +186,9 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<LoanDto>> Update(string id, UpdateLoanRequest request, CancellationToken ct)
     {
-        var command = new UpdateLoanCommand(id, User.Identity?.Name ?? "unknown", request.StartDate, request.DueDate, request.InterestRate, request.InterestAmount, request.Remarks);
+        var command = new UpdateLoanCommand(
+            id, User.Identity?.Name ?? "unknown", request.Principal, request.StartDate, request.DueDate,
+            request.InterestRate, request.InterestAmount, request.PaymentTermsMonths, request.Remarks);
         return Ok(await _mediator.Send(command, ct));
     }
 
@@ -233,14 +257,16 @@ public class LoansController : ControllerBase
     }
 }
 
-public sealed record RecordPaymentRequest(decimal AmountPaid, string PaymentMethod, string? Notes, string? ReferenceNumber = null);
+public sealed record RecordPaymentRequest(decimal AmountPaid, string PaymentMethod, string? Notes, string? ReferenceNumber = null, string? PaymentDate = null);
 
 public sealed record UpdatePaymentRequest(decimal AmountPaid, string PaymentMethod, string? Notes, string? ReferenceNumber = null, string? PaymentDate = null);
 
-public sealed record ExtendLoanRequest(int ExtensionDays, decimal AdditionalInterestAmount, string? Remarks, decimal AdditionalChargesAmount = 0);
+public sealed record ExtendLoanRequest(int ExtensionDays, string? Remarks, decimal AdditionalChargesAmount = 0);
 
-public sealed record UpdateExtensionRequest(int ExtensionDays, decimal AdditionalInterestAmount, string? Remarks, decimal AdditionalChargesAmount = 0, string? ExtensionDate = null);
+public sealed record UpdateExtensionRequest(int ExtensionDays, string? Remarks, decimal AdditionalChargesAmount = 0, string? ExtensionDate = null);
 
-public sealed record UpdateLoanRequest(string? StartDate = null, string? DueDate = null, decimal? InterestRate = null, decimal? InterestAmount = null, string? Remarks = null);
+public sealed record UpdateLoanRequest(
+    decimal? Principal = null, string? StartDate = null, string? DueDate = null, decimal? InterestRate = null,
+    decimal? InterestAmount = null, int? PaymentTermsMonths = null, string? Remarks = null);
 
 public sealed record ChangeLoanClassificationRequest(string Classification);

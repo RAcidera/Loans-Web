@@ -1,53 +1,147 @@
 <section class="kpi-row">
-  <mat-card class="kpi-card" *ngFor="let kpi of kpis" [ngClass]="'kpi-card--' + kpi.tone">
-    <div class="kpi-card__icon">
-      <mat-icon>{{ kpi.icon }}</mat-icon>
+  <mat-card
+    class="kpi-card"
+    *ngFor="let kpi of kpis"
+    [ngClass]="['kpi-card--' + kpi.tone, kpi.onClick ? 'kpi-card--clickable' : '']"
+    (click)="kpi.onClick && kpi.onClick()"
+    [attr.tabindex]="kpi.onClick ? 0 : null"
+    [attr.role]="kpi.onClick ? 'button' : null"
+  >
+    <mat-icon class="kpi-card__chevron" *ngIf="kpi.onClick">chevron_right</mat-icon>
+    <div class="kpi-card__top">
+      <div class="kpi-card__icon">
+        <mat-icon>{{ kpi.icon }}</mat-icon>
+      </div>
+      <div class="kpi-card__text">
+        <span class="kpi-card__label">{{ kpi.label }}</span>
+        <div class="kpi-card__value" [style.color]="kpi.valueColor || null">{{ kpi.value }}</div>
+      </div>
     </div>
-    <span class="kpi-card__label">{{ kpi.label }}</span>
-    <div class="kpi-card__value">{{ kpi.value }}</div>
-    <div class="kpi-card__spark" *ngIf="kpi.sparkline" aria-hidden="true">
-      <span
-        class="kpi-card__bar"
-        *ngFor="let h of sparkBars(kpi.sparkline); let last = last"
-        [class.kpi-card__bar--today]="last"
-        [style.height.%]="h"
-      ></span>
+    <div class="kpi-card__trend" *ngIf="kpi.changePercent !== null" [ngClass]="'kpi-card__trend--' + trendClass(kpi.changePercent)">
+      <mat-icon>{{ trendIcon(kpi.changePercent) }}</mat-icon>
+      {{ (kpi.changePercent > 0 ? '+' : '') + kpi.changePercent + '%' }}
+      <span class="kpi-card__trend-label">vs last month</span>
     </div>
   </mat-card>
 </section>
 
+<div class="charts-row">
+  <mat-card class="chart-card chart-card--bar">
+    <div class="chart-card__header">
+      <h2>Collections Overview</h2>
+      <p>Monthly collections comparison</p>
+    </div>
+    <div class="chart-legend">
+      <span class="chart-legend__item"><i class="chart-legend__dot chart-legend__dot--this-year"></i>This Year</span>
+      <span class="chart-legend__item"><i class="chart-legend__dot chart-legend__dot--last-year"></i>Last Year</span>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-chart__grid">
+        <span *ngFor="let i of [4, 3, 2, 1, 0]">{{ fmtCompact((barChartMax * i) / 4) }}</span>
+      </div>
+      <div class="bar-chart__plot">
+        <div class="bar-chart__group" *ngFor="let g of barGroups">
+          <div class="bar-chart__bars">
+            <span class="bar-chart__bar bar-chart__bar--this-year" [style.height.%]="g.thisYearHeight" [appChartTooltip]="g.thisYearTooltip"></span>
+            <span class="bar-chart__bar bar-chart__bar--last-year" [style.height.%]="g.lastYearHeight" [appChartTooltip]="g.lastYearTooltip"></span>
+          </div>
+          <span class="bar-chart__label">{{ g.month }}</span>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card class="chart-card chart-card--line">
+    <div class="chart-card__header">
+      <h2>Collections (Past 7 Days)</h2>
+      <p>Daily collections for the last 7 days</p>
+    </div>
+    <div class="line-chart">
+      <svg viewBox="0 0 600 200" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="collectionsAreaFill" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--lm-success)" stop-opacity="0.25" />
+            <stop offset="100%" stop-color="var(--lm-success)" stop-opacity="0" />
+          </linearGradient>
+        </defs>
+        <path [attr.d]="last7DaysAreaPath" fill="url(#collectionsAreaFill)" />
+        <polyline [attr.points]="last7DaysLinePoints" fill="none" stroke="var(--lm-success)" stroke-width="2.5" />
+        <circle *ngFor="let p of last7DaysDots" [attr.cx]="p.x" [attr.cy]="p.y" r="9" fill="transparent" class="chart-hit-target" [appChartTooltip]="p.tooltip"></circle>
+        <circle *ngFor="let p of last7DaysDots" [attr.cx]="p.x" [attr.cy]="p.y" r="4" fill="var(--lm-success)" />
+      </svg>
+      <div class="line-chart__labels">
+        <span *ngFor="let l of last7DaysLabels">{{ l }}</span>
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card class="chart-card chart-card--donut">
+    <div class="chart-card__header">
+      <h2>Receivables Breakdown</h2>
+      <p>By status</p>
+    </div>
+    <div class="donut-chart">
+      <svg viewBox="0 0 200 200">
+        <circle
+          *ngFor="let seg of donutSegments"
+          cx="100" cy="100" r="70" fill="none"
+          [attr.stroke]="seg.color"
+          stroke-width="26"
+          [attr.stroke-dasharray]="seg.dashArray"
+          [attr.stroke-dashoffset]="seg.dashOffset"
+          transform="rotate(-90 100 100)"
+        />
+        <text x="100" y="96" text-anchor="middle" class="donut-chart__total">{{ fmtCompact(donutTotal) }}</text>
+        <text x="100" y="114" text-anchor="middle" class="donut-chart__total-label">Total</text>
+      </svg>
+      <ul class="donut-chart__legend">
+        <li *ngFor="let seg of donutSegments">
+          <i class="donut-chart__dot" [style.background]="seg.color"></i>
+          <span class="donut-chart__legend-label">{{ seg.label }}</span>
+          <span class="donut-chart__legend-value">{{ fmtCompact(seg.value) }} ({{ seg.pct }}%)</span>
+        </li>
+      </ul>
+    </div>
+  </mat-card>
+</div>
+
 <div class="two-col">
   <mat-card class="table-card">
-    <div class="table-card__header">
-      <h2>Loans</h2>
-      <p>All active, extended, overdue, and paid loans</p>
+    <div class="table-card__header table-card__header--with-action">
+      <div>
+        <h2>Recent Loans</h2>
+        <p>Latest loans across all status</p>
+      </div>
+      <a class="view-all-link" (click)="router.navigate(['/loans'])">View all loans <mat-icon>arrow_forward</mat-icon></a>
     </div>
 
     <div class="table-scroll">
-    <table mat-table [dataSource]="dataSource" matSort class="loans-table">
+    <table mat-table [dataSource]="recentLoans" class="loans-table">
       <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Loan ID</th>
-        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.loanNumber }}</td>
+        <th mat-header-cell *matHeaderCellDef>Loan ID</th>
+        <td mat-cell *matCellDef="let loan" class="mono">
+          <a class="row-link" (click)="openLoanDetails(loan)">{{ loan.loanNumber }}</a>
+        </td>
       </ng-container>
 
       <ng-container matColumnDef="customer">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+        <th mat-header-cell *matHeaderCellDef>Customer</th>
         <td mat-cell *matCellDef="let loan">{{ loan.customerName }}</td>
       </ng-container>
 
       <ng-container matColumnDef="principal">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Principal</th>
-        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.principalAmount | number }}</td>
+        <th mat-header-cell *matHeaderCellDef class="right">Principal</th>
+        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.principalAmount | number:'1.2-2' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="dueDate">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Due date</th>
-        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate }}</td>
+        <th mat-header-cell *matHeaderCellDef>Due Date</th>
+        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate | date:'MM/dd/yyyy' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="balance">
-        <th mat-header-cell *matHeaderCellDef mat-sort-header>Balance</th>
-        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.balance | number }}</td>
+        <th mat-header-cell *matHeaderCellDef class="right">Balance</th>
+        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.balance | number:'1.2-2' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="status">
@@ -60,24 +154,27 @@
       <ng-container matColumnDef="actions">
         <th mat-header-cell *matHeaderCellDef></th>
         <td mat-cell *matCellDef="let loan">
-          <button mat-icon-button (click)="openLoanDetails(loan); $event.stopPropagation()" aria-label="View loan details">
+          <button mat-icon-button (click)="openLoanDetails(loan)" aria-label="View loan details">
             <mat-icon>visibility</mat-icon>
           </button>
         </td>
       </ng-container>
 
-      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openLoanDetails(row)"></tr>
+      <tr mat-header-row *matHeaderRowDef="recentLoanColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: recentLoanColumns"></tr>
     </table>
     </div>
 
-    <mat-paginator [pageSize]="5" [pageSizeOptions]="[5, 10, 25]" showFirstLastButtons></mat-paginator>
+    <p class="empty-hint" *ngIf="recentLoans.length === 0">No loans yet.</p>
   </mat-card>
 
   <mat-card class="feed-card">
-    <div class="table-card__header">
-      <h2>Recent payments</h2>
-      <p>Latest collections across all loans</p>
+    <div class="table-card__header table-card__header--with-action">
+      <div>
+        <h2>Recent Payments</h2>
+        <p>Latest collections across all loans</p>
+      </div>
+      <a class="view-all-link" (click)="router.navigate(['/payments'])">View all payments <mat-icon>arrow_forward</mat-icon></a>
     </div>
 
     <ul class="feed-list">
@@ -90,8 +187,8 @@
           <span class="feed-item__loan mono">{{ p.loanNumber }}</span>
         </div>
         <div class="feed-item__side">
-          <span class="feed-item__amount mono">+₱{{ p.amountPaid | number }}</span>
-          <span class="feed-item__date mono">{{ p.paymentDate }}</span>
+          <span class="feed-item__amount mono">+₱{{ p.amountPaid | number:'1.2-2' }}</span>
+          <span class="feed-item__date mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</span>
         </div>
       </li>
       <li class="feed-empty" *ngIf="recentPayments.length === 0">No payments recorded yet.</li>

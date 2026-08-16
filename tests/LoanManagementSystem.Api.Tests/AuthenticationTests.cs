@@ -88,7 +88,7 @@ public class AuthenticationTests : IClassFixture<TestApiFactory>
         // rejects the request before the handler ever looks up the loan.
         var response = await staffClient.PostAsJsonAsync(
             "/api/loans/00000000-0000-0000-0000-000000000000/extensions",
-            new { extensionDays = 30, additionalInterestAmount = 50, remarks = "test" });
+            new { extensionDays = 30, additionalChargesAmount = 50, remarks = "test" });
 
         Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
     }

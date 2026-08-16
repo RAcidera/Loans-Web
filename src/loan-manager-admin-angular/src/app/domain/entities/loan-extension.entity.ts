@@ -5,8 +5,7 @@ export interface LoanExtension {
   loanId: string;
   extensionDate: string;
   extensionDays: number;
-  additionalInterestAmount: number;
-  /** A separate fee from additionalInterestAmount — see the Loan entity's Outstanding Balance formula. */
+  /** The fee added for extending — see the Loan entity's Outstanding Balance formula. */
   additionalChargesAmount: number;
   remarks: string;
 }

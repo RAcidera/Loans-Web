@@ -1,0 +1,281 @@
+<div class="breadcrumb">
+  <a (click)="router.navigate(['/reports'])">Reports</a>
+  <mat-icon>chevron_right</mat-icon>
+  <span>Interest Earned</span>
+</div>
+
+<mat-card class="report-header-card">
+  <div class="header-row">
+    <div class="title-block">
+      <h2>Interest Earned Report</h2>
+      <p>Interest earned during the selected reporting period, regardless of payment timing</p>
+    </div>
+    <div class="export-actions">
+      <button mat-stroked-button type="button" (click)="exportExcel()" [disabled]="exportingXlsx">
+        <mat-icon>file_download</mat-icon>
+        Export Excel
+      </button>
+      <button mat-stroked-button type="button" (click)="exportPdfFile()" [disabled]="exportingPdf">
+        <mat-icon>picture_as_pdf</mat-icon>
+        Export PDF
+      </button>
+    </div>
+  </div>
+
+  <form [formGroup]="filters" class="filter-bar">
+    <div class="field">
+      <label>From Date</label>
+      <input type="date" formControlName="fromDate" class="date-input" aria-label="From date" />
+    </div>
+
+    <div class="field">
+      <label>To Date</label>
+      <input type="date" formControlName="toDate" class="date-input" aria-label="To date" />
+    </div>
+
+    <div class="field field--search">
+      <label>Search</label>
+      <div class="search-box">
+        <mat-icon>search</mat-icon>
+        <input type="text" (input)="applySearch($any($event.target).value)" placeholder="Loan # or customer name…" aria-label="Search interest earned report" />
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Loan Status</label>
+      <mat-select formControlName="status" panelClass="lm-select-panel" placeholder="All Statuses">
+        <mat-option [value]="null">All Statuses</mat-option>
+        <mat-option value="active">Active</mat-option>
+        <mat-option value="extended">Extended</mat-option>
+        <mat-option value="overdue">Overdue</mat-option>
+        <mat-option value="paid">Paid</mat-option>
+        <mat-option value="writtenoff">Written Off</mat-option>
+      </mat-select>
+    </div>
+
+    <div class="field">
+      <label>Classification</label>
+      <mat-select formControlName="classification" panelClass="lm-select-panel" placeholder="All Classifications">
+        <mat-option [value]="null">All Classifications</mat-option>
+        <mat-option value="normal">Normal</mat-option>
+        <mat-option value="watchlist">Watch List</mat-option>
+        <mat-option value="badloan">Bad Loan</mat-option>
+      </mat-select>
+    </div>
+
+    <div class="field">
+      <label>Interest Type</label>
+      <mat-select formControlName="interestType" panelClass="lm-select-panel">
+        <mat-option value="all">All Interest</mat-option>
+        <mat-option value="original">Original Loan Interest</mat-option>
+        <mat-option value="extension">Extension Interest</mat-option>
+      </mat-select>
+    </div>
+
+    <div class="filter-actions">
+      <button mat-stroked-button type="button" (click)="clearFilters()">Clear</button>
+      <button mat-flat-button color="primary" type="button" (click)="applyFilters()">
+        <mat-icon>filter_alt</mat-icon>
+        Apply
+      </button>
+    </div>
+  </form>
+
+  <div class="metrics" *ngIf="overview as ov">
+    <div class="metric metric--highlight">
+      <div class="label">Total Earned Interest</div>
+      <div class="value">{{ fmtMoney(ov.summary.totalEarnedInterest) }}</div>
+    </div>
+    <div class="metric">
+      <div class="label">Original Interest</div>
+      <div class="value">{{ fmtMoney(ov.summary.originalInterestEarned) }}</div>
+    </div>
+    <div class="metric metric--warn">
+      <div class="label">Extension Interest</div>
+      <div class="value">{{ fmtMoney(ov.summary.extensionInterestEarned) }}</div>
+    </div>
+    <div class="metric" [class.metric--bad]="ov.summary.interestAdjustments < 0">
+      <div class="label">Interest Adjustments</div>
+      <div class="value">{{ (ov.summary.interestAdjustments > 0 ? '+' : '') + fmtMoney(ov.summary.interestAdjustments) }}</div>
+    </div>
+    <div class="metric">
+      <div class="label">Interest Collected</div>
+      <div class="value" [class.value--unavailable]="ov.summary.interestCollected === null" [matTooltip]="ov.summary.interestCollected === null ? 'Not available yet — payment allocation between principal and interest is not implemented.' : ''">
+        {{ ov.summary.interestCollected !== null ? fmtMoney(ov.summary.interestCollected) : 'N/A' }}
+      </div>
+    </div>
+    <div class="metric">
+      <div class="label">Interest Receivable</div>
+      <div class="value" [class.value--unavailable]="ov.summary.interestReceivable === null" [matTooltip]="ov.summary.interestReceivable === null ? 'Not available yet — depends on Interest Collected.' : ''">
+        {{ ov.summary.interestReceivable !== null ? fmtMoney(ov.summary.interestReceivable) : 'N/A' }}
+      </div>
+    </div>
+  </div>
+</mat-card>
+
+<div class="analytics">
+  <mat-card class="chart-card">
+    <div class="chart-card__header">
+      <h2>Earned Interest by Month</h2>
+      <p>Current year vs previous year</p>
+    </div>
+    <div class="chart-legend">
+      <span class="chart-legend__item"><i class="chart-legend__dot chart-legend__dot--current"></i>Current Year</span>
+      <span class="chart-legend__item"><i class="chart-legend__dot chart-legend__dot--previous"></i>Previous Year</span>
+    </div>
+    <div class="bar-chart">
+      <div class="bar-chart__grid">
+        <span *ngFor="let i of [4, 3, 2, 1, 0]">{{ fmtMoney((barChartMax * i) / 4) }}</span>
+      </div>
+      <div class="bar-chart__plot">
+        <div class="bar-chart__group" *ngFor="let g of barGroups">
+          <div class="bar-chart__bars">
+            <span class="bar-chart__bar bar-chart__bar--current" [style.height.%]="g.currentHeight" [appChartTooltip]="g.currentTooltip"></span>
+            <span class="bar-chart__bar bar-chart__bar--previous" [style.height.%]="g.previousHeight" [appChartTooltip]="g.previousTooltip"></span>
+          </div>
+          <span class="bar-chart__label">{{ g.month }}</span>
+        </div>
+      </div>
+    </div>
+  </mat-card>
+
+  <mat-card class="summary-note" *ngIf="overview as ov2">
+    <h2>Current Period Summary</h2>
+    <p class="period-range">{{ filters.value.fromDate | date:'MMM d, y' }} – {{ filters.value.toDate | date:'MMM d, y' }}</p>
+    <div class="big">{{ fmtMoney(ov2.summary.totalEarnedInterest) }}</div>
+    <p>This is the interest earned within the selected period based on elapsed loan and extension days.</p>
+    <p>
+      <strong>{{ fmtMoney(ov2.summary.originalInterestEarned) }}</strong> came from original loan interest,
+      <strong>{{ fmtMoney(ov2.summary.extensionInterestEarned) }}</strong> from extension interest<ng-container *ngIf="ov2.summary.interestAdjustments !== 0">,
+      and <strong>{{ fmtMoney(ov2.summary.interestAdjustments < 0 ? -ov2.summary.interestAdjustments : ov2.summary.interestAdjustments) }}</strong>
+      was {{ ov2.summary.interestAdjustments < 0 ? 'reduced' : 'added' }} through adjustments</ng-container>.
+    </p>
+  </mat-card>
+</div>
+
+<mat-card class="table-card">
+  <div class="table-head">
+    <h2>Detailed Loan Interest</h2>
+  </div>
+
+  <div class="table-scroll">
+  <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSort($event)" class="interest-table">
+    <ng-container matColumnDef="loanNumber">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="loanNumber">Loan #</th>
+      <td mat-cell *matCellDef="let r" class="mono bold">
+        <a class="row-link" (click)="openLoanDetails(r)">{{ r.loanNumber }}</a>
+      </td>
+      <td mat-footer-cell *matFooterCellDef>TOTALS</td>
+    </ng-container>
+
+    <ng-container matColumnDef="customer">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="customer">Customer</th>
+      <td mat-cell *matCellDef="let r">{{ r.customerName }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="loanDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="loanDate">Loan Date</th>
+      <td mat-cell *matCellDef="let r" class="mono">{{ r.loanDate | date:'MM/dd/yyyy' }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="dueDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="dueDate">Due Date</th>
+      <td mat-cell *matCellDef="let r" class="mono">{{ r.dueDate | date:'MM/dd/yyyy' }}</td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="principal">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="principal" class="right">Principal</th>
+      <td mat-cell *matCellDef="let r" class="mono right">{{ r.principal | number:'1.2-2' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right">{{ (overview?.totals?.principal ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="contractInterest">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="contractInterest" class="right">Contract Interest</th>
+      <td mat-cell *matCellDef="let r" class="mono right">{{ r.contractInterest | number:'1.2-2' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right">{{ (overview?.totals?.contractInterest ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="extensionInterest">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="extensionInterest" class="right">Extension Interest</th>
+      <td mat-cell *matCellDef="let r" class="mono right">{{ r.extensionInterest | number:'1.2-2' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right">{{ (overview?.totals?.extensionInterest ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="earnedBeforePeriod">
+      <th mat-header-cell *matHeaderCellDef class="right">Earned Before Period</th>
+      <td mat-cell *matCellDef="let r" class="mono right">{{ r.earnedBeforePeriod | number:'1.2-2' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right">{{ (overview?.totals?.earnedBeforePeriod ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="earnedThisPeriod">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="earnedThisPeriod" class="right">Earned This Period</th>
+      <td mat-cell *matCellDef="let r" class="mono right bold balance">{{ r.earnedThisPeriod | number:'1.2-2' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right bold">{{ (overview?.totals?.earnedThisPeriod ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="totalEarned">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="totalEarned" class="right">Total Earned</th>
+      <td mat-cell *matCellDef="let r" class="mono right">{{ r.totalEarned | number:'1.2-2' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right">{{ (overview?.totals?.totalEarned ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="adjustment">
+      <th mat-header-cell *matHeaderCellDef class="right">Adjustment</th>
+      <td mat-cell *matCellDef="let r" class="mono right" [class.negative]="r.adjustment < 0">
+        {{ (r.adjustment > 0 ? '+' : '') + (r.adjustment | number:'1.2-2') }}
+      </td>
+      <td mat-footer-cell *matFooterCellDef class="mono right">{{ (overview?.totals?.adjustment ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="finalEarned">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header="finalEarned" class="right">Final Earned</th>
+      <td mat-cell *matCellDef="let r" class="mono right bold balance">{{ r.finalEarned | number:'1.2-2' }}</td>
+      <td mat-footer-cell *matFooterCellDef class="mono right bold">{{ (overview?.totals?.finalEarned ?? 0) | number:'1.2-2' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="status">
+      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <td mat-cell *matCellDef="let r">
+        <span class="chip" [ngClass]="'chip--' + r.status">{{ getStatusLabel(r.status) }}</span>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="classification">
+      <th mat-header-cell *matHeaderCellDef>Classification</th>
+      <td mat-cell *matCellDef="let r">
+        <span class="chip" [ngClass]="'chip--' + r.classification">{{ getClassificationLabel(r.classification) }}</span>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef></th>
+      <td mat-cell *matCellDef="let r">
+        <button mat-icon-button (click)="openBreakdown(r)" aria-label="View interest calculation breakdown" matTooltip="How was this calculated?">
+          <mat-icon>info_outline</mat-icon>
+        </button>
+      </td>
+      <td mat-footer-cell *matFooterCellDef></td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    <tr mat-footer-row *matFooterRowDef="displayedColumns" class="interest-table__footer" [hidden]="dataSource.data.length === 0"></tr>
+  </table>
+  </div>
+
+  <p class="empty-hint" *ngIf="dataSource.data.length === 0">No loans match these filters.</p>
+
+  <mat-paginator
+    [length]="totalCount"
+    [pageIndex]="pageIndex"
+    [pageSize]="pageSize"
+    [pageSizeOptions]="[25, 50, 100]"
+    showFirstLastButtons
+    (page)="onPage($event)"
+  ></mat-paginator>
+</mat-card>

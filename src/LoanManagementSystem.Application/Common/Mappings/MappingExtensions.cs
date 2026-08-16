@@ -53,7 +53,7 @@ public static class MappingExtensions
         UploadedBy: document.UploadedBy
     );
 
-    public static CustomerListItemDto ToListItemDto(this Customer customer, int loanCount) => new(
+    public static CustomerListItemDto ToListItemDto(this Customer customer, int loanCount, decimal outstandingBalance = 0m) => new(
         CustomerId: customer.Id.ToString(),
         CustomerCode: FormatCustomerCode(customer.CustomerNumber),
         FullName: customer.FullName,
@@ -64,7 +64,8 @@ public static class MappingExtensions
         Notes: customer.Notes,
         Status: customer.Status.ToString().ToLowerInvariant(),
         CreatedAt: customer.CreatedAtUtc.ToString("yyyy-MM-dd"),
-        LoanCount: loanCount
+        LoanCount: loanCount,
+        OutstandingBalance: outstandingBalance
     );
 
     public static UserDto ToDto(this User user) => new(
@@ -75,7 +76,7 @@ public static class MappingExtensions
         CreatedAt: user.CreatedAtUtc.ToString("yyyy-MM-dd")
     );
 
-    public static LoanDto ToDto(this Loan loan, string customerName) => new(
+    public static LoanDto ToDto(this Loan loan, string customerName, string? customerContactNumber = null) => new(
         LoanId: loan.Id.ToString(),
         LoanNumber: FormatLoanNumber(loan.LoanNumber),
         CustomerId: loan.CustomerId.ToString(),
@@ -84,23 +85,32 @@ public static class MappingExtensions
         InterestRate: loan.InterestRate.Value,
         StartDate: loan.StartDate.ToString("yyyy-MM-dd"),
         DueDate: loan.DueDate.ToString("yyyy-MM-dd"),
+        PaymentTermsMonths: loan.PaymentTermsMonths,
         TotalInterest: loan.TotalInterest.Amount,
         TotalExtensionCharges: loan.TotalExtensionCharges.Amount,
         TotalAmountDue: loan.TotalAmountDue.Amount,
         TotalPaid: loan.TotalPaid.Amount,
         Balance: loan.Balance.Amount,
+        DailyPayment: CalculateDailyPayment(loan),
         Status: loan.Status.ToString().ToLowerInvariant(),
         Classification: loan.Classification.ToString().ToLowerInvariant(),
         Remarks: loan.Remarks,
-        CreatedAt: loan.CreatedAtUtc.ToString("yyyy-MM-dd")
+        CreatedAt: loan.CreatedAtUtc.ToString("yyyy-MM-dd"),
+        CustomerContactNumber: customerContactNumber
     );
+
+    /// <summary>(Principal + Interest) / (Payment terms in months * 30) — see LoanDto.DailyPayment.</summary>
+    private static decimal CalculateDailyPayment(Loan loan)
+    {
+        var days = Math.Max(1, loan.PaymentTermsMonths * 30);
+        return Math.Round((loan.PrincipalAmount.Amount + loan.TotalInterest.Amount) / days, 2);
+    }
 
     public static LoanExtensionDto ToDto(this LoanExtension extension) => new(
         ExtensionId: extension.Id.ToString(),
         LoanId: extension.LoanId.ToString(),
         ExtensionDate: extension.ExtensionDate.ToString("yyyy-MM-dd"),
         ExtensionDays: extension.ExtensionDays,
-        AdditionalInterestAmount: extension.AdditionalInterestAmount.Amount,
         AdditionalChargesAmount: extension.AdditionalChargesAmount.Amount,
         Remarks: extension.Remarks
     );
@@ -115,7 +125,7 @@ public static class MappingExtensions
         ReferenceNumber: payment.ReferenceNumber
     );
 
-    public static PaymentWithCustomerDto ToDtoWithCustomer(this Payment payment, string customerName, int loanNumber) => new(
+    public static PaymentWithCustomerDto ToDtoWithCustomer(this Payment payment, string customerId, string customerName, int loanNumber) => new(
         PaymentId: payment.Id.ToString(),
         LoanId: payment.LoanId.ToString(),
         LoanNumber: FormatLoanNumber(loanNumber),
@@ -124,7 +134,19 @@ public static class MappingExtensions
         PaymentMethod: ToWireString(payment.PaymentMethod),
         Notes: payment.Notes,
         ReferenceNumber: payment.ReferenceNumber,
+        CustomerId: customerId,
         CustomerName: customerName
+    );
+
+    public static PaymentWithLoanDto ToDtoWithLoan(this Payment payment, int loanNumber) => new(
+        PaymentId: payment.Id.ToString(),
+        LoanId: payment.LoanId.ToString(),
+        LoanNumber: FormatLoanNumber(loanNumber),
+        PaymentDate: payment.PaymentDate.ToString("yyyy-MM-dd"),
+        AmountPaid: payment.AmountPaid.Amount,
+        PaymentMethod: ToWireString(payment.PaymentMethod),
+        Notes: payment.Notes,
+        ReferenceNumber: payment.ReferenceNumber
     );
 
     public static LoanLedgerEntryDto ToDto(this LoanLedgerEntry entry) => new(
@@ -184,12 +206,16 @@ public static class MappingExtensions
         _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown loan audit action."),
     };
 
-    public static CashLedgerEntryDto ToDto(this CashLedgerEntry entry) => new(
+    /// <param name="runningBalance">Cash on Hand immediately after this entry, computed by the caller over the FULL chronological ledger (not just a filtered/paged subset) — null when the caller hasn't computed one (e.g. the Add/Edit command's own response, where the UI reloads the list anyway).</param>
+    public static CashLedgerEntryDto ToDto(this CashLedgerEntry entry, decimal? runningBalance = null) => new(
         LedgerId: entry.Id.ToString(),
         TransactionDate: entry.TransactionDate.ToString("yyyy-MM-dd"),
         TransactionType: ToWireString(entry.TransactionType),
         ReferenceId: entry.ReferenceId,
         Amount: entry.Amount.Amount,
+        IsCashIn: entry.IsCashIn,
+        IsAutomatic: entry.IsAutomatic,
+        RunningBalance: runningBalance,
         Remarks: entry.Remarks,
         CreatedAt: entry.CreatedAtUtc.ToString("O")
     );
@@ -202,6 +228,7 @@ public static class MappingExtensions
         CashTransactionType.OwnerDeposit => "owner_deposit",
         CashTransactionType.OwnerWithdrawal => "owner_withdrawal",
         CashTransactionType.Expense => "expense",
+        CashTransactionType.Adjustment => "adjustment",
         _ => throw new ArgumentOutOfRangeException(nameof(type)),
     };
 
@@ -212,6 +239,7 @@ public static class MappingExtensions
         "owner_deposit" => CashTransactionType.OwnerDeposit,
         "owner_withdrawal" => CashTransactionType.OwnerWithdrawal,
         "expense" => CashTransactionType.Expense,
+        "adjustment" => CashTransactionType.Adjustment,
         _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown cash transaction type."),
     };
 

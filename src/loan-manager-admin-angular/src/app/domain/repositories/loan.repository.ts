@@ -1,7 +1,10 @@
 import { Observable } from 'rxjs';
-import { Customer } from '../entities/customer.entity';
+import { Customer, CustomerStatus } from '../entities/customer.entity';
 import { CustomerDocument } from '../entities/customer-document.entity';
+import { CustomerPayment } from '../entities/customer-payment.entity';
+import { CustomerTotals } from '../entities/customer-totals.entity';
 import { DashboardReceivables } from '../entities/dashboard-receivables.entity';
+import { DashboardSummary } from '../entities/dashboard-summary.entity';
 import { Loan, LoanClassification, LoanPageFilters } from '../entities/loan.entity';
 import { LoanAuditLogEntry } from '../entities/loan-audit-log-entry.entity';
 import { LoanDocument } from '../entities/loan-document.entity';
@@ -9,17 +12,19 @@ import { LoanExtension } from '../entities/loan-extension.entity';
 import { LoanLedgerEntry } from '../entities/loan-ledger-entry.entity';
 import { LoanTotals } from '../entities/loan-totals.entity';
 import { PagedResult } from '../entities/paged-result.entity';
-import { Payment, PaymentMethod, PaymentWithCustomer } from '../entities/payment.entity';
+import { Payment, PaymentMethod, PaymentPageFilters, PaymentWithCustomer, PaymentsTotals } from '../entities/payment.entity';
 
-/** Customers list-page row shape — a Customer plus its server-computed loan count. */
-export type CustomerListItem = Customer & { loanCount: number };
+/** Customers list-page row shape — a Customer plus its server-computed loan count and outstanding balance. */
+export type CustomerListItem = Customer & { loanCount: number; outstandingBalance: number };
 
 /** Spec's "Edit Loan" overrides — every field optional so a caller can change just one. */
 export interface UpdateLoanFields {
+  principal?: number;
   startDate?: string;
   dueDate?: string;
   interestRate?: number;
   interestAmount?: number;
+  paymentTermsMonths?: number;
   remarks?: string;
 }
 
@@ -38,7 +43,12 @@ export abstract class LoanRepository {
    */
   abstract getCustomersPage(
     pageIndex: number, pageSize: number, search: string, sortBy?: string, sortDir?: 'asc' | 'desc',
+    status?: CustomerStatus,
   ): Observable<PagedResult<CustomerListItem>>;
+  /** Spec's "Customer Grid Footer Totals"-equivalent KPI strip — same filters as getCustomersPage, no paging. */
+  abstract getCustomersTotals(search: string, status?: CustomerStatus): Observable<CustomerTotals>;
+  /** Customers list "Export" button — the whole filtered result set (same scope as getCustomersTotals), not just the visible page, as a downloadable .xlsx. */
+  abstract exportCustomers(search: string, status?: CustomerStatus): Observable<Blob>;
   abstract getCustomerById(customerId: string): Observable<Customer | undefined>;
   /** SRS 3.1 "add ... customer profiles". */
   abstract createCustomer(
@@ -69,14 +79,31 @@ export abstract class LoanRepository {
   ): Observable<PagedResult<Loan>>;
   /** Spec's "Loan Grid Footer Totals" — same filters as getLoansPage, no paging. */
   abstract getLoansTotals(search: string, filters?: LoanPageFilters): Observable<LoanTotals>;
+  /** Loans list "Export" button — the whole filtered result set (same scope as getLoansTotals), not just the visible page, as a downloadable .xlsx. */
+  abstract exportLoans(search: string, filters?: LoanPageFilters): Observable<Blob>;
   abstract getLoanById(loanId: string): Observable<Loan | undefined>;
   abstract getLoansByCustomer(customerId: string): Observable<Loan[]>;
+  /** One page of a customer's payments across all their loans — Customer Profile's "Payment History" tab server-side paging. sortBy is 'date'/'loan'/'amount', defaulting to newest-date-first when omitted. */
+  abstract getCustomerPaymentsPage(
+    customerId: string, pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc',
+  ): Observable<PagedResult<CustomerPayment>>;
   /** Spec's "Dashboard Receivable Calculations" + "Dashboard Summary Cards". */
   abstract getDashboardReceivables(): Observable<DashboardReceivables>;
+  /** Everything on the Dashboard beyond receivables/cash/recent-payments — trend badges, Collections/Receivables-Breakdown charts, Recent Loans. */
+  abstract getDashboardSummary(): Observable<DashboardSummary>;
   /** Same formulas as getDashboardReceivables(), scoped to one customer — Customer Profile's "Financial Summary" card. */
   abstract getCustomerReceivables(customerId: string): Observable<DashboardReceivables>;
-  /** SRS 3.2 "originate loans". InterestRate/TermDays/StartDate are optional — the backend applies its own defaults (3%, 60 days, today) when omitted. */
-  abstract createLoan(customerId: string, principal: number, interestRate?: number, termDays?: number, startDate?: string): Observable<Loan>;
+  /**
+   * SRS 3.2 "originate loans". InterestRate/PaymentTermsMonths/StartDate
+   * are optional — the backend applies its own defaults (3%, 2 months,
+   * today) when omitted, but the Add Loan dialog always sends explicit
+   * values. InterestAmount, when supplied, overrides the rate*principal
+   * calculation outright — see Loan.Originate's backend doc comment.
+   */
+  abstract createLoan(
+    customerId: string, principal: number, interestRate?: number, paymentTermsMonths?: number,
+    startDate?: string, interestAmount?: number,
+  ): Observable<Loan>;
 
   /** Spec's "Edit Loan" button — overrides Loan Date/Due Date/Interest Rate/Interest Amount/Remarks post-creation. */
   abstract updateLoan(loanId: string, fields: UpdateLoanFields): Observable<Loan>;
@@ -85,10 +112,10 @@ export abstract class LoanRepository {
 
   abstract getExtensions(loanId: string): Observable<LoanExtension[]>;
   /** Extends a loan's due date and recalculates its balance, per SRS 3.3. */
-  abstract extendLoan(loanId: string, extensionDays: number, additionalInterestAmount: number, remarks: string, additionalChargesAmount?: number): Observable<Loan>;
-  /** Edits an extension, rolling its old contribution out of DueDate/TotalInterest/TotalExtensionCharges first. */
+  abstract extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount?: number): Observable<Loan>;
+  /** Edits an extension, rolling its old contribution out of DueDate/TotalExtensionCharges first. */
   abstract updateExtension(
-    loanId: string, extensionId: string, extensionDays: number, additionalInterestAmount: number,
+    loanId: string, extensionId: string, extensionDays: number,
     remarks: string, additionalChargesAmount?: number,
   ): Observable<LoanExtension>;
   /** Removes an extension, reverting DueDate/TotalInterest/TotalExtensionCharges — returns the updated Loan since the extension is gone. */
@@ -97,18 +124,36 @@ export abstract class LoanRepository {
   /** Most recent payments across all loans, newest first — powers the dashboard feed (SRS wireframe 2). */
   abstract getRecentPayments(limit: number): Observable<PaymentWithCustomer[]>;
 
+  /** One page of payments across every loan — the standalone Payments list page's server-side paging (named ...List... to not collide with getPaymentsPage(loanId, ...) above, which is scoped to one loan). sortBy is 'loan'/'customer'/'date'/'amount', defaulting to newest-date-first when omitted. */
+  abstract getPaymentsListPage(
+    pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc', filters?: PaymentPageFilters,
+  ): Observable<PagedResult<PaymentWithCustomer>>;
+  /** Same filters as getPaymentsListPage, no paging — the Payments list's footer total. */
+  abstract getPaymentsListTotals(filters?: PaymentPageFilters): Observable<PaymentsTotals>;
+  /** Payments list "Export" button — the whole filtered result set (same scope as getPaymentsListTotals), not just the visible page, as a downloadable .xlsx. */
+  abstract exportPaymentsList(filters?: PaymentPageFilters): Observable<Blob>;
+
   abstract getPayments(loanId: string): Observable<Payment[]>;
+  /** One page of a single loan's own payments — Loan Details "Payments" tab server-side paging. sortBy is 'date', the tab's only sortable column. */
+  abstract getPaymentsPage(
+    loanId: string, pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc',
+  ): Observable<PagedResult<Payment>>;
   /**
    * Records a payment and updates the loan balance, per SRS 3.4. Per the
    * SRS, this must also create a `payment_received` entry in the cash
    * ledger — that cross-boundary side effect is the infrastructure
-   * implementation's responsibility, not this port's.
+   * implementation's responsibility, not this port's. paymentDate defaults
+   * to today server-side when omitted, but is always sent explicitly by the
+   * dialog so the collector can record a backdated payment (see
+   * PaymentEditedDomainEvent's doc comment on the backend for why this
+   * matters — mistyped/late-entered dates need to be correctable and
+   * reflected in the cash ledger, not just the loan).
    */
-  abstract recordPayment(loanId: string, amountPaid: number, paymentMethod: PaymentMethod, notes: string, referenceNumber?: string): Observable<Payment>;
-  /** Edits a payment, rolling its old AmountPaid out of TotalPaid/Balance before applying the new one. */
+  abstract recordPayment(loanId: string, amountPaid: number, paymentMethod: PaymentMethod, notes: string, referenceNumber?: string, paymentDate?: string): Observable<Payment>;
+  /** Edits a payment, rolling its old AmountPaid out of TotalPaid/Balance before applying the new one — paymentDate changes also revise the mirrored cash_ledger/loan_ledger rows (backend PaymentEditedEventHandler). */
   abstract updatePayment(
     loanId: string, paymentId: string, amountPaid: number, paymentMethod: PaymentMethod,
-    notes?: string, referenceNumber?: string,
+    notes?: string, referenceNumber?: string, paymentDate?: string,
   ): Observable<Payment>;
   /** Removes a payment, rolling it back out of TotalPaid/Balance — returns the updated Loan since the payment is gone. */
   abstract deletePayment(loanId: string, paymentId: string): Observable<Loan>;

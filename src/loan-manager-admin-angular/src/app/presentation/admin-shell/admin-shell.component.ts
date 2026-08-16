@@ -5,10 +5,12 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatMenuModule } from '@angular/material/menu';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { BreakpointObserver } from '@angular/cdk/layout';
 import { filter } from 'rxjs/operators';
 
 import { AuthService } from '../../application/auth/auth.service';
+import { ChangeMyPasswordDialogComponent } from '../change-my-password-dialog/change-my-password-dialog.component';
 
 interface NavItem {
   label: string;
@@ -33,6 +35,7 @@ interface NavItem {
     MatButtonModule,
     MatBadgeModule,
     MatMenuModule,
+    MatDialogModule,
   ],
   templateUrl: './admin-shell.component.html',
   styleUrls: ['./admin-shell.component.scss'],
@@ -46,7 +49,8 @@ export class AdminShellComponent {
     { label: 'Dashboard', icon: 'grid_view', route: '/dashboard' },
     { label: 'Customers', icon: 'group', route: '/customers' },
     { label: 'Loans', icon: 'receipt_long', route: '/loans' },
-    { label: 'Cash & Funds', icon: 'account_balance', route: '/cash-funds' },
+    { label: 'Payments', icon: 'payments', route: '/payments' },
+    { label: 'Transactions', icon: 'account_balance', route: '/cash-funds' },
     { label: 'Reports', icon: 'insights', route: '/reports' },
     { label: 'Settings', icon: 'tune', route: '/settings' },
   ];
@@ -54,6 +58,7 @@ export class AdminShellComponent {
   constructor(
     private readonly router: Router,
     private readonly breakpointObserver: BreakpointObserver,
+    private readonly dialog: MatDialog,
     readonly authService: AuthService,
   ) {
     this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
@@ -94,5 +99,9 @@ export class AdminShellComponent {
   logout(): void {
     this.authService.logout();
     this.router.navigate(['/login']);
+  }
+
+  openChangeMyPassword(): void {
+    this.dialog.open(ChangeMyPasswordDialogComponent, { width: '420px', maxWidth: '95vw' });
   }
 }

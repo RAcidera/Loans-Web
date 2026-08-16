@@ -46,6 +46,9 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
         builder.Property(l => l.StartDate).HasColumnName("start_date").HasColumnType("date");
         builder.Property(l => l.DueDate).HasColumnName("due_date").HasColumnType("date");
 
+        // Lender's collection schedule in months (1-12) — see the property's own doc comment.
+        builder.Property(l => l.PaymentTermsMonths).HasColumnName("payment_terms_months");
+
         builder.Property(l => l.TotalInterest).HasConversion(MoneyConverter()).HasColumnName("total_interest").HasColumnType("decimal(12,2)");
         builder.Property(l => l.TotalExtensionCharges).HasConversion(MoneyConverter()).HasColumnName("total_extension_charges").HasColumnType("decimal(12,2)");
         builder.Property(l => l.TotalAmountDue).HasConversion(MoneyConverter()).HasColumnName("total_amount_due").HasColumnType("decimal(12,2)");

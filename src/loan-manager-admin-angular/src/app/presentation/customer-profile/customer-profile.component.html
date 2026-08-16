@@ -1,146 +1,249 @@
-<button mat-button class="back-link" (click)="back()">
-  <mat-icon>arrow_back</mat-icon>
-  Back to customers
-</button>
+<div class="page-toolbar">
+  <button mat-button class="back-link" (click)="back()">
+    <mat-icon>arrow_back</mat-icon>
+    Back to customers
+  </button>
+
+  <div class="page-toolbar__actions" *ngIf="!loading && customer">
+    <button mat-stroked-button color="primary" *ngIf="authService.hasRole('admin')" (click)="openEditCustomer()">
+      <mat-icon>edit</mat-icon>
+      Edit Customer
+    </button>
+    <button mat-flat-button color="primary" (click)="openAddLoan()">
+      <mat-icon>add</mat-icon>
+      New Loan
+    </button>
+  </div>
+</div>
 
 <div class="profile-page" *ngIf="!loading && customer">
-  <mat-card class="profile-card">
-    <div class="profile-card__header">
-      <div>
-        <h2>
-          {{ customer.fullName }}
-          <span class="nickname" *ngIf="customer.nicknameAlias">"{{ customer.nicknameAlias }}"</span>
-        </h2>
-        <p class="mono profile-card__code">{{ customer.customerCode }}</p>
+  <mat-card class="identity-card">
+    <div class="identity-card__avatar">{{ initials }}</div>
+
+    <div class="identity-card__main">
+      <div class="identity-card__name-row">
+        <h2>{{ customer.fullName }}</h2>
+        <span class="nickname" *ngIf="customer.nicknameAlias">"{{ customer.nicknameAlias }}"</span>
       </div>
-      <span class="chip" [ngClass]="'chip--' + customer.status">{{ customer.status === 'active' ? 'Active' : 'Inactive' }}</span>
+      <p class="identity-card__meta mono">{{ customer.customerCode }} &bull; Since {{ customer.createdAt | date:'MMM dd, yyyy' }}</p>
+      <div class="identity-card__tags">
+        <span class="chip" [ngClass]="'chip--' + customer.status">{{ customer.status === 'active' ? 'Active' : 'Inactive' }}</span>
+        <span class="chip chip--tag" *ngIf="customer.borrowerType">{{ customer.borrowerType }}</span>
+      </div>
     </div>
 
-    <form *ngIf="editing" [formGroup]="form" (ngSubmit)="save()" class="profile-form">
-      <mat-form-field appearance="outline">
-        <mat-label>Full name</mat-label>
-        <input matInput formControlName="fullName" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Nickname / Alias</mat-label>
-        <input matInput formControlName="nicknameAlias" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Address</mat-label>
-        <input matInput formControlName="address" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Contact number</mat-label>
-        <input matInput formControlName="contactNumber" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Borrower type</mat-label>
-        <input matInput formControlName="borrowerType" />
-      </mat-form-field>
-
-      <mat-form-field appearance="outline">
-        <mat-label>Notes</mat-label>
-        <textarea matInput formControlName="notes" rows="3"></textarea>
-      </mat-form-field>
-
-      <div class="profile-form__actions">
-        <button type="button" mat-stroked-button (click)="cancelEdit()">Cancel</button>
-        <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || saving">Save changes</button>
+    <div class="identity-card__contact">
+      <div class="identity-card__contact-item">
+        <span class="identity-card__contact-icon"><mat-icon>call</mat-icon></span>
+        <div>
+          <p class="identity-card__contact-value mono">{{ customer.contactNumber || '—' }}</p>
+          <p class="identity-card__contact-label">Mobile number</p>
+        </div>
       </div>
-    </form>
-
-    <dl *ngIf="!editing" class="profile-fields">
-      <div class="profile-fields__row">
-        <dt>Address</dt>
-        <dd>{{ customer.address || '—' }}</dd>
+      <div class="identity-card__contact-item">
+        <span class="identity-card__contact-icon"><mat-icon>place</mat-icon></span>
+        <div>
+          <p class="identity-card__contact-value">{{ customer.address || '—' }}</p>
+          <p class="identity-card__contact-label">Address</p>
+        </div>
       </div>
-      <div class="profile-fields__row">
-        <dt>Contact number</dt>
-        <dd class="mono">{{ customer.contactNumber || '—' }}</dd>
+      <div class="identity-card__contact-item">
+        <span class="identity-card__contact-icon"><mat-icon>mail</mat-icon></span>
+        <div>
+          <p class="identity-card__contact-value">Email</p>
+          <p class="identity-card__contact-label">Not provided</p>
+        </div>
       </div>
-      <div class="profile-fields__row">
-        <dt>Borrower type</dt>
-        <dd>{{ customer.borrowerType || '—' }}</dd>
-      </div>
-      <div class="profile-fields__row">
-        <dt>Customer since</dt>
-        <dd class="mono">{{ customer.createdAt }}</dd>
-      </div>
-    </dl>
-
-    <button
-      mat-stroked-button
-      *ngIf="!editing && authService.hasRole('admin')"
-      (click)="startEdit()"
-      class="profile-card__edit"
-    >
-      <mat-icon>edit</mat-icon>
-      Edit profile
-    </button>
+    </div>
   </mat-card>
 
   <section class="kpi-row">
     <mat-card class="kpi-card" *ngFor="let kpi of financialKpis" [ngClass]="'kpi-card--' + kpi.tone">
-      <div class="kpi-card__icon">
-        <mat-icon>{{ kpi.icon }}</mat-icon>
+      <div class="kpi-card__head">
+        <span class="kpi-card__icon"><mat-icon>{{ kpi.icon }}</mat-icon></span>
+        <span class="kpi-card__label">{{ kpi.label }}</span>
       </div>
-      <span class="kpi-card__label">{{ kpi.label }}</span>
       <div class="kpi-card__value">{{ kpi.value }}</div>
+      <p class="kpi-card__caption" *ngIf="!kpi.captionClickable">{{ kpi.caption }}</p>
+      <a class="kpi-card__caption kpi-card__caption--link" *ngIf="kpi.captionClickable" (click)="focusLoansTab()">{{ kpi.caption }}</a>
     </mat-card>
   </section>
 
   <mat-card class="tabs-card">
-    <mat-tab-group>
+    <mat-tab-group [(selectedIndex)]="selectedTabIndex" [mat-stretch-tabs]="false" mat-align-tabs="start">
       <mat-tab label="Loans">
         <div class="tab-content">
+          <div class="loans-toolbar" [formGroup]="loanFilters">
+            <div class="loans-toolbar__filters">
+              <div class="search-box">
+                <mat-icon>search</mat-icon>
+                <input type="text" (input)="onSearchChange($any($event.target).value)" placeholder="Search loans…" aria-label="Search loans" />
+              </div>
+
+              <select class="select" formControlName="status" (change)="applyLoanFilters()" aria-label="Filter by status">
+                <option [ngValue]="null">Status: All</option>
+                <option value="active">Active</option>
+                <option value="extended">Extended</option>
+                <option value="overdue">Overdue</option>
+                <option value="paid">Paid</option>
+                <option value="writtenoff">Written Off</option>
+              </select>
+
+              <select class="select" formControlName="classification" (change)="applyLoanFilters()" aria-label="Filter by classification">
+                <option [ngValue]="null">Classification: All</option>
+                <option value="normal">Normal</option>
+                <option value="watchlist">Watch List</option>
+                <option value="badloan">Bad Loan</option>
+              </select>
+            </div>
+
+            <button mat-stroked-button color="primary" (click)="viewAllLoans()">View all loans</button>
+          </div>
+
           <div class="table-scroll">
-          <table mat-table [dataSource]="loans" class="loans-table">
+          <table mat-table [dataSource]="filteredLoans" matSort (matSortChange)="onLoansSort($event)" class="loans-table">
             <ng-container matColumnDef="id">
-              <th mat-header-cell *matHeaderCellDef>Loan ID</th>
-              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.loanNumber }}</td>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header="loanNumber">Loan #</th>
+              <td mat-cell *matCellDef="let loan">
+                <a class="loan-link mono" (click)="openLoanDetails(loan)">{{ loan.loanNumber }}</a>
+              </td>
+              <td mat-footer-cell *matFooterCellDef>TOTAL</td>
+            </ng-container>
+
+            <ng-container matColumnDef="loanDate">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Loan Date</th>
+              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.startDate | date:'MMM dd, yyyy' }}</td>
+              <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
             <ng-container matColumnDef="principal">
-              <th mat-header-cell *matHeaderCellDef>Principal</th>
-              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.principalAmount | number }}</td>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Principal</th>
+              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.principalAmount | number:'1.2-2' }}</td>
+              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ filteredPrincipalTotal | number:'1.2-2' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="interestPercent">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="center">Interest %</th>
+              <td mat-cell *matCellDef="let loan" class="mono center">{{ loan.interestRate * 100 | number:'1.2-2' }}%</td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="interestCharges">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Interest/Charges</th>
+              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.totalInterest + loan.totalExtensionCharges | number:'1.2-2' }}</td>
+              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ filteredInterestAndChargesTotal | number:'1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="dueDate">
-              <th mat-header-cell *matHeaderCellDef>Due date</th>
-              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate }}</td>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</th>
+              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate | date:'MMM dd, yyyy' }}</td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="totalPaid">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Amount Paid</th>
+              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.totalPaid | number:'1.2-2' }}</td>
+              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ filteredTotalPaidTotal | number:'1.2-2' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="balance">
-              <th mat-header-cell *matHeaderCellDef>Balance</th>
-              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.balance | number }}</td>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Balance</th>
+              <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.balance | number:'1.2-2' }}</td>
+              <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ filteredBalanceTotal | number:'1.2-2' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="terms">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="center">Terms</th>
+              <td mat-cell *matCellDef="let loan" class="mono center">{{ loan.paymentTermsMonths }} mo</td>
+              <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
             <ng-container matColumnDef="status">
-              <th mat-header-cell *matHeaderCellDef>Status</th>
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
               <td mat-cell *matCellDef="let loan">
                 <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
               </td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+
+            <ng-container matColumnDef="classification">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Classification</th>
+              <td mat-cell *matCellDef="let loan">
+                <span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span>
+              </td>
+              <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
             <ng-container matColumnDef="actions">
               <th mat-header-cell *matHeaderCellDef></th>
               <td mat-cell *matCellDef="let loan">
-                <button mat-icon-button (click)="openLoanDetails(loan); $event.stopPropagation()" aria-label="View loan details">
+                <button mat-icon-button (click)="openAddPayment(loan)" aria-label="Add payment" title="Add payment" *ngIf="loan.status !== 'paid' && loan.status !== 'writtenoff'">
+                  <mat-icon>payments</mat-icon>
+                </button>
+                <button mat-icon-button (click)="openLoanDetails(loan)" aria-label="View loan details" title="View loan details">
                   <mat-icon>visibility</mat-icon>
                 </button>
               </td>
+              <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
             <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns" (click)="openLoanDetails(row)"></tr>
+            <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+            <tr mat-footer-row *matFooterRowDef="displayedColumns" class="loans-table__footer" [hidden]="filteredLoans.length === 0"></tr>
           </table>
           </div>
 
-          <p class="empty-note" *ngIf="loans.length === 0">No loans for this customer yet.</p>
+          <p class="empty-note" *ngIf="filteredLoans.length === 0">No loans match this search/filter.</p>
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Payment History">
+        <div class="tab-content">
+          <div class="table-scroll">
+          <table mat-table [dataSource]="paymentHistoryItems" matSort (matSortChange)="onPaymentHistorySort($event)" class="history-table">
+            <ng-container matColumnDef="date">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Payment Date</th>
+              <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="loan">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header>Loan #</th>
+              <td mat-cell *matCellDef="let p">
+                <a class="loan-link mono" (click)="openLoanFromPayment(p)">{{ p.loanNumber }}</a>
+              </td>
+            </ng-container>
+
+            <ng-container matColumnDef="amount">
+              <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Amount Paid</th>
+              <td mat-cell *matCellDef="let p" class="mono right">₱{{ p.amountPaid | number:'1.2-2' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="reference">
+              <th mat-header-cell *matHeaderCellDef>Reference Number</th>
+              <td mat-cell *matCellDef="let p" class="mono">{{ p.referenceNumber || '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="notes">
+              <th mat-header-cell *matHeaderCellDef>Notes</th>
+              <td mat-cell *matCellDef="let p">{{ p.notes || '—' }}</td>
+            </ng-container>
+
+            <tr mat-header-row *matHeaderRowDef="paymentColumns"></tr>
+            <tr mat-row *matRowDef="let row; columns: paymentColumns"></tr>
+          </table>
+          </div>
+
+          <p class="empty-note" *ngIf="paymentHistoryItems.length === 0">No payments recorded yet.</p>
+
+          <mat-paginator
+            *ngIf="paymentHistoryTotalCount > 0"
+            [length]="paymentHistoryTotalCount"
+            [pageIndex]="paymentHistoryPageIndex"
+            [pageSize]="paymentHistoryPageSize"
+            [pageSizeOptions]="[10, 25, 50]"
+            showFirstLastButtons
+            (page)="onPaymentHistoryPage($event)"
+          ></mat-paginator>
         </div>
       </mat-tab>
 
@@ -153,11 +256,81 @@
       <mat-tab label="Notes">
         <div class="tab-content">
           <p *ngIf="customer.notes" class="notes-text">{{ customer.notes }}</p>
-          <p class="empty-note" *ngIf="!customer.notes">No notes yet — add some via "Edit profile" above.</p>
+          <p class="empty-note" *ngIf="!customer.notes">No notes yet — add some via "Edit Customer" above.</p>
         </div>
       </mat-tab>
     </mat-tab-group>
   </mat-card>
+
+  <section class="footer-grid">
+    <mat-card class="footer-card">
+      <div class="footer-card__header">
+        <mat-icon>badge</mat-icon>
+        <h3>Customer Information</h3>
+      </div>
+      <dl class="footer-fields">
+        <div class="footer-fields__row"><dt>Customer Code</dt><dd class="mono">{{ customer.customerCode }}</dd></div>
+        <div class="footer-fields__row"><dt>Borrower Type</dt><dd>{{ customer.borrowerType || '—' }}</dd></div>
+        <div class="footer-fields__row"><dt>Contact Number</dt><dd class="mono">{{ customer.contactNumber || '—' }}</dd></div>
+        <div class="footer-fields__row"><dt>Address</dt><dd>{{ customer.address || '—' }}</dd></div>
+        <div class="footer-fields__row"><dt>Customer Since</dt><dd class="mono">{{ customer.createdAt | date:'MMM dd, yyyy' }}</dd></div>
+        <div class="footer-fields__row"><dt>Notes</dt><dd>{{ customer.notes || '—' }}</dd></div>
+      </dl>
+    </mat-card>
+
+    <mat-card class="footer-card">
+      <div class="footer-card__header">
+        <mat-icon>history</mat-icon>
+        <h3>Recent Activity</h3>
+      </div>
+      <ul class="activity-list">
+        <li class="activity-item" *ngFor="let a of recentActivity">
+          <div class="activity-item__icon" [ngClass]="'activity-item__icon--' + a.tone">
+            <mat-icon>{{ a.icon }}</mat-icon>
+          </div>
+          <div class="activity-item__main">
+            <span class="activity-item__title">{{ a.title }}</span>
+            <span class="activity-item__subtitle mono">{{ a.subtitle }}</span>
+          </div>
+          <span class="activity-item__date mono">{{ a.date | date:'MMM dd, yyyy' }}</span>
+        </li>
+        <li class="empty-note" *ngIf="recentActivity.length === 0">No activity yet.</li>
+      </ul>
+    </mat-card>
+
+    <mat-card class="footer-card">
+      <div class="footer-card__header">
+        <mat-icon>bolt</mat-icon>
+        <h3>Quick Actions</h3>
+      </div>
+      <ul class="quick-actions">
+        <li>
+          <button class="quick-actions__item" (click)="openAddLoan()">
+            <span class="quick-actions__icon"><mat-icon>add</mat-icon></span>
+            New Loan
+          </button>
+        </li>
+        <li>
+          <button class="quick-actions__item" (click)="quickUploadDocument()">
+            <span class="quick-actions__icon"><mat-icon>upload_file</mat-icon></span>
+            Upload Document
+          </button>
+        </li>
+        <li>
+          <button class="quick-actions__item" (click)="quickAddNote()">
+            <span class="quick-actions__icon"><mat-icon>note_add</mat-icon></span>
+            Add Note
+          </button>
+        </li>
+        <li>
+          <button class="quick-actions__item" [disabled]="!primaryLoanForSoa || generatingSoa" (click)="viewStatementOfAccount()">
+            <span class="quick-actions__icon"><mat-icon>description</mat-icon></span>
+            View Statement of Account
+          </button>
+        </li>
+      </ul>
+    </mat-card>
+  </section>
 </div>
 
 <p *ngIf="!loading && !customer" class="empty-hint">Customer not found.</p>

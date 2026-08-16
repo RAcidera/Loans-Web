@@ -1,10 +1,12 @@
 using LoanManagementSystem.Application.Common.Pdf;
 using LoanManagementSystem.Application.Common.Security;
+using LoanManagementSystem.Application.Common.Xlsx;
 using LoanManagementSystem.Domain.Repositories;
 using LoanManagementSystem.Infrastructure.Pdf;
 using LoanManagementSystem.Infrastructure.Persistence;
 using LoanManagementSystem.Infrastructure.Repositories;
 using LoanManagementSystem.Infrastructure.Security;
+using LoanManagementSystem.Infrastructure.Xlsx;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,6 +37,12 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IStatementOfAccountPdfGenerator, QuestPdfStatementOfAccountGenerator>();
+        services.AddScoped<ILoansXlsxExportGenerator, ClosedXmlLoansExportGenerator>();
+        services.AddScoped<IPaymentsXlsxExportGenerator, ClosedXmlPaymentsExportGenerator>();
+        services.AddScoped<ICustomersXlsxExportGenerator, ClosedXmlCustomersExportGenerator>();
+        services.AddScoped<ICashLedgerXlsxExportGenerator, ClosedXmlCashLedgerExportGenerator>();
+        services.AddScoped<IInterestEarnedReportXlsxExportGenerator, ClosedXmlInterestEarnedReportExportGenerator>();
+        services.AddScoped<IInterestEarnedReportPdfGenerator, QuestPdfInterestEarnedReportGenerator>();
 
         return services;
     }

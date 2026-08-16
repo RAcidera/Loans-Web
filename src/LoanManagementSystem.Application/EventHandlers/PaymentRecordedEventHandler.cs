@@ -49,7 +49,8 @@ public sealed class PaymentRecordedEventHandler : INotificationHandler<PaymentRe
             notification.AmountPaid,
             remarks: $"Payment received — loan {loanNumber}",
             transactionDate: notification.PaymentDate,
-            referenceId: loanNumber);
+            referenceId: loanNumber,
+            sourcePaymentId: notification.PaymentId);
 
         _cashLedgerRepository.Add(entry);
 

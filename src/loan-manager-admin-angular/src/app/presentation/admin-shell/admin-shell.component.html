@@ -64,6 +64,10 @@
             <strong>{{ authService.username() }}</strong>
             <span class="topbar__menu-role">{{ authService.role() }}</span>
           </div>
+          <button mat-menu-item (click)="openChangeMyPassword()">
+            <mat-icon>lock_reset</mat-icon>
+            <span>Change password</span>
+          </button>
           <button mat-menu-item (click)="logout()">
             <mat-icon>logout</mat-icon>
             <span>Sign out</span>

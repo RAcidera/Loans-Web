@@ -17,5 +17,6 @@ public sealed record CustomerListItemDto(
     string Notes,
     string Status,
     string CreatedAt,
-    int LoanCount
+    int LoanCount,
+    decimal OutstandingBalance
 );

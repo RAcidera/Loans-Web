@@ -4,9 +4,12 @@ import { Observable, switchMap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import { CustomerListItem, LoanRepository, UpdateLoanFields } from '../../domain/repositories/loan.repository';
-import { Customer } from '../../domain/entities/customer.entity';
+import { Customer, CustomerStatus } from '../../domain/entities/customer.entity';
 import { CustomerDocument } from '../../domain/entities/customer-document.entity';
+import { CustomerPayment } from '../../domain/entities/customer-payment.entity';
+import { CustomerTotals } from '../../domain/entities/customer-totals.entity';
 import { DashboardReceivables } from '../../domain/entities/dashboard-receivables.entity';
+import { DashboardSummary } from '../../domain/entities/dashboard-summary.entity';
 import { Loan, LoanClassification, LoanPageFilters } from '../../domain/entities/loan.entity';
 import { LoanAuditLogEntry } from '../../domain/entities/loan-audit-log-entry.entity';
 import { LoanDocument } from '../../domain/entities/loan-document.entity';
@@ -14,20 +17,31 @@ import { LoanExtension } from '../../domain/entities/loan-extension.entity';
 import { LoanLedgerEntry } from '../../domain/entities/loan-ledger-entry.entity';
 import { LoanTotals } from '../../domain/entities/loan-totals.entity';
 import { PagedResult } from '../../domain/entities/paged-result.entity';
-import { Payment, PaymentMethod, PaymentWithCustomer } from '../../domain/entities/payment.entity';
+import { Payment, PaymentMethod, PaymentPageFilters, PaymentWithCustomer, PaymentsTotals } from '../../domain/entities/payment.entity';
 
 /** Flattens LoanPageFilters into HttpClient query params, matching LoansController's GetPage/GetPageTotals query-string names. */
 function toFilterParams(filters?: LoanPageFilters): Record<string, string | number | boolean> {
   if (!filters) return {};
   const params: Record<string, string | number | boolean> = {};
-  if (filters.status) params['status'] = filters.status;
-  if (filters.classification) params['classification'] = filters.classification;
+  if (filters.statuses?.length) params['status'] = filters.statuses.join(',');
+  if (filters.classifications?.length) params['classification'] = filters.classifications.join(',');
   if (filters.loanDateFrom) params['loanDateFrom'] = filters.loanDateFrom;
   if (filters.loanDateTo) params['loanDateTo'] = filters.loanDateTo;
   if (filters.dueDateFrom) params['dueDateFrom'] = filters.dueDateFrom;
   if (filters.dueDateTo) params['dueDateTo'] = filters.dueDateTo;
   if (filters.badLoansOnly) params['badLoansOnly'] = true;
   if (filters.overdueOnly) params['overdueOnly'] = true;
+  return params;
+}
+
+/** Flattens PaymentPageFilters into HttpClient query params, matching PaymentsController's GetPage/GetPageTotals query-string names. */
+function toPaymentFilterParams(filters?: PaymentPageFilters): Record<string, string> {
+  if (!filters) return {};
+  const params: Record<string, string> = {};
+  if (filters.loanSearch) params['loanSearch'] = filters.loanSearch;
+  if (filters.customerSearch) params['customerSearch'] = filters.customerSearch;
+  if (filters.dateFrom) params['dateFrom'] = filters.dateFrom;
+  if (filters.dateTo) params['dateTo'] = filters.dateTo;
   return params;
 }
 
@@ -51,11 +65,25 @@ export class HttpLoanRepository extends LoanRepository {
 
   getCustomersPage(
     pageIndex: number, pageSize: number, search: string, sortBy?: string, sortDir?: 'asc' | 'desc',
+    status?: CustomerStatus,
   ): Observable<PagedResult<CustomerListItem>> {
     const params: Record<string, string | number> = { pageIndex, pageSize, search };
     if (sortBy) params['sortBy'] = sortBy;
     if (sortDir) params['sortDir'] = sortDir;
+    if (status) params['status'] = status;
     return this.http.get<PagedResult<CustomerListItem>>(`${this.baseUrl}/customers/page`, { params });
+  }
+
+  getCustomersTotals(search: string, status?: CustomerStatus): Observable<CustomerTotals> {
+    const params: Record<string, string> = { search };
+    if (status) params['status'] = status;
+    return this.http.get<CustomerTotals>(`${this.baseUrl}/customers/page/totals`, { params });
+  }
+
+  exportCustomers(search: string, status?: CustomerStatus): Observable<Blob> {
+    const params: Record<string, string> = { search };
+    if (status) params['status'] = status;
+    return this.http.get(`${this.baseUrl}/customers/export`, { params, responseType: 'blob' });
   }
 
   getCustomerById(customerId: string): Observable<Customer | undefined> {
@@ -113,6 +141,11 @@ export class HttpLoanRepository extends LoanRepository {
     return this.http.get<LoanTotals>(`${this.baseUrl}/loans/page/totals`, { params });
   }
 
+  exportLoans(search: string, filters?: LoanPageFilters): Observable<Blob> {
+    const params: Record<string, string | number | boolean> = { search, ...toFilterParams(filters) };
+    return this.http.get(`${this.baseUrl}/loans/export`, { params, responseType: 'blob' });
+  }
+
   getLoanById(loanId: string): Observable<Loan | undefined> {
     return this.http.get<Loan>(`${this.baseUrl}/loans/${loanId}`);
   }
@@ -121,16 +154,32 @@ export class HttpLoanRepository extends LoanRepository {
     return this.http.get<Loan[]>(`${this.baseUrl}/customers/${customerId}/loans`);
   }
 
+  getCustomerPaymentsPage(
+    customerId: string, pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc',
+  ): Observable<PagedResult<CustomerPayment>> {
+    const params: Record<string, string | number> = { pageIndex, pageSize };
+    if (sortBy) params['sortBy'] = sortBy;
+    if (sortDir) params['sortDir'] = sortDir;
+    return this.http.get<PagedResult<CustomerPayment>>(`${this.baseUrl}/customers/${customerId}/payments/page`, { params });
+  }
+
   getDashboardReceivables(): Observable<DashboardReceivables> {
     return this.http.get<DashboardReceivables>(`${this.baseUrl}/dashboard/receivables`);
+  }
+
+  getDashboardSummary(): Observable<DashboardSummary> {
+    return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard/summary`);
   }
 
   getCustomerReceivables(customerId: string): Observable<DashboardReceivables> {
     return this.http.get<DashboardReceivables>(`${this.baseUrl}/customers/${customerId}/receivables`);
   }
 
-  createLoan(customerId: string, principal: number, interestRate?: number, termDays?: number, startDate?: string): Observable<Loan> {
-    return this.http.post<Loan>(`${this.baseUrl}/loans`, { customerId, principal, interestRate, termDays, startDate });
+  createLoan(
+    customerId: string, principal: number, interestRate?: number, paymentTermsMonths?: number,
+    startDate?: string, interestAmount?: number,
+  ): Observable<Loan> {
+    return this.http.post<Loan>(`${this.baseUrl}/loans`, { customerId, principal, interestRate, paymentTermsMonths, startDate, interestAmount });
   }
 
   updateLoan(loanId: string, fields: UpdateLoanFields): Observable<Loan> {
@@ -154,19 +203,19 @@ export class HttpLoanRepository extends LoanRepository {
    * sub-resource returning that sub-resource, not its parent, is the more
    * conventional REST response).
    */
-  extendLoan(loanId: string, extensionDays: number, additionalInterestAmount: number, remarks: string, additionalChargesAmount = 0): Observable<Loan> {
+  extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0): Observable<Loan> {
     return this.http
-      .post(`${this.baseUrl}/loans/${loanId}/extensions`, { extensionDays, additionalInterestAmount, remarks, additionalChargesAmount })
+      .post(`${this.baseUrl}/loans/${loanId}/extensions`, { extensionDays, remarks, additionalChargesAmount })
       .pipe(switchMap(() => this.getLoanById(loanId) as Observable<Loan>));
   }
 
   updateExtension(
-    loanId: string, extensionId: string, extensionDays: number, additionalInterestAmount: number,
+    loanId: string, extensionId: string, extensionDays: number,
     remarks: string, additionalChargesAmount = 0,
   ): Observable<LoanExtension> {
     return this.http.put<LoanExtension>(
       `${this.baseUrl}/loans/${loanId}/extensions/${extensionId}`,
-      { extensionDays, additionalInterestAmount, remarks, additionalChargesAmount },
+      { extensionDays, remarks, additionalChargesAmount },
     );
   }
 
@@ -178,21 +227,47 @@ export class HttpLoanRepository extends LoanRepository {
     return this.http.get<Payment[]>(`${this.baseUrl}/loans/${loanId}/payments`);
   }
 
+  getPaymentsPage(
+    loanId: string, pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc',
+  ): Observable<PagedResult<Payment>> {
+    const params: Record<string, string | number> = { pageIndex, pageSize };
+    if (sortBy) params['sortBy'] = sortBy;
+    if (sortDir) params['sortDir'] = sortDir;
+    return this.http.get<PagedResult<Payment>>(`${this.baseUrl}/loans/${loanId}/payments/page`, { params });
+  }
+
+  getPaymentsListPage(
+    pageIndex: number, pageSize: number, sortBy?: string, sortDir?: 'asc' | 'desc', filters?: PaymentPageFilters,
+  ): Observable<PagedResult<PaymentWithCustomer>> {
+    const params: Record<string, string | number> = { pageIndex, pageSize, ...toPaymentFilterParams(filters) };
+    if (sortBy) params['sortBy'] = sortBy;
+    if (sortDir) params['sortDir'] = sortDir;
+    return this.http.get<PagedResult<PaymentWithCustomer>>(`${this.baseUrl}/payments/page`, { params });
+  }
+
+  getPaymentsListTotals(filters?: PaymentPageFilters): Observable<PaymentsTotals> {
+    return this.http.get<PaymentsTotals>(`${this.baseUrl}/payments/page/totals`, { params: toPaymentFilterParams(filters) });
+  }
+
+  exportPaymentsList(filters?: PaymentPageFilters): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/payments/export`, { params: toPaymentFilterParams(filters), responseType: 'blob' });
+  }
+
   getRecentPayments(limit: number): Observable<PaymentWithCustomer[]> {
     return this.http.get<PaymentWithCustomer[]>(`${this.baseUrl}/payments/recent`, { params: { limit } });
   }
 
-  recordPayment(loanId: string, amountPaid: number, paymentMethod: PaymentMethod, notes: string, referenceNumber?: string): Observable<Payment> {
-    return this.http.post<Payment>(`${this.baseUrl}/loans/${loanId}/payments`, { amountPaid, paymentMethod, notes, referenceNumber });
+  recordPayment(loanId: string, amountPaid: number, paymentMethod: PaymentMethod, notes: string, referenceNumber?: string, paymentDate?: string): Observable<Payment> {
+    return this.http.post<Payment>(`${this.baseUrl}/loans/${loanId}/payments`, { amountPaid, paymentMethod, notes, referenceNumber, paymentDate });
   }
 
   updatePayment(
     loanId: string, paymentId: string, amountPaid: number, paymentMethod: PaymentMethod,
-    notes?: string, referenceNumber?: string,
+    notes?: string, referenceNumber?: string, paymentDate?: string,
   ): Observable<Payment> {
     return this.http.put<Payment>(
       `${this.baseUrl}/loans/${loanId}/payments/${paymentId}`,
-      { amountPaid, paymentMethod, notes, referenceNumber },
+      { amountPaid, paymentMethod, notes, referenceNumber, paymentDate },
     );
   }
 

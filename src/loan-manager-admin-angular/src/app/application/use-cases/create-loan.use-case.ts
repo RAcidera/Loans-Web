@@ -7,7 +7,10 @@ import { LoanRepository } from '../../domain/repositories/loan.repository';
 export class CreateLoanUseCase {
   constructor(private readonly loanRepository: LoanRepository) {}
 
-  execute(customerId: string, principal: number, interestRate?: number, termDays?: number, startDate?: string): Observable<Loan> {
-    return this.loanRepository.createLoan(customerId, principal, interestRate, termDays, startDate);
+  execute(
+    customerId: string, principal: number, interestRate?: number, paymentTermsMonths?: number,
+    startDate?: string, interestAmount?: number,
+  ): Observable<Loan> {
+    return this.loanRepository.createLoan(customerId, principal, interestRate, paymentTermsMonths, startDate, interestAmount);
   }
 }

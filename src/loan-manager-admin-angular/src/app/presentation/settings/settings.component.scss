@@ -121,20 +121,7 @@
 
 .users-table {
   width: 100%;
-
-  th.mat-mdc-header-cell {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--lm-text-muted);
-    font-weight: 600;
-  }
-
-  td.mat-mdc-cell,
-  th.mat-mdc-header-cell {
-    padding-top: 10px;
-    padding-bottom: 10px;
-  }
+  @include tokens.lm-data-table;
 }
 
 .user-cell {
@@ -179,13 +166,33 @@
     background: rgba(139, 143, 163, 0.14);
     color: var(--lm-text-muted);
   }
+}
 
-  &--role-admin {
+// Bare mat-select (no mat-form-field host, same reasoning as loans.component.scss's
+// .mat-mdc-select override) styled as a compact colored pill so an inline,
+// clickable "change role" control reads the same as the status chip next to
+// it, rather than looking like a stray unstyled form control in the table.
+.role-select {
+  display: inline-flex;
+  align-items: center;
+  height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: capitalize;
+  cursor: pointer;
+
+  .mat-mdc-select-arrow {
+    color: currentColor;
+  }
+
+  &--admin {
     background: rgba(34, 160, 107, 0.15);
     color: #1a7a53;
   }
 
-  &--role-staff {
+  &--staff {
     background: rgba(108, 93, 211, 0.14);
     color: var(--lm-primary);
   }
@@ -205,50 +212,3 @@
   margin: 0 0 12px;
 }
 
-.section-error {
-  color: var(--lm-rose);
-  font-size: 12.5px;
-  margin: -4px 0 8px;
-}
-
-.password-card {
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-  padding: 18px 20px 22px;
-  max-width: 420px;
-
-  h2 {
-    font-family: var(--lm-font-display);
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0 0 2px;
-  }
-
-  > p {
-    font-size: 13px;
-    color: var(--lm-text-muted);
-    margin: 0 0 16px;
-  }
-}
-
-.password-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-
-  mat-form-field {
-    width: 100%;
-  }
-
-  button {
-    margin-top: 6px;
-    align-self: flex-start;
-  }
-}
-
-.section-success {
-  color: var(--lm-primary);
-  font-size: 12.5px;
-  margin: 0 0 12px;
-}

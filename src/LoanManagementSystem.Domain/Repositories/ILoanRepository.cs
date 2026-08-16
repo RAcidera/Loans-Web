@@ -19,18 +19,65 @@ public interface ILoanRepository
 
     /// <summary>
     /// Flattened, newest-first payments across all loans, joined with the
-    /// owning customer's name — backs the dashboard's recent-payments feed.
+    /// owning customer's id/name — backs the dashboard's recent-payments feed.
     /// Deliberately not "load every Loan and flatten in memory": this is a
     /// read-heavy query the repository can satisfy more directly.
     /// </summary>
-    Task<List<(Payment Payment, string CustomerName, int LoanNumber)>> GetRecentPaymentsAsync(int limit, CancellationToken ct = default);
+    Task<List<(Payment Payment, CustomerId CustomerId, string CustomerName, int LoanNumber)>> GetRecentPaymentsAsync(int limit, CancellationToken ct = default);
 
     /// <summary>
-    /// Loan counts per customer, scoped to just the given customer IDs —
-    /// used by the Customers list page's server-side paging to avoid
-    /// loading every loan just to compute a per-row count.
+    /// One page of payments across every loan, joined with the owning
+    /// loan's number and customer's id/name — backs the standalone Payments
+    /// list page's server-side paging. loanSearch matches the loan number
+    /// (digits) directly; customerSearch is resolved by the caller into a
+    /// customer-id list first via ICustomerRepository.SearchIdsByNameAsync,
+    /// same reasoning as GetPageAsync's search param (Loan/Payment and
+    /// Customer are separate aggregates with no EF navigation property).
+    /// sortBy is "loan"/"customer"/"date"/"amount", defaulting to
+    /// newest-date-first when omitted.
     /// </summary>
-    Task<Dictionary<CustomerId, int>> GetLoanCountsByCustomerAsync(
+    Task<(List<(Payment Payment, CustomerId CustomerId, string CustomerName, int LoanNumber)> Items, int TotalCount)> GetPaymentsPageAsync(
+        int pageIndex, int pageSize, string? loanSearch, IReadOnlyCollection<CustomerId> matchingCustomerIds,
+        DateOnly? dateFrom, DateOnly? dateTo, string? sortBy, string? sortDir, CancellationToken ct = default);
+
+    /// <summary>
+    /// Every payment matching the same filters as GetPaymentsPageAsync, with
+    /// no paging — backs the Payments list page's footer total and its
+    /// Export button, both of which summarize/export the whole filtered
+    /// result set, not just the visible page.
+    /// </summary>
+    Task<List<(Payment Payment, CustomerId CustomerId, string CustomerName, int LoanNumber)>> GetPaymentsFilteredAsync(
+        string? loanSearch, IReadOnlyCollection<CustomerId> matchingCustomerIds,
+        DateOnly? dateFrom, DateOnly? dateTo, CancellationToken ct = default);
+
+    /// <summary>
+    /// One page of a single customer's payments across all of their loans,
+    /// plus the total count — backs the Customer Profile's "Payment
+    /// History" tab server-side paging. Payment has no repository of its
+    /// own (it's a Loan child entity elsewhere), but is still a
+    /// directly-queryable EF entity, same as GetRecentPaymentsAsync.
+    /// sortBy is one of "date"/"loan"/"amount" (matching the tab's
+    /// sortable columns), defaulting to newest-date-first when omitted.
+    /// </summary>
+    Task<(List<(Payment Payment, int LoanNumber)> Items, int TotalCount)> GetPaymentsByCustomerPageAsync(
+        CustomerId customerId, int pageIndex, int pageSize, string? sortBy = null, string? sortDir = null, CancellationToken ct = default);
+
+    /// <summary>
+    /// One page of a single loan's own payments, plus the total count —
+    /// backs the Loan Details "Payments" tab's server-side paging. sortBy
+    /// is "date" (the tab's only sortable column), defaulting to
+    /// newest-date-first when omitted.
+    /// </summary>
+    Task<(List<Payment> Items, int TotalCount)> GetPaymentsByLoanPageAsync(
+        LoanId loanId, int pageIndex, int pageSize, string? sortBy = null, string? sortDir = null, CancellationToken ct = default);
+
+    /// <summary>
+    /// Loan count and total outstanding balance per customer, scoped to
+    /// just the given customer IDs — used by the Customers list page's
+    /// server-side paging to avoid loading every loan just to compute a
+    /// per-row count/balance.
+    /// </summary>
+    Task<Dictionary<CustomerId, (int LoanCount, decimal OutstandingBalance)>> GetLoanCountsAndBalanceByCustomerAsync(
         IReadOnlyCollection<CustomerId> customerIds, CancellationToken ct = default);
 
     /// <summary>

@@ -13,7 +13,8 @@ public sealed record RecordPaymentCommand(
     decimal AmountPaid,
     string PaymentMethod,
     string Notes,
-    string? ReferenceNumber = null
+    string? ReferenceNumber = null,
+    string? PaymentDate = null
 ) : IRequest<PaymentDto>;
 
 public sealed class RecordPaymentCommandHandler : IRequestHandler<RecordPaymentCommand, PaymentDto>
@@ -33,11 +34,15 @@ public sealed class RecordPaymentCommandHandler : IRequestHandler<RecordPaymentC
         var loan = await _loanRepository.GetByIdAsync(loanId, ct)
             ?? throw new NotFoundException(nameof(Loan), request.LoanId);
 
+        var paymentDate = request.PaymentDate is not null
+            ? DateOnly.Parse(request.PaymentDate)
+            : DateOnly.FromDateTime(DateTime.UtcNow);
+
         var payment = loan.RecordPayment(
             Money.Of(request.AmountPaid),
             MappingExtensions.ParsePaymentMethod(request.PaymentMethod),
             request.Notes,
-            DateOnly.FromDateTime(DateTime.UtcNow),
+            paymentDate,
             request.ReferenceNumber);
 
         // No explicit repository.Add() needed — `loan` is already tracked by

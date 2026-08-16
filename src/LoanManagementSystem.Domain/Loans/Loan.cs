@@ -38,6 +38,17 @@ public class Loan : AggregateRoot<LoanId>
     public LoanStatus Status { get; private set; }
 
     /// <summary>
+    /// The lender's collection schedule in months (1-12) — most customers
+    /// are 2 months (60 days) paid daily, but weekly/biweekly/monthly
+    /// collectors use the same field, just a different number of months.
+    /// Stored explicitly rather than derived from (DueDate - StartDate)
+    /// because extensions push DueDate out without changing the original
+    /// term, and because the Edit Loan dialog needs to redisplay exactly
+    /// what was originally selected.
+    /// </summary>
+    public int PaymentTermsMonths { get; private set; }
+
+    /// <summary>
     /// The lender's manual risk judgment — see LoanClassification. Defaults
     /// to Normal at origination and only ever changes via ChangeClassification.
     /// </summary>
@@ -63,7 +74,7 @@ public class Loan : AggregateRoot<LoanId>
 
     private Loan() { } // EF Core
 
-    private Loan(LoanId id, CustomerId customerId, Money principal, InterestRate rate, DateOnly startDate, int termDays)
+    private Loan(LoanId id, CustomerId customerId, Money principal, InterestRate rate, DateOnly startDate, int termDays, int paymentTermsMonths, Money? interestAmount)
         : base(id)
     {
         CustomerId = customerId;
@@ -71,7 +82,8 @@ public class Loan : AggregateRoot<LoanId>
         InterestRate = rate;
         StartDate = startDate;
         DueDate = startDate.AddDays(termDays);
-        TotalInterest = rate.CalculateInterest(principal);
+        PaymentTermsMonths = paymentTermsMonths;
+        TotalInterest = interestAmount ?? rate.CalculateInterest(principal);
         TotalExtensionCharges = Money.Zero;
         TotalAmountDue = principal.Add(TotalInterest);
         TotalPaid = Money.Zero;
@@ -85,16 +97,23 @@ public class Loan : AggregateRoot<LoanId>
     /// Originates a new loan (SRS 3.2). termDays defaults to 60 and rate to
     /// 3% flat, matching the SRS's stated defaults, but both are accepted
     /// as parameters so a future change in business terms doesn't require
-    /// touching this method's signature.
+    /// touching this method's signature. paymentTermsMonths defaults to 2
+    /// (i.e. 60 days) to match; interestAmount, when supplied, overrides
+    /// the rate*principal calculation outright — the Add Loan dialog computes
+    /// a suggested amount (principal * rate * paymentTermsMonths) but lets
+    /// the lender override it before submitting, and whatever ends up in
+    /// that field is what's sent here, not recomputed server-side.
     /// </summary>
-    public static Loan Originate(CustomerId customerId, Money principal, InterestRate rate, DateOnly startDate, int termDays = 60)
+    public static Loan Originate(
+        CustomerId customerId, Money principal, InterestRate rate, DateOnly startDate, int termDays = 60,
+        int paymentTermsMonths = 2, Money? interestAmount = null)
     {
         if (principal.Amount <= 0)
             throw new DomainException("A loan's principal must be greater than zero.");
         if (termDays <= 0)
             throw new DomainException("A loan's term must be at least one day.");
 
-        var loan = new Loan(LoanId.New(), customerId, principal, rate, startDate, termDays);
+        var loan = new Loan(LoanId.New(), customerId, principal, rate, startDate, termDays, paymentTermsMonths, interestAmount);
         loan.RaiseDomainEvent(new LoanCreatedDomainEvent(loan.Id, customerId, principal, loan.TotalInterest, startDate));
         return loan;
     }
@@ -103,21 +122,20 @@ public class Loan : AggregateRoot<LoanId>
     /// Extends the due date and adds a fee (SRS 3.3). Does not touch cash —
     /// see LoanExtendedDomainEvent for why.
     /// </summary>
-    public LoanExtension Extend(int extensionDays, Money additionalInterestAmount, Money additionalChargesAmount, string remarks, DateOnly extensionDate)
+    public LoanExtension Extend(int extensionDays, Money additionalChargesAmount, string remarks, DateOnly extensionDate)
     {
         EnsureNotPaid();
 
-        var extension = new LoanExtension(Id, extensionDate, extensionDays, additionalInterestAmount, additionalChargesAmount, remarks);
+        var extension = new LoanExtension(Id, extensionDate, extensionDays, additionalChargesAmount, remarks);
         _extensions.Add(extension);
 
         DueDate = DueDate.AddDays(extensionDays);
-        TotalInterest = TotalInterest.Add(additionalInterestAmount);
         TotalExtensionCharges = TotalExtensionCharges.Add(additionalChargesAmount);
-        TotalAmountDue = TotalAmountDue.Add(additionalInterestAmount).Add(additionalChargesAmount);
+        TotalAmountDue = TotalAmountDue.Add(additionalChargesAmount);
         Balance = TotalAmountDue.Subtract(TotalPaid);
         Status = LoanStatus.Extended;
 
-        RaiseDomainEvent(new LoanExtendedDomainEvent(Id, extension.Id, extensionDate, extensionDays, additionalInterestAmount, additionalChargesAmount, Balance));
+        RaiseDomainEvent(new LoanExtendedDomainEvent(Id, extension.Id, extensionDate, extensionDays, additionalChargesAmount, Balance));
         return extension;
     }
 
@@ -151,21 +169,23 @@ public class Loan : AggregateRoot<LoanId>
     }
 
     /// <summary>
-    /// Overrides Loan Date/Due Date/Interest Rate/Interest Amount/Remarks
-    /// after origination (spec: "there are cases where customers pay early
-    /// and the lender may provide a goodwill discount by reducing
-    /// interest"). Each parameter is applied only if supplied, so a caller
-    /// can change just one field.
+    /// Overrides Principal/Loan Date/Due Date/Payment Terms/Interest Rate/
+    /// Interest Amount/Remarks after origination (spec: "there are cases
+    /// where customers pay early and the lender may provide a goodwill
+    /// discount by reducing interest"). Each parameter is applied only if
+    /// supplied, so a caller can change just one field.
     ///
     /// Interest Amount is a direct override, not recomputed from
-    /// InterestRate * Principal — TotalInterest is a single running total
-    /// that already folds in every extension's AdditionalInterestAmount, so
-    /// treating it as "one number the lender can adjust" (same as at
-    /// origination) is simpler than trying to split it back into an
-    /// origination component and an extensions component. Editing
-    /// InterestRate alone (no explicit InterestAmount) recomputes the
-    /// origination-interest portion from the new rate, preserving whatever
-    /// extension interest has already accrued.
+    /// InterestRate * Principal — extensions no longer contribute their own
+    /// interest (only Additional Charges), so TotalInterest is purely the
+    /// origination figure, but is still treated as "one number the lender
+    /// can adjust" for goodwill discounts. Editing InterestRate alone (no
+    /// explicit InterestAmount) recomputes TotalInterest from the new rate.
+    ///
+    /// Changing Principal or StartDate raises LoanOriginationEditedDomainEvent
+    /// so the mirrored cash_ledger `loan_release` entry stays correct — see
+    /// that event's doc comment for why this is scoped to cash_ledger only,
+    /// not the loan's own ledger history.
     ///
     /// Allowed on a Paid loan (a correction after the fact should still be
     /// possible) — only WrittenOff blocks further edits, unlike Extend()/
@@ -173,9 +193,13 @@ public class Loan : AggregateRoot<LoanId>
     /// event on an already-settled loan doesn't make sense; correcting an
     /// existing one does).
     /// </summary>
-    public void EditLoan(DateOnly? startDate, DateOnly? dueDate, InterestRate? interestRate, Money? interestAmount, string? remarks, string editedBy)
+    public void EditLoan(
+        DateOnly? startDate, DateOnly? dueDate, InterestRate? interestRate, Money? interestAmount, string? remarks, string editedBy,
+        Money? principal = null, int? paymentTermsMonths = null)
     {
         EnsureNotWrittenOff();
+
+        var originationChanged = (principal is { } p && p != PrincipalAmount) || (startDate is { } s && s != StartDate);
 
         if (interestRate is { } newRate && interestAmount is null)
         {
@@ -184,8 +208,10 @@ public class Loan : AggregateRoot<LoanId>
         }
         if (interestRate is { } rate) InterestRate = rate;
         if (interestAmount is { } newInterestAmount) TotalInterest = newInterestAmount;
+        if (principal is { } newPrincipal) PrincipalAmount = newPrincipal;
         if (startDate is { } newStartDate) StartDate = newStartDate;
         if (dueDate is { } newDueDate) DueDate = newDueDate;
+        if (paymentTermsMonths is { } newPaymentTermsMonths) PaymentTermsMonths = newPaymentTermsMonths;
         if (remarks is not null) Remarks = remarks;
 
         if (DueDate < StartDate)
@@ -195,6 +221,8 @@ public class Loan : AggregateRoot<LoanId>
         Balance = TotalAmountDue.Subtract(TotalPaid);
 
         RaiseDomainEvent(new LoanEditedDomainEvent(Id, editedBy));
+        if (originationChanged)
+            RaiseDomainEvent(new LoanOriginationEditedDomainEvent(Id, PrincipalAmount, StartDate));
     }
 
     /// <summary>
@@ -215,6 +243,7 @@ public class Loan : AggregateRoot<LoanId>
         Balance = TotalAmountDue.Subtract(TotalPaid);
         RefreshPaidStatusAfterPaymentChange();
 
+        RaiseDomainEvent(new PaymentEditedDomainEvent(Id, payment.Id, amountPaid, paymentDate, Balance));
         return payment;
     }
 
@@ -229,6 +258,8 @@ public class Loan : AggregateRoot<LoanId>
         TotalPaid = TotalPaid.Subtract(payment.AmountPaid);
         Balance = TotalAmountDue.Subtract(TotalPaid);
         RefreshPaidStatusAfterPaymentChange();
+
+        RaiseDomainEvent(new PaymentDeletedDomainEvent(Id, paymentId, payment.AmountPaid, Balance));
     }
 
     /// <summary>
@@ -245,22 +276,20 @@ public class Loan : AggregateRoot<LoanId>
 
     /// <summary>
     /// Edits an existing extension, rolling its old ExtensionDays/
-    /// AdditionalInterestAmount/AdditionalChargesAmount contribution out of
-    /// DueDate/TotalInterest/TotalExtensionCharges before applying the new
-    /// values — otherwise the old and new contributions would both remain
-    /// in effect at once.
+    /// AdditionalChargesAmount contribution out of DueDate/
+    /// TotalExtensionCharges before applying the new values — otherwise the
+    /// old and new contributions would both remain in effect at once.
     /// </summary>
-    public LoanExtension EditExtension(LoanExtensionId extensionId, int extensionDays, Money additionalInterestAmount, Money additionalChargesAmount, string remarks, DateOnly extensionDate)
+    public LoanExtension EditExtension(LoanExtensionId extensionId, int extensionDays, Money additionalChargesAmount, string remarks, DateOnly extensionDate)
     {
         EnsureNotWrittenOff();
         var extension = _extensions.FirstOrDefault(e => e.Id == extensionId)
             ?? throw new DomainException("Extension not found on this loan.");
 
         DueDate = DueDate.AddDays(-extension.ExtensionDays).AddDays(extensionDays);
-        TotalInterest = TotalInterest.Subtract(extension.AdditionalInterestAmount).Add(additionalInterestAmount);
         TotalExtensionCharges = TotalExtensionCharges.Subtract(extension.AdditionalChargesAmount).Add(additionalChargesAmount);
 
-        extension.Edit(extensionDays, additionalInterestAmount, additionalChargesAmount, remarks, extensionDate);
+        extension.Edit(extensionDays, additionalChargesAmount, remarks, extensionDate);
 
         TotalAmountDue = PrincipalAmount.Add(TotalInterest).Add(TotalExtensionCharges);
         Balance = TotalAmountDue.Subtract(TotalPaid);
@@ -268,7 +297,7 @@ public class Loan : AggregateRoot<LoanId>
         return extension;
     }
 
-    /// <summary>Removes an extension and rolls its ExtensionDays/AdditionalInterestAmount/AdditionalChargesAmount contribution back out.</summary>
+    /// <summary>Removes an extension and rolls its ExtensionDays/AdditionalChargesAmount contribution back out.</summary>
     public void DeleteExtension(LoanExtensionId extensionId)
     {
         EnsureNotWrittenOff();
@@ -277,11 +306,12 @@ public class Loan : AggregateRoot<LoanId>
 
         _extensions.Remove(extension);
         DueDate = DueDate.AddDays(-extension.ExtensionDays);
-        TotalInterest = TotalInterest.Subtract(extension.AdditionalInterestAmount);
         TotalExtensionCharges = TotalExtensionCharges.Subtract(extension.AdditionalChargesAmount);
 
         TotalAmountDue = PrincipalAmount.Add(TotalInterest).Add(TotalExtensionCharges);
         Balance = TotalAmountDue.Subtract(TotalPaid);
+
+        RaiseDomainEvent(new LoanExtensionDeletedDomainEvent(Id, extensionId, extension.AdditionalChargesAmount, Balance));
     }
 
     /// <summary>

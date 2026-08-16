@@ -1,0 +1,58 @@
+<h2 class="dialog-title">Interest Calculation Breakdown</h2>
+
+<div class="dialog-form">
+  <p class="loading-hint" *ngIf="loading">Loading…</p>
+
+  <ng-container *ngIf="breakdown as b">
+    <div class="loan-heading">
+      <span class="loan-number mono">{{ b.loanNumber }}</span>
+      <span class="customer-name">{{ b.customerName }}</span>
+    </div>
+
+    <p class="adjustment-note" *ngIf="b.interestAdjustment !== 0">
+      Original contract interest {{ fmtMoney(b.originalContractInterest) }}, adjusted to
+      <strong>{{ fmtMoney(b.adjustedContractInterest) }}</strong>
+      ({{ b.interestAdjustment > 0 ? '+' : '' }}{{ fmtMoney(b.interestAdjustment) }}).
+    </p>
+
+    <div class="period-card" *ngFor="let p of b.periods">
+      <div class="period-card__header">{{ p.label }}</div>
+      <div class="period-card__row">
+        <span>Period</span>
+        <span class="mono">{{ p.periodStart | date:'MMM d, y' }} – {{ p.periodEndInclusive | date:'MMM d, y' }}</span>
+      </div>
+      <div class="period-card__row">
+        <span>Contract Amount</span>
+        <span class="mono">{{ fmtMoney(p.contractAmount) }}</span>
+      </div>
+      <div class="period-card__row">
+        <span>Term</span>
+        <span class="mono">{{ p.termDays }} days</span>
+      </div>
+      <div class="period-card__row">
+        <span>Daily Interest</span>
+        <span class="mono">{{ fmtMoney(p.dailyInterest) }}</span>
+      </div>
+      <div class="period-card__row">
+        <span>Earned Days (this period)</span>
+        <span class="mono">{{ p.earnedDaysThisPeriod }}</span>
+      </div>
+      <div class="period-card__row">
+        <span>Earned Before Period</span>
+        <span class="mono">{{ fmtMoney(p.earnedBeforePeriod) }}</span>
+      </div>
+      <div class="period-card__row period-card__row--highlight">
+        <span>Earned This Period</span>
+        <span class="mono">{{ fmtMoney(p.earnedThisPeriod) }}</span>
+      </div>
+      <div class="period-card__row">
+        <span>Total Earned (through To Date)</span>
+        <span class="mono">{{ fmtMoney(p.totalEarned) }}</span>
+      </div>
+    </div>
+  </ng-container>
+
+  <div class="dialog-form__actions">
+    <button type="button" mat-flat-button color="primary" (click)="close()">Close</button>
+  </div>
+</div>

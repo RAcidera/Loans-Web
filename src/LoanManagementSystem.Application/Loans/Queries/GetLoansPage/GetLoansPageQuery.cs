@@ -8,10 +8,10 @@ using MediatR;
 namespace LoanManagementSystem.Application.Loans.Queries.GetLoansPage;
 
 /// <summary>
-/// Status/Classification are the wire-string form (e.g. "overdue",
-/// "badloan") matching LoanDto's own casing — parsed to their enums in the
-/// handler, same as ChangeLoanClassificationCommand does for a single
-/// value. The five filters after SortDir are spec's "Loan Search and
+/// Status/Classification are comma-separated wire-string values (e.g.
+/// "active,extended") — the Loans list allows selecting more than one of
+/// each at once, matching LoanDto's own casing, parsed to their enums in
+/// the handler. The five filters after SortDir are spec's "Loan Search and
 /// Filtering" set (3.2).
 /// </summary>
 public sealed record GetLoansPageQuery(
@@ -68,17 +68,28 @@ public sealed class GetLoansPageQueryHandler : IRequestHandler<GetLoansPageQuery
 
     internal static LoanPageFilters BuildFilters(GetLoansPageQuery request)
     {
-        LoanStatus? status = Enum.TryParse<LoanStatus>(request.Status, ignoreCase: true, out var parsedStatus) ? parsedStatus : null;
-        LoanClassification? classification = Enum.TryParse<LoanClassification>(request.Classification, ignoreCase: true, out var parsedClassification) ? parsedClassification : null;
-
         return new LoanPageFilters(
-            Status: status,
-            Classification: classification,
+            Statuses: ParseEnumList<LoanStatus>(request.Status),
+            Classifications: ParseEnumList<LoanClassification>(request.Classification),
             LoanDateFrom: request.LoanDateFrom,
             LoanDateTo: request.LoanDateTo,
             DueDateFrom: request.DueDateFrom,
             DueDateTo: request.DueDateTo,
             BadLoansOnly: request.BadLoansOnly,
             OverdueOnly: request.OverdueOnly);
+    }
+
+    private static List<T>? ParseEnumList<T>(string? commaSeparated) where T : struct, Enum
+    {
+        if (string.IsNullOrWhiteSpace(commaSeparated)) return null;
+
+        var values = commaSeparated
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(token => Enum.TryParse<T>(token, ignoreCase: true, out var value) ? value : (T?)null)
+            .Where(value => value.HasValue)
+            .Select(value => value!.Value)
+            .ToList();
+
+        return values.Count > 0 ? values : null;
     }
 }

@@ -13,54 +13,223 @@
   font-weight: 700;
 }
 
+.filter-card,
 .table-card {
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
-  padding: 4px 4px 0;
 }
 
-.table-card__header {
+.filter-card {
+  padding: 18px 20px;
+  margin-bottom: 16px;
+}
+
+.filter-top {
   display: flex;
   justify-content: space-between;
-  align-items: flex-start;
-  padding: 16px 20px 4px;
+  align-items: flex-end; // bottom-aligns the button row with the control row, not the labels above it
+  gap: 14px;
+  flex-wrap: wrap;
+}
 
-  h2 {
-    font-family: var(--lm-font-display);
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0 0 2px;
-  }
-
-  p {
-    font-size: 13px;
-    color: var(--lm-text-muted);
-    margin: 0;
-  }
-
-  button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    flex-shrink: 0;
-  }
+.table-card {
+  padding: 4px 4px 0;
 }
 
 .filter-bar {
   display: flex;
   flex-wrap: wrap;
-  align-items: center;
+  align-items: flex-start;
   gap: 12px;
-  padding: 12px 20px 8px;
+  flex: 1;
 }
 
-.filter-field {
-  width: 160px;
+// Label-on-top control chrome, matching "loans-list-modern.html": an 11px
+// bold label above a plain 42px-tall boxed control, instead of Material's
+// notched-outline floating label. mat-select is used bare (no
+// mat-form-field host) so it can be styled directly as that plain box;
+// mat-date-range-input still needs a mat-form-field host (see .range-field
+// below), so that one is stripped down to the same look via overrides
+// instead.
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 140px;
+
+  label {
+    font-size: 11px;
+    font-weight: 650;
+    color: var(--lm-text);
+    margin-bottom: 6px;
+  }
 }
 
-.filter-field--range {
-  width: 220px;
+.field--range {
+  width: 230px;
+}
+
+.field--search {
+  width: 190px;
+}
+
+// mat-select is used bare here (see the .field comment above) — without a
+// mat-form-field host, Material never applies its usual width:100%, so
+// without this override the trigger sizes to its own content instead of
+// its container and spills into whatever sits next to it in the row.
+.mat-mdc-select {
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  background: var(--lm-surface);
+  padding: 0 12px;
+  font-size: 13.5px;
+  color: var(--lm-text);
+
+  &.mat-mdc-select-empty .mat-mdc-select-min-line {
+    color: var(--lm-text-muted);
+  }
+}
+
+// --mat-form-field-container-height/vertical-padding are genuine CSS custom
+// properties, not class selectors — they inherit normally through the DOM
+// (including into mat-form-field's internal template) regardless of Angular's
+// per-component style scoping, so setting them here works. Every other
+// override targeting mat-form-field's internal structure (the subscript
+// wrapper, text-field background, icon-button size) has to live in the
+// global stylesheet instead — see styles.scss's ".range-field" rule and its
+// comment for why a scoped selector like ".range-field .mat-mdc-foo" can
+// silently never match.
+.range-field {
+  width: 100%;
+  display: block;
+  --mat-form-field-container-height: 42px;
+  --mat-form-field-container-vertical-padding: 9px;
+
+  input {
+    font-size: 13.5px;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  padding: 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--lm-text-muted);
+  }
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--lm-text);
+    width: 100%;
+
+    &::placeholder {
+      color: var(--lm-text-muted);
+    }
+  }
+}
+
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 14px;
+  margin-top: 18px;
+
+  @include tokens.tablet {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.kpi-card {
+  border: 1px solid var(--lm-border);
+  border-radius: 10px;
+  padding: 14px 16px;
+  display: flex;
+  gap: 12px;
+  align-items: center;
+
+  &__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(108, 93, 211, 0.12);
+    color: var(--lm-primary);
+  }
+
+  &--good .kpi-card__icon {
+    background: rgba(34, 160, 107, 0.14);
+    color: var(--lm-success);
+  }
+
+  &--warn .kpi-card__icon {
+    background: rgba(225, 170, 54, 0.18);
+    color: var(--lm-warning);
+  }
+
+  &--info .kpi-card__icon {
+    background: rgba(76, 141, 255, 0.14);
+    color: var(--lm-info);
+  }
+
+  &--danger .kpi-card__icon {
+    background: rgba(193, 102, 107, 0.16);
+    color: var(--lm-danger);
+  }
+
+  &__label {
+    font-size: 11px;
+    color: var(--lm-text-muted);
+    display: block;
+  }
+
+  &__value {
+    font-family: var(--lm-font-display);
+    font-size: 20px;
+    font-weight: 700;
+    margin-top: 2px;
+  }
+
+  &__sub {
+    font-size: 10px;
+    color: var(--lm-text-muted);
+    margin-top: 2px;
+  }
 }
 
 .table-scroll {
@@ -69,22 +238,7 @@
 
 .loans-table {
   width: 100%;
-
-  th.mat-mdc-header-cell {
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.03em;
-    color: var(--lm-text-muted);
-    font-weight: 600;
-  }
-
-  tr.mat-mdc-row {
-    cursor: pointer;
-
-    &:hover {
-      background: rgba(108, 93, 211, 0.05);
-    }
-  }
+  @include tokens.lm-data-table;
 
   tr.loans-table__footer {
     font-weight: 600;
@@ -92,6 +246,16 @@
     td.mat-mdc-footer-cell {
       border-top: 2px solid var(--lm-border);
     }
+  }
+}
+
+.row-link {
+  color: var(--lm-primary);
+  font-weight: 600;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
   }
 }
 

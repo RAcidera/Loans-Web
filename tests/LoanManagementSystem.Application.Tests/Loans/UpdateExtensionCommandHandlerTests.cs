@@ -24,14 +24,13 @@ public class UpdateExtensionCommandHandlerTests
     public async Task Handle_ExistingExtension_UpdatesAndSaves()
     {
         var loan = Loan.Originate(CustomerId.New(), Money.Of(1000), InterestRate.Of(0), new DateOnly(2026, 1, 1), 30);
-        var extension = loan.Extend(10, Money.Of(50), Money.Of(10), "initial", new DateOnly(2026, 1, 20));
+        var extension = loan.Extend(10, Money.Of(10), "initial", new DateOnly(2026, 1, 20));
         _loanRepository.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>())).ReturnsAsync(loan);
 
-        var command = new UpdateExtensionCommand(loan.Id.ToString(), extension.Id.ToString(), 20, 80, "revised", 15);
+        var command = new UpdateExtensionCommand(loan.Id.ToString(), extension.Id.ToString(), 20, "revised", 15);
         var result = await _handler.Handle(command, CancellationToken.None);
 
         Assert.Equal(20, result.ExtensionDays);
-        Assert.Equal(80m, result.AdditionalInterestAmount);
         Assert.Equal(15m, result.AdditionalChargesAmount);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
     }
@@ -42,7 +41,7 @@ public class UpdateExtensionCommandHandlerTests
         var loan = Loan.Originate(CustomerId.New(), Money.Of(1000), InterestRate.Default, new DateOnly(2026, 1, 1));
         _loanRepository.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>())).ReturnsAsync(loan);
 
-        var command = new UpdateExtensionCommand(loan.Id.ToString(), LoanExtensionId.New().ToString(), 10, 10, "x");
+        var command = new UpdateExtensionCommand(loan.Id.ToString(), LoanExtensionId.New().ToString(), 10, "x", 10);
 
         await Assert.ThrowsAsync<NotFoundException>(() => _handler.Handle(command, CancellationToken.None));
     }

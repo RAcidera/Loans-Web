@@ -16,6 +16,7 @@ import { GetLoanDocumentsUseCase } from '../../application/use-cases/get-loan-do
 import { UploadLoanDocumentUseCase } from '../../application/use-cases/upload-loan-document.use-case';
 import { DownloadLoanDocumentUseCase } from '../../application/use-cases/download-loan-document.use-case';
 import { DeleteLoanDocumentUseCase } from '../../application/use-cases/delete-loan-document.use-case';
+import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AuthService } from '../../application/auth/auth.service';
 
 type OwnerType = 'customer' | 'loan';
@@ -64,6 +65,7 @@ export class DocumentManagerComponent implements OnInit {
     private readonly uploadLoanDocument: UploadLoanDocumentUseCase,
     private readonly downloadLoanDocument: DownloadLoanDocumentUseCase,
     private readonly deleteLoanDocument: DeleteLoanDocumentUseCase,
+    private readonly confirmDialog: ConfirmDialogService,
     readonly authService: AuthService,
   ) {}
 
@@ -146,8 +148,13 @@ export class DocumentManagerComponent implements OnInit {
     });
   }
 
-  remove(doc: AnyDocument): void {
-    if (!confirm(`Delete "${doc.originalFileName}"?`)) return;
+  async remove(doc: AnyDocument): Promise<void> {
+    const ok = await this.confirmDialog.confirm({
+      title: 'Delete document?',
+      message: `Delete "${doc.originalFileName}"? This cannot be undone.`,
+      confirmText: 'Yes, delete',
+    });
+    if (!ok) return;
 
     const delete$ = this.ownerType === 'customer'
       ? this.deleteCustomerDocument.execute(this.ownerId, doc.documentId)

@@ -1,7 +1,7 @@
-<h2 class="dialog-title">Add loan</h2>
+<h2 class="dialog-title">{{ data?.customerName ? 'New loan for ' + data?.customerName : 'Add loan' }}</h2>
 
 <form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" *ngIf="!data?.customerId">
     <mat-label>Customer</mat-label>
     <mat-select formControlName="customerId">
       <mat-option *ngFor="let c of customers" [value]="c.customerId">{{ c.fullName }}</mat-option>
@@ -11,6 +11,37 @@
   <mat-form-field appearance="outline">
     <mat-label>Principal amount</mat-label>
     <input matInput type="number" formControlName="principal" min="1" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Loan date</mat-label>
+    <input matInput type="date" formControlName="loanDate" />
+    <mat-hint>Backdate this if the loan was actually released a few days ago.</mat-hint>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Payment Terms (in months)</mat-label>
+    <mat-select formControlName="paymentTermsMonths">
+      <mat-option *ngFor="let m of paymentTermsOptions" [value]="m">{{ m }} {{ m === 1 ? 'month' : 'months' }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Interest rate</mat-label>
+    <input matInput type="number" formControlName="interestRatePercent" step="0.01" min="0" />
+    <span matTextSuffix>&nbsp;%</span>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Interest amount</mat-label>
+    <input matInput type="number" formControlName="interestAmount" step="0.01" min="0" />
+    <mat-hint>Auto-calculated as Principal &times; Rate &times; Payment Terms — override if needed.</mat-hint>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Daily payment</mat-label>
+    <input matInput type="number" formControlName="dailyPayment" step="0.01" readonly />
+    <mat-hint>Default amount suggested when recording a payment on this loan.</mat-hint>
   </mat-form-field>
 
   <div class="dialog-form__actions">

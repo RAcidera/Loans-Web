@@ -186,3 +186,11 @@ D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\obj\Release\net8.
 D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\obj\Release\net8.0\LoanManagementSystem.Api.pdb
 D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\obj\Release\net8.0\LoanManagementSystem.Api.genruntimeconfig.cache
 D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\obj\Release\net8.0\ref\LoanManagementSystem.Api.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\ClosedXML.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\ClosedXML.Parser.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\DocumentFormat.OpenXml.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\DocumentFormat.OpenXml.Framework.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\ExcelNumberFormat.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\RBush.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\SixLabors.Fonts.dll
+D:\BitBucket\LoanManagementSystem\src\LoanManagementSystem.Api\bin\Release\net8.0\System.IO.Packaging.dll

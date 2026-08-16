@@ -37,10 +37,28 @@
   --lm-text: #1B1B29;
   --lm-text-muted: #8B8FA3;
 
-  // Type
-  --lm-font-display: 'Space Grotesk', 'Inter', sans-serif;
+  // Type — Inter is the app-wide default (text, controls, buttons, headings);
+  // --lm-font-display used to point at Space Grotesk, now unified on Inter.
+  --lm-font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --lm-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
   --lm-font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+
+  // Data-grid chrome — dark indigo header, alternating row stripe (see
+  // Data-table-layout-style.png, the shared reference for how a mat-table
+  // should look across the app).
+  --lm-table-header-bg: #2C195F;
+  --lm-table-header-text: #FFFFFF;
+  --lm-table-row-stripe: #EFF4FA;
+  --lm-table-row-text: rgba(17, 28, 45, 0.6);
+  --lm-table-footer-bg: #F1F2F8;
+  --lm-table-font-size: 13.2px;
+  --lm-table-header-row-h: 32.25px;
+  --lm-table-row-h: 31px;
+
+  // Standard control chrome — buttons, the Loans-tab search box and native
+  // filter <select>s (Customer-detail-page.html reference). Distinct from
+  // --lm-radius (12px), which stays reserved for cards/panels.
+  --lm-radius-control: 8px;
 
   // Layout
   --lm-radius: 12px;
@@ -78,5 +96,82 @@ $lm-bp-tablet: 899px;
 @mixin lm-mono-figure {
   font-family: var(--lm-font-mono);
   font-feature-settings: "tnum" 1;
-  letter-spacing: -0.01em;
+  // No letter-spacing override here — the global "letter-spacing: normal"
+  // rule in styles.scss is the single source of truth for the whole app.
+}
+
+// Shared mat-table look: dark indigo header with bold white text (no
+// uppercase/letter-spacing treatment), Inter at --lm-table-font-size for
+// both header and body cells, alternating row stripe, and compact
+// header/row heights (padding trimmed to fit --lm-table-header-row-h /
+// --lm-table-row-h so more rows fit on screen without scrolling). New
+// tables should @include this on their own table class rather than
+// restyling the header/row look from scratch — see Data-table-layout-style.png.
+@mixin lm-data-table {
+  font-family: var(--lm-font-body);
+  font-size: var(--lm-table-font-size);
+
+  th.mat-mdc-header-cell {
+    background-color: var(--lm-table-header-bg) !important;
+    color: var(--lm-table-header-text);
+    font-family: var(--lm-font-body);
+    font-size: var(--lm-table-font-size);
+    font-weight: 700;
+    text-transform: none;
+    letter-spacing: normal;
+  }
+
+  tr.mat-mdc-header-row {
+    height: var(--lm-table-header-row-h);
+  }
+
+  tr.mat-mdc-row {
+    height: var(--lm-table-row-h);
+  }
+
+  th.mat-mdc-header-cell,
+  td.mat-mdc-cell,
+  td.mat-mdc-footer-cell {
+    padding-top: 4px;
+    padding-bottom: 4px;
+    line-height: 1.2;
+  }
+
+  td.mat-mdc-cell {
+    font-family: var(--lm-font-body);
+    font-size: var(--lm-table-font-size);
+    color: var(--lm-table-row-text);
+  }
+
+  // Footer totals get their own distinct band — bold, full-opacity text on
+  // a light gray fill — rather than the muted body-row color, so a TOTAL
+  // row reads as a summary rather than just another row.
+  td.mat-mdc-footer-cell {
+    background-color: var(--lm-table-footer-bg) !important;
+    font-family: var(--lm-font-body);
+    font-size: var(--lm-table-font-size);
+    color: var(--lm-text);
+    font-weight: 700;
+  }
+
+  tr.mat-mdc-row:nth-child(odd) {
+    background-color: var(--lm-table-row-stripe);
+  }
+
+  // Material's icon-button touch target (~40-48px) is taller than
+  // --lm-table-row-h on its own, so any "actions" column with a
+  // mat-icon-button silently forces the whole row past 31px regardless of
+  // the padding/height rules above. Shrink it to fit inside the row.
+  td.mat-mdc-cell .mat-mdc-icon-button {
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    --mdc-icon-button-state-layer-size: 28px;
+
+    .mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
 }

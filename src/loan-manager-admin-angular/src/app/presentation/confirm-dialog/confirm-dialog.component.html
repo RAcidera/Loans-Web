@@ -1,0 +1,20 @@
+<div class="confirm-dialog">
+  <div class="confirm-dialog__icon" [class.confirm-dialog__icon--danger]="isDanger">
+    <mat-icon>{{ isDanger ? 'warning_amber' : 'help_outline' }}</mat-icon>
+  </div>
+
+  <h2 class="confirm-dialog__title">{{ data.title || (isDanger ? 'Delete this?' : 'Are you sure?') }}</h2>
+  <p class="confirm-dialog__message">{{ data.message }}</p>
+
+  <div class="confirm-dialog__actions">
+    <!-- First in DOM order so MatDialog's default autofocus lands here, not on the destructive action. -->
+    <button type="button" mat-stroked-button (click)="cancel()">{{ data.cancelText || 'No' }}</button>
+    <button
+      type="button"
+      mat-flat-button
+      [color]="isDanger ? undefined : 'primary'"
+      [class.confirm-dialog__confirm--danger]="isDanger"
+      (click)="confirm()"
+    >{{ data.confirmText || 'Yes' }}</button>
+  </div>
+</div>

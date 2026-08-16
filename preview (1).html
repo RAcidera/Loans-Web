@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Loan Detail - LOA00008</title>
+<style>
+:root{--p:#5b21e8;--t:#172033;--m:#68748a;--b:#e5e8f0;--bg:#f7f8fc;--g:#15966b;--gb:#e3f6ef;--r:#df4c52}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--t);font:13px Inter,system-ui,-apple-system,"Segoe UI",sans-serif}.page{max-width:1600px;margin:auto;padding:18px 16px 30px}
+button{font:inherit;cursor:pointer}.top{display:flex;justify-content:space-between;margin-bottom:16px}.back{color:var(--m);text-decoration:none}.btn{height:38px;padding:0 15px;border:1px solid #9b91aa;border-radius:8px;background:#fff;color:var(--p);font-weight:600}.btn.green{color:var(--g)}
+.hero{background:#fff;border:1px solid var(--b);border-radius:12px;padding:20px 22px 17px}.heroTop{display:flex;align-items:center;gap:18px}.loanIcon{width:70px;height:70px;border-radius:50%;background:#f0eaff;color:var(--p);display:grid;place-items:center;font-size:27px}.title{font-size:22px;font-weight:750}.meta,.label{color:var(--m)}.badges{display:flex;gap:7px;margin-top:9px}.badge{padding:4px 9px;border-radius:15px;font-size:11px;font-weight:700}.paid{background:#edf0f4;color:#748096}.normal{background:var(--gb);color:var(--g)}.heroActions{margin-left:auto;display:flex;gap:9px;flex-wrap:wrap}
+.stats{display:grid;grid-template-columns:repeat(7,1fr);margin-top:18px;border-top:1px solid #eef0f4;padding-top:16px}.stat{padding:0 15px;border-right:1px solid #edf0f4}.stat:first-child{padding-left:0}.stat:last-child{border:0}.stat .label{font-size:11px;margin-bottom:6px}.value{font-weight:700;font-size:14px}.purple{color:var(--p)}.green{color:var(--g)}.red{color:var(--r)}.orange{color:#d88400}
+.tabs{display:flex;margin-top:18px;background:#fff;border-bottom:1px solid var(--b);padding:0 14px}.tab{padding:14px 28px;border:0;background:none;font-weight:600;color:#34415a;position:relative}.tab.active{color:var(--p)}.tab.active:after{content:"";position:absolute;height:3px;background:var(--p);left:12px;right:12px;bottom:-1px}
+.content{background:#fff;border:1px solid var(--b);border-top:0;border-radius:0 0 12px 12px;padding:14px}.grid3{display:grid;grid-template-columns:1fr 1.1fr 1fr;gap:14px}.card{border:1px solid var(--b);border-radius:10px;overflow:hidden;background:#fff}.ct{padding:13px 16px;border-bottom:1px solid #edf0f4;font-weight:700}.cb{padding:14px 16px}.row{display:flex;justify-content:space-between;padding:5px 0;color:#66738a}.row strong{color:#25324a}.row+.row{border-top:1px solid #f1f2f6}
+.finance{display:grid;grid-template-columns:125px 1fr;gap:20px;align-items:center}.donut{width:118px;height:118px;border-radius:50%;background:conic-gradient(#607fd9 100%,#edf0f6 0);display:grid;place-items:center;position:relative}.donut:after{content:"";width:82px;height:82px;background:#fff;border-radius:50%;position:absolute}.donutText{position:relative;z-index:1;text-align:center;font-weight:700}.donutText small{display:block;color:var(--m);font-weight:500}.legend div{display:flex;justify-content:space-between;padding:6px 0}.alert{margin-top:13px;background:#effaf5;border:1px solid #b9e6d3;border-radius:7px;padding:11px;color:#177957}
+.event{display:grid;grid-template-columns:30px 1fr auto;gap:9px;padding:7px 0}.ei{width:29px;height:29px;border-radius:50%;background:#e8f2ff;color:#2878d7;display:grid;place-items:center}.ei.green{background:var(--gb);color:var(--g)}.ei.purple{background:#f0eaff;color:var(--p)}.eventTitle{font-weight:650}.eventSub,.eventDate{font-size:11px;color:var(--m)}.eventDate{text-align:right}
+.lower{display:grid;grid-template-columns:1.05fr 1fr;gap:14px;margin-top:14px}.head{display:flex;justify-content:space-between;align-items:center;padding:13px 16px;border-bottom:1px solid #edf0f4;font-weight:700}.head .btn{height:31px;padding:0 11px;font-size:12px}.wrap{overflow:auto}table{width:100%;border-collapse:collapse;min-width:680px}th{font-size:10px;text-align:left;color:var(--m);background:#fafbfc;padding:9px 10px}td{padding:11px 10px;border-top:1px solid #eef0f4;color:#3f4c64}td.amount{text-align:right}tfoot td{font-weight:700;background:#f7f8fc}.empty{text-align:center;padding:42px 10px;color:var(--m)}
+.summary{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--b);margin-top:14px;border:1px solid var(--b);border-radius:10px;overflow:hidden}.sum{background:#fff;padding:13px 15px}.sum .label{font-size:10px}.sum strong{display:block;margin-top:6px}
+@media(max-width:1100px){.stats{grid-template-columns:repeat(4,1fr);row-gap:16px}.grid3{grid-template-columns:1fr 1fr}.timeline{grid-column:1/-1}.lower{grid-template-columns:1fr}.summary{grid-template-columns:repeat(3,1fr)}}@media(max-width:700px){.heroTop{flex-wrap:wrap}.heroActions{margin-left:0}.stats{grid-template-columns:repeat(2,1fr)}.stat{border:0}.grid3{grid-template-columns:1fr}.timeline{grid-column:auto}.tabs{overflow:auto}.tab{white-space:nowrap;padding:13px 17px}.summary{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="page">
+<div class="top"><a class="back" href="#">← Back to loans</a><div>⌕ &nbsp; ♧ &nbsp; <b style="background:#8b78e8;color:#fff;border-radius:50%;padding:11px">AD</b></div></div>
+
+<section class="hero">
+<div class="heroTop">
+<div class="loanIcon">▣</div>
+<div><div class="title">LOA00008</div><div class="meta">Ana Villanueva</div><div class="badges"><span class="badge paid">Paid</span><span class="badge normal">Normal</span></div></div>
+<div class="heroActions"><button class="btn">✎ Edit Loan</button><button class="btn">◔ New Extension</button><button class="btn green">＋ New Payment</button><button class="btn">▣ Generate SOA</button><button class="btn">⚑ Change Classification</button><button class="btn">⋮</button></div>
+</div>
+<div class="stats">
+<div class="stat"><div class="label">Borrower</div><div class="value">Ana Villanueva</div></div>
+<div class="stat"><div class="label">Contact</div><div class="value">+63 919 333 5566</div></div>
+<div class="stat"><div class="label">Interest Amount</div><div class="value purple">30.00</div></div>
+<div class="stat"><div class="label">Extension Charges</div><div class="value orange">0.00</div></div>
+<div class="stat"><div class="label">Total Payments</div><div class="value green">1,030.00</div></div>
+<div class="stat"><div class="label">Outstanding Balance</div><div class="value red">0.00</div></div>
+<div class="stat"><div class="label">Due Date</div><div class="value">Oct 08, 2026</div></div>
+</div>
+</section>
+
+<nav class="tabs">
+<button class="tab active" onclick="showTab(this,'overview')">▦ Overview</button>
+<button class="tab" onclick="showTab(this,'payments')">▣ Payments</button>
+<button class="tab" onclick="showTab(this,'extensions')">◔ Extensions</button>
+<button class="tab" onclick="showTab(this,'documents')">■ Documents</button>
+<button class="tab" onclick="showTab(this,'audit')">◈ Audit Log</button>
+</nav>
+
+<main id="overview" class="content">
+<div class="grid3">
+<section class="card"><div class="ct">▧ Loan Information</div><div class="cb">
+<div class="row"><span>Loan Date</span><strong>Aug 09, 2026</strong></div>
+<div class="row"><span>Due Date</span><strong>Oct 08, 2026</strong></div>
+<div class="row"><span>Loan Term</span><strong>60 days</strong></div>
+<div class="row"><span>Interest Rate</span><strong>3.00%</strong></div>
+<div class="row"><span>Interest Amount</span><strong>30.00</strong></div>
+<div class="row"><span>Loan Status</span><strong><span class="badge paid">Paid</span></strong></div>
+<div class="row"><span>Loan Classification</span><strong><span class="badge normal">Normal</span></strong></div>
+<div class="row"><span>Payment Frequency</span><strong>Lump Sum</strong></div>
+<div class="row"><span>Created At</span><strong>Aug 09, 2026 10:30 AM</strong></div>
+<div class="row"><span>Created By</span><strong>Admin User</strong></div>
+<div class="row"><span>Last Updated</span><strong>Aug 24, 2026 02:15 PM</strong></div>
+</div></section>
+
+<section class="card"><div class="ct">▧ Financial Summary</div><div class="cb">
+<div class="finance">
+<div class="donut"><div class="donutText">100%<small>Paid</small></div></div>
+<div class="legend">
+<div><span>Principal</span><strong>1,000.00</strong></div>
+<div><span>Interest</span><strong>30.00</strong></div>
+<div><span>Extension Charges</span><strong>0.00</strong></div>
+<div><span>Payments</span><strong>1,030.00</strong></div>
+</div></div>
+<div class="alert">✓ <b>This loan is fully paid.</b><br>All amounts have been settled.</div>
+</div></section>
+
+<section class="card timeline"><div class="ct">Timeline</div><div class="cb">
+<div class="event"><div class="ei green">$</div><div><div class="eventTitle">Payment made</div><div class="eventSub">Payment of 1,030.00</div></div><div class="eventDate">Aug 24, 2026<br>02:14 PM</div></div>
+<div class="event"><div class="ei purple">▣</div><div><div class="eventTitle">Loan created</div><div class="eventSub">Loan LOA00008 created</div></div><div class="eventDate">Aug 09, 2026<br>10:30 AM</div></div>
+<div class="event"><div class="ei">✎</div><div><div class="eventTitle">Loan updated</div><div class="eventSub">Loan information updated</div></div><div class="eventDate">Aug 09, 2026<br>10:30 AM</div></div>
+<div class="event"><div class="ei green">✓</div><div><div class="eventTitle">Status changed to Paid</div><div class="eventSub">Loan marked as fully paid</div></div><div class="eventDate">Aug 24, 2026<br>02:15 PM</div></div>
+</div></section>
+</div>
+
+<div class="lower">
+<section class="card"><div class="head">▣ Payment History <button class="btn green">＋ New Payment</button></div><div class="wrap"><table>
+<thead><tr><th>#</th><th>Payment Date</th><th>Amount</th><th>Method</th><th>Reference</th><th>Running Balance</th><th>Remarks</th><th>Actions</th></tr></thead>
+<tbody><tr><td>1</td><td>Aug 24, 2026</td><td class="amount">1,030.00</td><td><span class="badge normal">Cash</span></td><td>—</td><td class="amount">0.00</td><td>Full payment</td><td>✎ 🗑</td></tr></tbody>
+<tfoot><tr><td colspan="5">Total Payments</td><td class="amount">1,030.00</td><td colspan="2"></td></tr></tfoot>
+</table></div></section>
+
+<section class="card"><div class="head">◔ Extension History <button class="btn">＋ New Extension</button></div>
+<div class="empty">▣<br><br><b>No extensions found</b><br><small>This loan has no extension records.</small></div>
+<div style="border-top:1px solid #edf0f4;padding:12px 16px;display:flex;justify-content:space-between;font-weight:700">Total Extension / Charges <span class="orange">0.00</span></div>
+</section>
+</div>
+
+<div class="summary">
+<div class="sum"><div class="label">Loan Amount (Principal + Interest)</div><strong>1,030.00</strong></div>
+<div class="sum"><div class="label">Total Extension Charges</div><strong>0.00</strong></div>
+<div class="sum"><div class="label">Total Paid</div><strong class="green">1,030.00</strong></div>
+<div class="sum"><div class="label">Outstanding Balance</div><strong class="red">0.00</strong></div>
+<div class="sum"><div class="label">Status</div><strong><span class="badge paid">Paid</span></strong></div>
+<div class="sum"><div class="label">Classification</div><strong><span class="badge normal">Normal</span></strong></div>
+</div>
+</main>
+
+<div id="other" style="display:none;background:#fff;border:1px solid var(--b);padding:35px;border-radius:0 0 12px 12px;color:var(--m)"></div>
+</div>
+<script>
+function showTab(btn,id){
+document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));btn.classList.add('active');
+const o=document.getElementById('overview'),x=document.getElementById('other');
+if(id==='overview'){o.style.display='block';x.style.display='none'}
+else{o.style.display='none';x.style.display='block';x.innerHTML='<h3 style="color:#172033">'+id.charAt(0).toUpperCase()+id.slice(1)+'</h3><p>Content for '+id+' can be rendered here.</p>'}
+}
+</script>
+</body>
+</html>

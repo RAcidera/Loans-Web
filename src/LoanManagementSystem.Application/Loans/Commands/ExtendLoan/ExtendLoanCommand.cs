@@ -11,7 +11,6 @@ namespace LoanManagementSystem.Application.Loans.Commands.ExtendLoan;
 public sealed record ExtendLoanCommand(
     string LoanId,
     int ExtensionDays,
-    decimal AdditionalInterestAmount,
     string Remarks,
     decimal AdditionalChargesAmount = 0
 ) : IRequest<LoanExtensionDto>;
@@ -35,7 +34,6 @@ public sealed class ExtendLoanCommandHandler : IRequestHandler<ExtendLoanCommand
 
         var extension = loan.Extend(
             request.ExtensionDays,
-            Money.Of(request.AdditionalInterestAmount),
             Money.Of(request.AdditionalChargesAmount),
             request.Remarks,
             DateOnly.FromDateTime(DateTime.UtcNow));

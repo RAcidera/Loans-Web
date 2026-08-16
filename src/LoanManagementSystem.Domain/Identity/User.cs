@@ -51,4 +51,14 @@ public class User : AggregateRoot<UserId>
     {
         Status = UserStatus.Inactive;
     }
+
+    public void Activate()
+    {
+        Status = UserStatus.Active;
+    }
+
+    public void ChangeRole(UserRole newRole)
+    {
+        Role = newRole;
+    }
 }

@@ -12,15 +12,19 @@ namespace LoanManagementSystem.Application.Loans.Commands.UpdateLoan;
 /// Every field is optional so a caller can override just one — spec: "the
 /// user must be able to manually override Loan Date/Due Date/Interest
 /// Rate/Interest Amount" post-creation, e.g. a goodwill discount before an
-/// early payoff.
+/// early payoff. Principal/PaymentTermsMonths are later additions for the
+/// same dialog — changing Principal or StartDate also revises the mirrored
+/// cash_ledger `loan_release` entry (see LoanOriginationEditedDomainEvent).
 /// </summary>
 public sealed record UpdateLoanCommand(
     string LoanId,
     string EditedBy,
+    decimal? Principal = null,
     string? StartDate = null,
     string? DueDate = null,
     decimal? InterestRate = null,
     decimal? InterestAmount = null,
+    int? PaymentTermsMonths = null,
     string? Remarks = null
 ) : IRequest<LoanDto>;
 
@@ -44,10 +48,12 @@ public sealed class UpdateLoanCommandHandler : IRequestHandler<UpdateLoanCommand
             ?? throw new NotFoundException(nameof(Loan), request.LoanId);
 
         loan.EditLoan(
+            principal: request.Principal is not null ? Money.Of(request.Principal.Value) : null,
             startDate: request.StartDate is not null ? DateOnly.Parse(request.StartDate) : null,
             dueDate: request.DueDate is not null ? DateOnly.Parse(request.DueDate) : null,
             interestRate: request.InterestRate is not null ? InterestRate.Of(request.InterestRate.Value) : null,
             interestAmount: request.InterestAmount is not null ? Money.Of(request.InterestAmount.Value) : null,
+            paymentTermsMonths: request.PaymentTermsMonths,
             remarks: request.Remarks,
             editedBy: request.EditedBy);
 

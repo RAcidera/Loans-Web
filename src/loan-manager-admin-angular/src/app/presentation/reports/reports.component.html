@@ -1,137 +1,14 @@
-<mat-card class="kpi-card kpi-card--highlight">
-  <span class="kpi-card__label">Total interest earned (all-time)</span>
-  <div class="kpi-card__value">₱{{ (allTimeInterestEarned ?? 0) | number }}</div>
-</mat-card>
-
-<mat-card class="filter-card">
-  <div class="filter-card__row">
-    <mat-form-field appearance="outline" class="range-field">
-      <mat-label>Date range</mat-label>
-      <mat-date-range-input [formGroup]="range" [rangePicker]="picker">
-        <input matStartDate formControlName="start" placeholder="Start date" />
-        <input matEndDate formControlName="end" placeholder="End date" />
-      </mat-date-range-input>
-      <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-      <mat-date-range-picker #picker></mat-date-range-picker>
-    </mat-form-field>
-
-    <button mat-flat-button color="primary" (click)="applyRange()">
-      <mat-icon>filter_alt</mat-icon>
-      Apply
-    </button>
-
-    <button mat-stroked-button (click)="export()" [disabled]="exporting">
-      <mat-icon>download</mat-icon>
-      Export CSV
-    </button>
+<mat-card class="table-card available-reports-card">
+  <div class="table-card__header">
+    <h2>Available Reports</h2>
+    <p>Detailed, exportable reports beyond quick summaries</p>
   </div>
+  <button class="report-link" (click)="router.navigate(['/reports/interest-earned'])">
+    <mat-icon>trending_up</mat-icon>
+    <span class="report-link__text">
+      <span class="report-link__title">Interest Earned Report</span>
+      <span class="report-link__sub">Elapsed-time interest earned by period, with per-loan drill-down</span>
+    </span>
+    <mat-icon class="report-link__arrow">arrow_forward</mat-icon>
+  </button>
 </mat-card>
-
-<section class="kpi-row" *ngIf="periodSummary">
-  <mat-card class="kpi-card">
-    <div class="kpi-card__icon"><mat-icon>receipt_long</mat-icon></div>
-    <span class="kpi-card__label">Loans originated</span>
-    <div class="kpi-card__value">{{ periodSummary.loansOriginated }}</div>
-  </mat-card>
-  <mat-card class="kpi-card">
-    <div class="kpi-card__icon"><mat-icon>payments</mat-icon></div>
-    <span class="kpi-card__label">Payments collected</span>
-    <div class="kpi-card__value">₱{{ periodSummary.paymentsCollected | number }}</div>
-  </mat-card>
-  <mat-card class="kpi-card">
-    <div class="kpi-card__icon"><mat-icon>event_repeat</mat-icon></div>
-    <span class="kpi-card__label">Extensions granted</span>
-    <div class="kpi-card__value">{{ periodSummary.extensionsGranted }}</div>
-  </mat-card>
-  <mat-card class="kpi-card">
-    <div class="kpi-card__icon"><mat-icon>trending_up</mat-icon></div>
-    <span class="kpi-card__label">Interest earned (period)</span>
-    <div class="kpi-card__value">₱{{ periodSummary.interestEarned | number }}</div>
-  </mat-card>
-</section>
-
-<div class="two-col">
-  <mat-card class="table-card">
-    <div class="table-card__header">
-      <h2>Loans originated in this period</h2>
-      <p *ngIf="periodSummary">{{ periodSummary.startDate }} – {{ periodSummary.endDate }}</p>
-    </div>
-
-    <div class="table-scroll">
-    <table mat-table [dataSource]="loansInRange" class="report-table">
-      <ng-container matColumnDef="id">
-        <th mat-header-cell *matHeaderCellDef>Loan ID</th>
-        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.loanNumber }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="customer">
-        <th mat-header-cell *matHeaderCellDef>Customer</th>
-        <td mat-cell *matCellDef="let loan">{{ loan.customerName }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="principal">
-        <th mat-header-cell *matHeaderCellDef>Principal</th>
-        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.principalAmount | number }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="dueDate">
-        <th mat-header-cell *matHeaderCellDef>Due date</th>
-        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="balance">
-        <th mat-header-cell *matHeaderCellDef>Balance</th>
-        <td mat-cell *matCellDef="let loan" class="mono right">₱{{ loan.balance | number }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="status">
-        <th mat-header-cell *matHeaderCellDef>Status</th>
-        <td mat-cell *matCellDef="let loan">
-          <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
-        </td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="loanColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: loanColumns"></tr>
-    </table>
-    </div>
-
-    <p class="empty-hint" *ngIf="loansInRange.length === 0">No loans originated in this period.</p>
-  </mat-card>
-
-  <mat-card class="table-card">
-    <div class="table-card__header">
-      <h2>Per-customer summary</h2>
-      <p>Total borrowed and paid, all-time</p>
-    </div>
-
-    <div class="table-scroll">
-    <table mat-table [dataSource]="customerSummaries" class="report-table">
-      <ng-container matColumnDef="customer">
-        <th mat-header-cell *matHeaderCellDef>Customer</th>
-        <td mat-cell *matCellDef="let c">{{ c.customerName }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="totalBorrowed">
-        <th mat-header-cell *matHeaderCellDef>Borrowed</th>
-        <td mat-cell *matCellDef="let c" class="mono right">₱{{ c.totalBorrowed | number }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="totalPaid">
-        <th mat-header-cell *matHeaderCellDef>Paid</th>
-        <td mat-cell *matCellDef="let c" class="mono right">₱{{ c.totalPaid | number }}</td>
-      </ng-container>
-
-      <ng-container matColumnDef="loansCount">
-        <th mat-header-cell *matHeaderCellDef>Loans</th>
-        <td mat-cell *matCellDef="let c" class="mono right">{{ c.loansCount }}</td>
-      </ng-container>
-
-      <tr mat-header-row *matHeaderRowDef="customerColumns"></tr>
-      <tr mat-row *matRowDef="let row; columns: customerColumns"></tr>
-    </table>
-    </div>
-
-    <p class="empty-hint" *ngIf="customerSummaries.length === 0">No customers yet.</p>
-  </mat-card>
-</div>

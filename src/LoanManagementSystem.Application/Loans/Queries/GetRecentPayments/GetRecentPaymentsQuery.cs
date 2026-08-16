@@ -19,6 +19,6 @@ public sealed class GetRecentPaymentsQueryHandler : IRequestHandler<GetRecentPay
     public async Task<List<PaymentWithCustomerDto>> Handle(GetRecentPaymentsQuery request, CancellationToken ct)
     {
         var recent = await _loanRepository.GetRecentPaymentsAsync(request.Limit, ct);
-        return recent.Select(r => r.Payment.ToDtoWithCustomer(r.CustomerName, r.LoanNumber)).ToList();
+        return recent.Select(r => r.Payment.ToDtoWithCustomer(r.CustomerId.ToString(), r.CustomerName, r.LoanNumber)).ToList();
     }
 }

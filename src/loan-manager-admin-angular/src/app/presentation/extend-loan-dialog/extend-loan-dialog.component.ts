@@ -37,7 +37,6 @@ export class ExtendLoanDialogComponent {
 
   form = this.fb.group({
     extensionDays: [this.editing?.extensionDays ?? 30, [Validators.required, Validators.min(1)]],
-    additionalInterestAmount: [this.editing?.additionalInterestAmount ?? 0, [Validators.required, Validators.min(0)]],
     additionalChargesAmount: [this.editing?.additionalChargesAmount ?? 0, [Validators.required, Validators.min(0)]],
     remarks: [this.editing?.remarks ?? '', Validators.required],
   });
@@ -51,7 +50,7 @@ export class ExtendLoanDialogComponent {
   submit(): void {
     if (this.form.invalid) return;
     this.submitting = true;
-    const { extensionDays, additionalInterestAmount, additionalChargesAmount, remarks } = this.form.getRawValue();
+    const { extensionDays, additionalChargesAmount, remarks } = this.form.getRawValue();
 
     // Kept as two branches (not a ternary feeding one .subscribe()) because
     // updateExtension/extendLoan return different Observable<T> types
@@ -59,11 +58,11 @@ export class ExtendLoanDialogComponent {
     // don't combine cleanly.
     if (this.editing) {
       this.updateExtension
-        .execute(this.data.loanId, this.editing.extensionId, extensionDays!, additionalInterestAmount!, remarks!, additionalChargesAmount!)
+        .execute(this.data.loanId, this.editing.extensionId, extensionDays!, remarks!, additionalChargesAmount!)
         .subscribe(() => this.dialogRef.close({ extended: true }));
     } else {
       this.extendLoan
-        .execute(this.data.loanId, extensionDays!, additionalInterestAmount!, remarks!, additionalChargesAmount!)
+        .execute(this.data.loanId, extensionDays!, remarks!, additionalChargesAmount!)
         .subscribe(() => this.dialogRef.close({ extended: true }));
     }
   }
