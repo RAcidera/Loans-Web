@@ -19,6 +19,7 @@ import { GetCustomerPaymentsPageUseCase } from '../../application/use-cases/get-
 import { CustomerPayment } from '../../domain/entities/customer-payment.entity';
 import { DownloadLoanSoaUseCase } from '../../application/use-cases/download-loan-soa.use-case';
 import { DocumentManagerComponent } from '../document-manager/document-manager.component';
+import { PromiseListComponent } from '../promise-list/promise-list.component';
 import { EditCustomerDialogComponent } from '../edit-customer-dialog/edit-customer-dialog.component';
 import { AddLoanDialogComponent } from '../add-loan-dialog/add-loan-dialog.component';
 import { AddPaymentDialogComponent } from '../add-payment-dialog/add-payment-dialog.component';
@@ -101,6 +102,7 @@ function relativeFromNow(dateStr: string): string {
     MatIconModule,
     MatDialogModule,
     DocumentManagerComponent,
+    PromiseListComponent,
   ],
   templateUrl: './customer-profile.component.html',
   styleUrls: ['./customer-profile.component.scss'],

@@ -185,6 +185,231 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
                     b.ToTable("customer_documents", (string)null);
                 });
 
+            modelBuilder.Entity("LoanManagementSystem.Domain.Diary.DiaryAuditLogEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("audit_log_id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<Guid>("DiaryEntryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("diary_entry_id");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("PerformedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("performed_by");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiaryEntryId");
+
+                    b.ToTable("diary_audit_log", (string)null);
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Domain.Diary.DiaryCategory", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("category_id");
+
+                    b.Property<string>("DisplayColor")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("display_color");
+
+                    b.Property<string>("Icon")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)")
+                        .HasColumnName("icon");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("name");
+
+                    b.Property<int>("SortOrder")
+                        .HasColumnType("int")
+                        .HasColumnName("sort_order");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("diary_categories", (string)null);
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Domain.Diary.DiaryEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("diary_entry_id");
+
+                    b.Property<Guid>("CategoryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("category_id");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid?>("CustomerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("customer_id");
+
+                    b.Property<DateOnly>("EntryDate")
+                        .HasColumnType("date")
+                        .HasColumnName("entry_date");
+
+                    b.Property<TimeOnly>("EntryTime")
+                        .HasColumnType("time")
+                        .HasColumnName("entry_time");
+
+                    b.Property<Guid?>("LoanId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("loan_id");
+
+                    b.Property<DateTime>("ModifiedAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(2000)
+                        .HasColumnType("nvarchar(2000)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateOnly?>("ReminderDate")
+                        .HasColumnType("date")
+                        .HasColumnName("reminder_date");
+
+                    b.Property<TimeOnly?>("ReminderTime")
+                        .HasColumnType("time")
+                        .HasColumnName("reminder_time");
+
+                    b.Property<string>("Tags")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("tags");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("nvarchar(200)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("EntryDate");
+
+                    b.HasIndex("LoanId");
+
+                    b.ToTable("diary_entries", (string)null);
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Domain.Diary.DiaryFinancialSnapshot", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("snapshot_id");
+
+                    b.Property<int>("ActiveLoanCount")
+                        .HasColumnType("int")
+                        .HasColumnName("active_loan_count");
+
+                    b.Property<int>("BadLoanCount")
+                        .HasColumnType("int")
+                        .HasColumnName("bad_loan_count");
+
+                    b.Property<decimal>("BadLoanReceivables")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("bad_loan_receivables");
+
+                    b.Property<decimal>("CashOnHand")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("cash_on_hand");
+
+                    b.Property<decimal>("CollectibleReceivables")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("collectible_receivables");
+
+                    b.Property<decimal>("CollectionsMonthToDate")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("collections_month_to_date");
+
+                    b.Property<decimal>("CollectionsToday")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("collections_today");
+
+                    b.Property<Guid>("DiaryEntryId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("diary_entry_id");
+
+                    b.Property<decimal>("GrossReceivables")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("gross_receivables");
+
+                    b.Property<decimal>("LoanReleasesMonthToDate")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("loan_releases_month_to_date");
+
+                    b.Property<decimal>("LoanReleasesToday")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("loan_releases_today");
+
+                    b.Property<int>("OverdueLoanCount")
+                        .HasColumnType("int")
+                        .HasColumnName("overdue_loan_count");
+
+                    b.Property<DateTime>("SnapshotDateTimeUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("snapshot_datetime");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("DiaryEntryId")
+                        .IsUnique();
+
+                    b.ToTable("diary_financial_snapshots", (string)null);
+                });
+
             modelBuilder.Entity("LoanManagementSystem.Domain.Identity.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -536,11 +761,124 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
                     b.ToTable("payments", (string)null);
                 });
 
+            modelBuilder.Entity("LoanManagementSystem.Domain.Promises.PromiseAuditLogEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("audit_log_id");
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)")
+                        .HasColumnName("action");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("description");
+
+                    b.Property<DateTime>("OccurredAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("occurred_at");
+
+                    b.Property<string>("PerformedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("performed_by");
+
+                    b.Property<Guid>("PromiseId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("promise_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PromiseId");
+
+                    b.ToTable("promise_audit_log", (string)null);
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Domain.Promises.PromiseToPay", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("promise_id");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(12,2)")
+                        .HasColumnName("amount");
+
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("CreatedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("CustomerId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("customer_id");
+
+                    b.Property<Guid>("LoanId")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("loan_id");
+
+                    b.Property<DateTime>("ModifiedAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("modified_at");
+
+                    b.Property<string>("ModifiedBy")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("modified_by");
+
+                    b.Property<string>("Notes")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("notes");
+
+                    b.Property<DateOnly>("PromiseDate")
+                        .HasColumnType("date")
+                        .HasColumnName("promise_date");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("nvarchar(20)")
+                        .HasColumnName("status");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
+
+                    b.HasIndex("LoanId");
+
+                    b.HasIndex("PromiseDate");
+
+                    b.ToTable("promises_to_pay", (string)null);
+                });
+
             modelBuilder.Entity("LoanManagementSystem.Domain.Customers.CustomerDocument", b =>
                 {
                     b.HasOne("LoanManagementSystem.Domain.Customers.Customer", null)
                         .WithMany("Documents")
                         .HasForeignKey("CustomerId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Domain.Diary.DiaryFinancialSnapshot", b =>
+                {
+                    b.HasOne("LoanManagementSystem.Domain.Diary.DiaryEntry", null)
+                        .WithOne("Snapshot")
+                        .HasForeignKey("LoanManagementSystem.Domain.Diary.DiaryFinancialSnapshot", "DiaryEntryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
@@ -575,6 +913,11 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
             modelBuilder.Entity("LoanManagementSystem.Domain.Customers.Customer", b =>
                 {
                     b.Navigation("Documents");
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Domain.Diary.DiaryEntry", b =>
+                {
+                    b.Navigation("Snapshot");
                 });
 
             modelBuilder.Entity("LoanManagementSystem.Domain.Loans.Loan", b =>

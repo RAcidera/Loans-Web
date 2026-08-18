@@ -1,0 +1,18 @@
+.day-view {
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 320px;
+}
+
+.day-view__card {
+  max-width: 420px;
+}
+
+.empty-hint {
+  padding: 30px;
+  text-align: center;
+  color: var(--lm-text-muted);
+  font-size: 13px;
+}

@@ -34,3 +34,11 @@ export function firstOfMonthLocalDateString(): string {
   const now = new Date();
   return toLocalDateString(new Date(now.getFullYear(), now.getMonth(), 1));
 }
+
+/** The current local time as a plain "HH:mm" string — the Diary form's default Entry Time / Reminder Time (requirements §6). */
+export function nowLocalTimeString(): string {
+  const now = new Date();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  return `${hours}:${minutes}`;
+}

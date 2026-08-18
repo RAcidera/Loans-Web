@@ -253,6 +253,12 @@
         </div>
       </mat-tab>
 
+      <mat-tab label="Promises">
+        <div class="tab-content">
+          <lm-promise-list [customerId]="customer.customerId" [loans]="loans"></lm-promise-list>
+        </div>
+      </mat-tab>
+
       <mat-tab label="Notes">
         <div class="tab-content">
           <p *ngIf="customer.notes" class="notes-text">{{ customer.notes }}</p>

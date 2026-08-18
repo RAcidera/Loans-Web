@@ -1,0 +1,29 @@
+.week-grid {
+  display: flex;
+  flex-direction: column;
+  min-width: 700px;
+  height: 100%;
+}
+
+.week-grid__weekday-row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.week-grid__weekday {
+  padding: 6px 8px;
+  font-size: 10.5px;
+  font-weight: 700;
+  color: var(--lm-text-muted);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  border-bottom: 1px solid var(--lm-border);
+}
+
+.week-grid__row {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  flex: 1;
+  min-height: 320px;
+}

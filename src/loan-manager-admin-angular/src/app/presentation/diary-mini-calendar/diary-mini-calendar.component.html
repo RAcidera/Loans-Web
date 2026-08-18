@@ -1,0 +1,31 @@
+<div class="mini-cal">
+  <div class="mini-cal__head">
+    <span class="mini-cal__title">{{ periodLabel }}</span>
+    <div class="mini-cal__nav">
+      <button mat-icon-button (click)="prev()" aria-label="Previous month"><mat-icon>chevron_left</mat-icon></button>
+      <button mat-icon-button (click)="next()" aria-label="Next month"><mat-icon>chevron_right</mat-icon></button>
+    </div>
+  </div>
+
+  <div class="mini-cal__weekday-row">
+    <span class="mini-cal__weekday" *ngFor="let label of weekdayLabels">{{ label }}</span>
+  </div>
+
+  <div class="mini-cal__week" *ngFor="let week of weeks">
+    <button
+      type="button"
+      class="mini-cal__day"
+      *ngFor="let cell of week"
+      [class.mini-cal__day--outside]="!cell.inCurrentMonth"
+      [class.mini-cal__day--today]="cell.isToday"
+      [class.mini-cal__day--selected]="cell.dateKey === selectedDate"
+      (click)="selectDate(cell)"
+    >
+      <span>{{ cell.dayNumber }}</span>
+      <span class="mini-cal__dots" *ngIf="cell.hasEntry || cell.hasReminder">
+        <span class="mini-cal__dot mini-cal__dot--entry" *ngIf="cell.hasEntry"></span>
+        <span class="mini-cal__dot mini-cal__dot--reminder" *ngIf="cell.hasReminder"></span>
+      </span>
+    </button>
+  </div>
+</div>

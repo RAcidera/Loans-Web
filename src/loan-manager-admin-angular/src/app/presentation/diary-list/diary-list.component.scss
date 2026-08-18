@@ -1,0 +1,252 @@
+@use '../../styles/tokens';
+
+.mono {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+.filter-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+  padding: 14px 18px;
+  margin-bottom: 14px;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  width: 155px;
+
+  label {
+    font-size: 11px;
+    font-weight: 650;
+    color: var(--lm-text);
+    margin-bottom: 6px;
+  }
+}
+
+.field--search {
+  width: 240px;
+}
+
+.mat-mdc-select,
+.date-input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  background: var(--lm-surface);
+  padding: 0 12px;
+  font-size: 13.5px;
+  color: var(--lm-text);
+  font-family: var(--lm-font-body);
+}
+
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  padding: 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+
+  mat-icon {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--lm-text-muted);
+  }
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--lm-text);
+    width: 100%;
+  }
+}
+
+// Requirements diary-modern §4 — Customer/Loan are searchable dropdowns
+// (mat-autocomplete over a plain text box), styled to match the same
+// box chrome as .date-input/.mat-mdc-select rather than a floating-label
+// mat-form-field.
+.autocomplete-box {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  background: var(--lm-surface);
+  padding: 0 4px 0 12px;
+  width: 100%;
+  box-sizing: border-box;
+  height: 42px;
+
+  input {
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 13.5px;
+    color: var(--lm-text);
+    width: 100%;
+    font-family: var(--lm-font-body);
+  }
+
+  &__clear {
+    border: none;
+    background: transparent;
+    color: var(--lm-text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    flex-shrink: 0;
+
+    mat-icon {
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
+    }
+
+    &:hover {
+      background: var(--lm-bg);
+    }
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: 8px;
+  margin-left: auto;
+
+  button {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+// ---------------------------------------------------------
+// Two-column layout — requirements diary-modern §2: Timeline
+// 75-80% / sidebar 20-25% on desktop, sidebar moves below the timeline
+// on tablet, and the sidebar's own cards stack full-width on mobile
+// (never a narrow column) per §21.
+// ---------------------------------------------------------
+.diary-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: 16px;
+  align-items: start;
+
+  @include tokens.tablet {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.diary-layout__timeline {
+  min-width: 0;
+}
+
+.diary-layout__sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  position: sticky;
+  top: 16px;
+
+  @include tokens.tablet {
+    position: static;
+  }
+}
+
+.sidebar-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+  padding: 14px 16px;
+}
+
+.timeline__day-heading {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--lm-text-muted);
+  padding: 16px 0 8px;
+  border-bottom: 1px solid var(--lm-border);
+  margin-bottom: 10px;
+
+  &:first-child {
+    padding-top: 0;
+  }
+}
+
+.empty-state {
+  padding: 48px 20px;
+  text-align: center;
+  border: 1px dashed var(--lm-border);
+  border-radius: var(--lm-radius);
+  background: var(--lm-surface);
+
+  mat-icon {
+    font-size: 34px;
+    width: 34px;
+    height: 34px;
+    color: var(--lm-text-muted);
+    margin-bottom: 10px;
+  }
+
+  &__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--lm-text);
+    margin: 0 0 4px;
+  }
+
+  &__body {
+    font-size: 12.5px;
+    color: var(--lm-text-muted);
+    margin: 0 0 16px;
+    max-width: 340px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+  }
+}
+
+@include tokens.mobile {
+  .filter-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .field {
+    width: 100%;
+  }
+
+  .filter-actions {
+    margin-left: 0;
+  }
+}

@@ -1,0 +1,34 @@
+<div class="summary" *ngIf="summary">
+  <div class="summary__title">
+    <mat-icon>calendar_month</mat-icon>
+    <div>
+      <span class="summary__title-main">This Month Overview</span>
+      <span class="summary__title-sub">{{ summary.rangeLabel }}</span>
+    </div>
+  </div>
+
+  <div class="summary__stat">
+    <span class="summary__value">{{ summary.loanDueCount }}</span>
+    <span class="summary__label">Loan Due</span>
+  </div>
+
+  <div class="summary__stat summary__stat--extension">
+    <span class="summary__value">{{ summary.extensionCount }}</span>
+    <span class="summary__label">Extensions</span>
+  </div>
+
+  <div class="summary__stat summary__stat--followup">
+    <span class="summary__value">{{ summary.followUpCount }}</span>
+    <span class="summary__label">Follow-ups</span>
+  </div>
+
+  <div class="summary__stat summary__stat--promise">
+    <span class="summary__value">{{ summary.promiseCount }}</span>
+    <span class="summary__label">Promises to Pay</span>
+  </div>
+
+  <div class="summary__amount">
+    <span class="summary__amount-value mono">₱{{ summary.totalAmountDue | number: '1.2-2' }}</span>
+    <span class="summary__label">Total Amount Due</span>
+  </div>
+</div>

@@ -1,0 +1,18 @@
+<div class="month-grid">
+  <div class="month-grid__weekday-row">
+    <div class="month-grid__weekday" *ngFor="let label of weekdayLabels">{{ label }}</div>
+  </div>
+
+  <div class="month-grid__week" *ngFor="let week of weeks">
+    <lm-calendar-day-cell
+      *ngFor="let cell of week"
+      [dayNumber]="cell.dayNumber"
+      [inCurrentMonth]="cell.inCurrentMonth"
+      [isToday]="cell.isToday"
+      [visibleEvents]="cell.visibleEvents"
+      [overflowCount]="cell.overflowCount"
+      (dayClick)="dayClick.emit(cell)"
+      (eventClick)="eventClick.emit($event)"
+    ></lm-calendar-day-cell>
+  </div>
+</div>

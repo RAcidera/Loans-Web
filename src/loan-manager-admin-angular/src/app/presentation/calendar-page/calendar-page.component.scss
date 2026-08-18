@@ -1,0 +1,87 @@
+@use '../../styles/tokens';
+
+.toolbar-card,
+.summary-card,
+.calendar-card {
+  border-radius: var(--lm-radius) !important;
+  box-shadow: var(--lm-shadow-sm) !important;
+  border: 1px solid var(--lm-border);
+}
+
+.toolbar-card {
+  margin-bottom: 10px;
+  padding: 0;
+}
+
+.toolbar-card > lm-calendar-toolbar {
+  display: block;
+  border-bottom: 1px solid var(--lm-border);
+}
+
+.summary-card {
+  margin-bottom: 10px;
+}
+
+.calendar-card {
+  padding: 4px;
+  overflow-x: auto;
+  // Large calendar grid per requirements — the grid gets the bulk of the
+  // remaining viewport height rather than sizing purely to its content.
+  min-height: 60vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 10px 6px 0;
+  font-size: 11px;
+  color: var(--lm-text-muted);
+}
+
+.legend__item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.legend__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  display: inline-block;
+
+  &--loan-due {
+    background: #2563eb;
+  }
+
+  &--extension-due {
+    background: #ea580c;
+  }
+
+  &--reminder {
+    background: #16a34a;
+  }
+
+  &--promise {
+    background: #0d9488;
+  }
+
+  &--diary {
+    background: #7c3aed;
+  }
+}
+
+.legend__hint {
+  margin-left: auto;
+}
+
+@include tokens.mobile {
+  .legend__hint {
+    margin-left: 0;
+    width: 100%;
+  }
+}

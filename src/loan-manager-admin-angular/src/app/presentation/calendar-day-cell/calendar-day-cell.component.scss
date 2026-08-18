@@ -1,0 +1,76 @@
+@use '../../styles/tokens';
+
+.day-cell {
+  min-height: 112px;
+  border: 1px solid var(--lm-border);
+  border-top: none;
+  border-right: none;
+  padding: 3px 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-sizing: border-box;
+
+  &--tall {
+    min-height: 100%;
+  }
+
+  &--outside {
+    background: var(--lm-bg);
+
+    .day-cell__number {
+      color: var(--lm-text-muted);
+    }
+  }
+
+  &--today {
+    background: rgba(108, 93, 211, 0.05);
+
+    .day-cell__number {
+      background: var(--lm-primary);
+      color: #fff;
+    }
+  }
+}
+
+.day-cell__number {
+  align-self: flex-start;
+  border: none;
+  background: transparent;
+  border-radius: 50%;
+  width: 21px;
+  height: 21px;
+  font-size: 11.5px;
+  font-weight: 700;
+  color: var(--lm-text);
+  cursor: pointer;
+  flex-shrink: 0;
+
+  &:hover {
+    background: var(--lm-border);
+  }
+}
+
+.day-cell--today .day-cell__number:hover {
+  background: var(--lm-primary-dark);
+}
+
+.day-cell__number:focus-visible {
+  outline: 2px solid var(--lm-primary);
+  outline-offset: 1px;
+}
+
+.day-cell__events {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: hidden;
+  flex: 1;
+}
+
+@include tokens.tablet {
+  .day-cell {
+    padding: 2px 3px;
+    min-height: 96px;
+  }
+}

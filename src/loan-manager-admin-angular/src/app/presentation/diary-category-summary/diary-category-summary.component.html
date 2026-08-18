@@ -1,0 +1,28 @@
+<div class="cat-summary">
+  <div class="cat-summary__header">
+    <span>Categories</span>
+  </div>
+
+  <button
+    type="button"
+    class="cat-summary__row"
+    [class.cat-summary__row--active]="selectedCategoryId === null"
+    (click)="categorySelected.emit(null)"
+  >
+    <span class="cat-summary__dot" style="background: var(--lm-text-muted)"></span>
+    <span class="cat-summary__name">All Categories</span>
+    <span class="cat-summary__count">{{ totalEntries }}</span>
+  </button>
+
+  <button
+    type="button"
+    class="cat-summary__row"
+    *ngFor="let category of categories"
+    [class.cat-summary__row--active]="selectedCategoryId === category.categoryId"
+    (click)="categorySelected.emit(category.categoryId)"
+  >
+    <span class="cat-summary__dot" [style.background]="category.displayColor"></span>
+    <span class="cat-summary__name">{{ category.name }}</span>
+    <span class="cat-summary__count">{{ category.count }}</span>
+  </button>
+</div>

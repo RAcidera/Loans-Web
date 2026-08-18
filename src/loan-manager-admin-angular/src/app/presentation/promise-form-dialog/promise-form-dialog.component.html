@@ -1,0 +1,41 @@
+<h2 class="dialog-title">{{ editing ? 'Edit promise to pay' : 'New promise to pay' }}</h2>
+
+<form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
+  <mat-form-field appearance="outline" *ngIf="contextFree">
+    <mat-label>Customer</mat-label>
+    <mat-select formControlName="customerId" (selectionChange)="onCustomerChange($event.value)">
+      <mat-option *ngFor="let customer of customers" [value]="customer.customerId">{{ customer.fullName }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline" *ngIf="!fixedLoanId && !editing">
+    <mat-label>Loan</mat-label>
+    <mat-select formControlName="loanId">
+      <mat-option *ngFor="let loan of loans" [value]="loan.loanId">{{ loan.loanNumber }} — ₱{{ loan.balance | number: '1.2-2' }} outstanding</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Promise date</mat-label>
+    <input matInput type="date" formControlName="promiseDate" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Amount</mat-label>
+    <input matInput type="number" formControlName="amount" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Notes (optional)</mat-label>
+    <textarea matInput formControlName="notes" rows="2"></textarea>
+  </mat-form-field>
+
+  <p class="dialog-form__error" *ngIf="error">{{ error }}</p>
+
+  <div class="dialog-form__actions">
+    <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary" [disabled]="form.invalid || submitting">
+      {{ editing ? 'Save changes' : 'Save promise' }}
+    </button>
+  </div>
+</form>

@@ -1,0 +1,11 @@
+<div class="day-view">
+  <lm-calendar-event-card
+    *ngFor="let event of events"
+    class="day-view__card"
+    [event]="event"
+    [compact]="false"
+    (eventClick)="eventClick.emit($event)"
+  ></lm-calendar-event-card>
+
+  <p class="empty-hint" *ngIf="events.length === 0">No events on this day.</p>
+</div>

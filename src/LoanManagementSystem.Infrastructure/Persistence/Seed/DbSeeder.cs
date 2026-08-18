@@ -1,6 +1,7 @@
 using LoanManagementSystem.Application.Common.Security;
 using LoanManagementSystem.Domain.CashLedger;
 using LoanManagementSystem.Domain.Customers;
+using LoanManagementSystem.Domain.Diary;
 using LoanManagementSystem.Domain.Identity;
 using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.ValueObjects;
@@ -115,6 +116,55 @@ public static class DbSeeder
         var admin = User.Create("admin", passwordHasher.Hash("Admin@12345"), UserRole.Admin);
         var staff = User.Create("staff", passwordHasher.Hash("Staff@12345"), UserRole.Staff);
         db.Users.AddRange(admin, staff);
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// The diary-modern-claude-code-requirements.md §8 category list (12
+    /// categories, colors reused from the Calendar module's own per-type
+    /// palette — CalendarEventsQueryHandler's LoanDueColor/ExtensionDueColor/
+    /// FollowUpColor/PromiseColor — so "Loan"/"Extension"/"Follow-up"/
+    /// "Promise to Pay" read as the same color across both modules).
+    /// Reconciled by name rather than gated behind a single "table empty"
+    /// check: this runs unconditionally on every startup (same as
+    /// BackfillLoanLedgerAsync) so a database seeded before "Extension" and
+    /// "Promise to Pay" existed — or before the palette above was chosen —
+    /// still ends up with the full canonical set instead of being stuck with
+    /// whatever 10 categories happened to exist on first run.
+    /// </summary>
+    public static async Task SeedDiaryCategoriesAsync(AppDbContext db)
+    {
+        var canonical = new (string Name, string Icon, string Color, int SortOrder)[]
+        {
+            ("General", "notes", "#6B7280", 1),
+            ("Collections", "payments", "#22A06B", 2),
+            ("Receivables", "account_balance", "#6C5DD3", 3),
+            ("Customer", "person", "#4C8DFF", 4),
+            ("Loan", "request_quote", "#2563EB", 5),
+            ("Extension", "update", "#EA580C", 6),
+            ("Follow-up", "notifications", "#16A34A", 7),
+            ("Promise to Pay", "handshake", "#0D9488", 8),
+            ("Bad Loan", "report_problem", "#C1666B", 9),
+            ("Cash", "account_balance_wallet", "#22A06B", 10),
+            ("Important Event", "star", "#6C5DD3", 11),
+            ("Other", "more_horiz", "#8B8FA3", 12),
+        };
+
+        var existing = await db.DiaryCategories.ToListAsync();
+        var existingByName = existing.ToDictionary(c => c.Name, StringComparer.OrdinalIgnoreCase);
+
+        var toAdd = new List<DiaryCategory>();
+        foreach (var (name, icon, color, sortOrder) in canonical)
+        {
+            if (existingByName.TryGetValue(name, out var category))
+                category.UpdateAppearance(icon, color, sortOrder);
+            else
+                toAdd.Add(DiaryCategory.Create(name, icon, color, sortOrder));
+        }
+
+        if (toAdd.Count > 0)
+            db.DiaryCategories.AddRange(toAdd);
+
         await db.SaveChangesAsync();
     }
 

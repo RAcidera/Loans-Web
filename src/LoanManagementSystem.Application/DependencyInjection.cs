@@ -1,4 +1,5 @@
 using LoanManagementSystem.Application.Common.Interest;
+using LoanManagementSystem.Application.Diary;
 using LoanManagementSystem.Application.Reports;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -21,6 +22,7 @@ public static class DependencyInjection
         // rather than in Infrastructure's DependencyInjection.
         services.AddScoped<IInterestCalculationService, InterestCalculationService>();
         services.AddScoped<InterestEarnedReportDataProvider>();
+        services.AddScoped<IFinancialSnapshotService, FinancialSnapshotService>();
 
         return services;
     }

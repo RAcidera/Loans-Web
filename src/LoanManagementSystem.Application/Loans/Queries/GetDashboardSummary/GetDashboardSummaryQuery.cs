@@ -1,4 +1,5 @@
 using LoanManagementSystem.Application.Common.DTOs;
+using LoanManagementSystem.Application.Common.Financial;
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.Repositories;
@@ -34,11 +35,11 @@ public sealed class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboa
         foreach (var loan in loans)
             loan.RefreshOverdueStatus(today);
 
-        var (gross, collectible, badLoan) = ComputeReceivables(loans);
+        var (gross, collectible, badLoan) = FinancialCalculations.ComputeReceivables(loans);
 
         var oneMonthAgo = today.AddMonths(-1);
         var priorCohort = loans.Where(l => l.StartDate <= oneMonthAgo).ToList();
-        var (priorGross, priorCollectible, priorBadLoan) = ComputeReceivables(priorCohort);
+        var (priorGross, priorCollectible, priorBadLoan) = FinancialCalculations.ComputeReceivables(priorCohort);
         var priorActiveCount = priorCohort.Count(l => l.Status is LoanStatus.Active or LoanStatus.Extended);
         var priorOverdueCount = priorCohort.Count(l => l.Status == LoanStatus.Overdue);
 
@@ -75,13 +76,6 @@ public sealed class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboa
             ReceivablesBreakdown: BuildReceivablesBreakdown(loans),
             RecentLoans: recentLoans
         );
-    }
-
-    private static (decimal Gross, decimal Collectible, decimal BadLoan) ComputeReceivables(List<Loan> loans)
-    {
-        var gross = loans.Where(l => l.Status != LoanStatus.WrittenOff).Sum(l => l.Balance.Amount);
-        var badLoan = loans.Where(l => l.Classification == LoanClassification.BadLoan).Sum(l => l.Balance.Amount);
-        return (gross, gross - badLoan, badLoan);
     }
 
     /// <summary>

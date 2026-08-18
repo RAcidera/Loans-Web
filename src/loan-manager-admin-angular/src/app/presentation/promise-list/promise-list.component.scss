@@ -1,0 +1,130 @@
+.mono {
+  font-family: var(--lm-font-mono);
+  font-feature-settings: 'tnum' 1;
+}
+
+.promise-list {
+  &__header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+
+    button {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+  }
+
+  &__title {
+    font-family: var(--lm-font-display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--lm-text-muted);
+  }
+}
+
+.promise-row {
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  padding: 12px 14px;
+  margin-bottom: 10px;
+
+  &__main {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  &__amount {
+    font-weight: 700;
+    color: var(--lm-text);
+  }
+
+  &__date,
+  &__loan {
+    font-size: 12.5px;
+    color: var(--lm-text-muted);
+  }
+
+  &__customer {
+    font-size: 12.5px;
+    color: var(--lm-text-muted);
+  }
+
+  &__notes {
+    margin: 8px 0 0;
+    font-size: 13px;
+    color: var(--lm-text);
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 2px;
+    margin-top: 8px;
+
+    .spacer {
+      flex: 1;
+    }
+  }
+
+  &__reschedule {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 10px;
+  }
+}
+
+.date-input {
+  height: 36px;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  padding: 0 10px;
+  font-size: 13px;
+  font-family: var(--lm-font-body);
+  color: var(--lm-text);
+}
+
+.chip {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
+
+  &--pending {
+    background: rgba(108, 93, 211, 0.14);
+    color: var(--lm-primary);
+  }
+
+  &--rescheduled {
+    background: rgba(225, 170, 54, 0.16);
+    color: #a17515;
+  }
+
+  &--kept {
+    background: rgba(34, 160, 107, 0.15);
+    color: #1a7a53;
+  }
+
+  &--missed {
+    background: rgba(193, 102, 107, 0.16);
+    color: var(--lm-danger);
+  }
+
+  &--cancelled {
+    background: rgba(139, 143, 163, 0.14);
+    color: var(--lm-text-muted);
+  }
+}
+
+.empty-hint {
+  padding: 20px;
+  text-align: center;
+  color: var(--lm-text-muted);
+  font-size: 13px;
+}

@@ -1,0 +1,47 @@
+@use '../../styles/tokens';
+
+.toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 10px 16px;
+}
+
+.toolbar__nav {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.toolbar__period {
+  font-family: var(--lm-font-display);
+  font-size: 15px;
+  font-weight: 700;
+  margin-left: 6px;
+  white-space: nowrap;
+}
+
+.toolbar__right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.toolbar__new {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+
+  mat-icon:last-child {
+    margin-left: -4px;
+  }
+}
+
+@include tokens.mobile {
+  .toolbar__period {
+    min-width: 0;
+  }
+}

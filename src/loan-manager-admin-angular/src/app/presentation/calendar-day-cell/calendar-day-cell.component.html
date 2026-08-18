@@ -1,0 +1,8 @@
+<div class="day-cell" [class.day-cell--outside]="!inCurrentMonth" [class.day-cell--today]="isToday" [class.day-cell--tall]="tall">
+  <button type="button" class="day-cell__number" (click)="dayClick.emit()" [attr.aria-label]="'Open ' + dayNumber">{{ dayNumber }}</button>
+
+  <div class="day-cell__events">
+    <lm-calendar-event-card *ngFor="let event of visibleEvents" [event]="event" (eventClick)="eventClick.emit($event)"></lm-calendar-event-card>
+    <lm-calendar-more-events *ngIf="overflowCount > 0" [count]="overflowCount" (clicked)="dayClick.emit()"></lm-calendar-more-events>
+  </div>
+</div>

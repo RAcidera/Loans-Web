@@ -1,0 +1,87 @@
+<div class="entry-card" (click)="view.emit(entry)">
+  <span class="entry-card__avatar" [style.background]="avatarTint" [style.color]="entry.categoryDisplayColor">
+    <mat-icon>{{ entry.categoryIcon }}</mat-icon>
+  </span>
+
+  <div class="entry-card__main">
+    <div class="entry-card__top">
+      <span class="entry-card__time mono">{{ entry.entryTime }}</span>
+      <lm-category-badge [name]="entry.categoryName" [icon]="entry.categoryIcon" [color]="entry.categoryDisplayColor"></lm-category-badge>
+      <mat-icon *ngIf="entry.reminderDate" class="entry-card__reminder-icon" title="Has a reminder">notifications</mat-icon>
+    </div>
+
+    <h3 class="entry-card__title">{{ entry.title }}</h3>
+    <p class="entry-card__notes" *ngIf="entry.notes">{{ entry.notes }}</p>
+
+    <div class="entry-card__tags" *ngIf="tags.length > 0">
+      <span class="entry-card__tag" *ngFor="let tag of tags">{{ tag }}</span>
+    </div>
+
+    <button type="button" mat-stroked-button class="entry-card__view" *ngIf="!hasContextPanel" (click)="view.emit(entry); stop($event)">
+      <mat-icon>visibility</mat-icon>
+      View
+    </button>
+  </div>
+
+  <div class="entry-card__context" *ngIf="hasContextPanel" [style.background]="panelTint">
+    <lm-diary-snapshot-preview *ngIf="entry.snapshot" [snapshot]="entry.snapshot"></lm-diary-snapshot-preview>
+
+    <div class="context-panel" *ngIf="!entry.snapshot">
+      <div class="context-panel__row">
+        <div class="context-panel__cell">
+          <span class="context-panel__label">Customer</span>
+          <span class="context-panel__value">{{ entry.customerName }}</span>
+        </div>
+        <div class="context-panel__cell" *ngIf="loan">
+          <span class="context-panel__label">Due Date</span>
+          <span class="context-panel__value mono">{{ loan.dueDate | date: 'MMM d, y' }}</span>
+        </div>
+      </div>
+      <div class="context-panel__row" *ngIf="entry.loanNumber">
+        <div class="context-panel__cell">
+          <span class="context-panel__label">Loan</span>
+          <span class="context-panel__value mono">{{ entry.loanNumber }}</span>
+        </div>
+        <div class="context-panel__cell" *ngIf="loan">
+          <span class="context-panel__label">Balance</span>
+          <span class="context-panel__value mono">₱{{ loan.balance | number: '1.2-2' }}</span>
+        </div>
+      </div>
+    </div>
+
+    <button type="button" class="context-panel__view" (click)="view.emit(entry); stop($event)">
+      <mat-icon>visibility</mat-icon>
+      View
+    </button>
+  </div>
+
+  <button mat-icon-button class="entry-card__menu-trigger" [matMenuTriggerFor]="rowMenu" (click)="stop($event)" aria-label="More actions">
+    <mat-icon>more_vert</mat-icon>
+  </button>
+  <mat-menu #rowMenu="matMenu">
+    <button mat-menu-item (click)="view.emit(entry)">
+      <mat-icon>visibility</mat-icon>
+      View
+    </button>
+    <button mat-menu-item (click)="edit.emit(entry)">
+      <mat-icon>edit</mat-icon>
+      Edit
+    </button>
+    <button mat-menu-item (click)="duplicate.emit(entry)">
+      <mat-icon>content_copy</mat-icon>
+      Duplicate
+    </button>
+    <button mat-menu-item (click)="addReminder.emit(entry)" *ngIf="!entry.reminderDate">
+      <mat-icon>notifications</mat-icon>
+      Add Reminder
+    </button>
+    <button mat-menu-item (click)="createFollowup.emit(entry)">
+      <mat-icon>schedule</mat-icon>
+      Create Follow-up
+    </button>
+    <button mat-menu-item (click)="remove.emit(entry)">
+      <mat-icon>delete</mat-icon>
+      Delete
+    </button>
+  </mat-menu>
+</div>

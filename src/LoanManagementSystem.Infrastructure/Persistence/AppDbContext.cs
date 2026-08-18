@@ -1,8 +1,10 @@
 using LoanManagementSystem.Domain.CashLedger;
 using LoanManagementSystem.Domain.Common;
 using LoanManagementSystem.Domain.Customers;
+using LoanManagementSystem.Domain.Diary;
 using LoanManagementSystem.Domain.Identity;
 using LoanManagementSystem.Domain.Loans;
+using LoanManagementSystem.Domain.Promises;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +25,11 @@ public class AppDbContext : DbContext
     public DbSet<LoanLedgerEntry> LoanLedgerEntries => Set<LoanLedgerEntry>();
     public DbSet<LoanAuditLogEntry> LoanAuditLogEntries => Set<LoanAuditLogEntry>();
     public DbSet<User> Users => Set<User>();
+    public DbSet<DiaryEntry> DiaryEntries => Set<DiaryEntry>();
+    public DbSet<DiaryCategory> DiaryCategories => Set<DiaryCategory>();
+    public DbSet<DiaryAuditLogEntry> DiaryAuditLogEntries => Set<DiaryAuditLogEntry>();
+    public DbSet<PromiseToPay> PromisesToPay => Set<PromiseToPay>();
+    public DbSet<PromiseAuditLogEntry> PromiseAuditLogEntries => Set<PromiseAuditLogEntry>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

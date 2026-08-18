@@ -51,6 +51,8 @@ export class AdminShellComponent {
     { label: 'Loans', icon: 'receipt_long', route: '/loans' },
     { label: 'Payments', icon: 'payments', route: '/payments' },
     { label: 'Transactions', icon: 'account_balance', route: '/cash-funds' },
+    { label: 'Diary', icon: 'menu_book', route: '/diary' },
+    { label: 'Calendar', icon: 'calendar_month', route: '/calendar' },
     { label: 'Reports', icon: 'insights', route: '/reports' },
     { label: 'Settings', icon: 'tune', route: '/settings' },
   ];

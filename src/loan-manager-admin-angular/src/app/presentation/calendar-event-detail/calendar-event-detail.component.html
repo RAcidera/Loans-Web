@@ -1,0 +1,31 @@
+<div class="event-detail">
+  <div class="event-detail__header" [style.borderLeftColor]="event.color">
+    <span class="event-detail__type" [style.color]="event.color">{{ event.title }}</span>
+    <h2 class="event-detail__subtitle" *ngIf="event.subtitle">{{ event.subtitle }}</h2>
+  </div>
+
+  <dl class="event-detail__facts">
+    <div class="event-detail__fact">
+      <dt>Date</dt>
+      <dd>{{ formattedDate }}<span *ngIf="formattedTime"> · {{ formattedTime }}</span></dd>
+    </div>
+
+    <div class="event-detail__fact" *ngIf="event.amount != null">
+      <dt>Amount</dt>
+      <dd class="mono">₱{{ event.amount | number: '1.2-2' }}</dd>
+    </div>
+
+    <div class="event-detail__fact" *ngIf="event.amount == null && event.detailText">
+      <dt>Details</dt>
+      <dd>{{ event.detailText }}</dd>
+    </div>
+  </dl>
+
+  <div class="event-detail__actions">
+    <button type="button" mat-stroked-button (click)="close()">Close</button>
+    <button type="button" mat-flat-button color="primary" (click)="view()" [disabled]="!hasDestination">
+      <mat-icon>open_in_new</mat-icon>
+      View details
+    </button>
+  </div>
+</div>

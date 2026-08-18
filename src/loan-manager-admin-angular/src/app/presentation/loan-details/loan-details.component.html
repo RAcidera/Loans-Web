@@ -335,6 +335,12 @@
         </div>
       </mat-tab>
 
+      <mat-tab label="Promises">
+        <div class="tab-content">
+          <lm-promise-list [customerId]="loan.customerId" [loanId]="loan.loanId"></lm-promise-list>
+        </div>
+      </mat-tab>
+
       <mat-tab label="Audit Log">
         <div class="tab-content">
           <div class="table-scroll" *ngIf="auditLog.length > 0">

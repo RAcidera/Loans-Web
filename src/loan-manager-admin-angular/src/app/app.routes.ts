@@ -8,6 +8,9 @@ import { LoansComponent } from './presentation/loans/loans.component';
 import { LoanDetailsComponent } from './presentation/loan-details/loan-details.component';
 import { PaymentsComponent } from './presentation/payments/payments.component';
 import { ReportsComponent } from './presentation/reports/reports.component';
+import { DiaryListComponent } from './presentation/diary-list/diary-list.component';
+import { DiaryDetailComponent } from './presentation/diary-detail/diary-detail.component';
+import { CalendarPageComponent } from './presentation/calendar-page/calendar-page.component';
 import { InterestEarnedReportComponent } from './presentation/interest-earned-report/interest-earned-report.component';
 import { SettingsComponent } from './presentation/settings/settings.component';
 import { LoginComponent } from './presentation/login/login.component';
@@ -28,6 +31,9 @@ export const routes: Routes = [
       { path: 'loans', component: LoansComponent },
       { path: 'loans/:id', component: LoanDetailsComponent },
       { path: 'payments', component: PaymentsComponent },
+      { path: 'diary', component: DiaryListComponent },
+      { path: 'diary/:id', component: DiaryDetailComponent },
+      { path: 'calendar', component: CalendarPageComponent },
       { path: 'reports', component: ReportsComponent },
       { path: 'reports/interest-earned', component: InterestEarnedReportComponent },
       { path: 'settings', component: SettingsComponent },

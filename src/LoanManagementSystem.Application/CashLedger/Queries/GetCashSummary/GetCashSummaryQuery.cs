@@ -1,4 +1,5 @@
 using LoanManagementSystem.Application.Common.DTOs;
+using LoanManagementSystem.Application.Common.Financial;
 using LoanManagementSystem.Domain.CashLedger;
 using LoanManagementSystem.Domain.Repositories;
 using MediatR;
@@ -25,7 +26,7 @@ public sealed class GetCashSummaryQueryHandler : IRequestHandler<GetCashSummaryQ
     public async Task<CashSummaryDto> Handle(GetCashSummaryQuery request, CancellationToken ct)
     {
         var entries = await _cashLedgerRepository.GetAllAsync(ct);
-        var cashOnHand = entries.Sum(e => e.SignedAmount);
+        var cashOnHand = FinancialCalculations.ComputeCashOnHand(entries);
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var monthStart = new DateOnly(today.Year, today.Month, 1);

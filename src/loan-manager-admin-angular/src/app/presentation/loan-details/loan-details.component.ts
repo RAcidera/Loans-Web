@@ -29,6 +29,7 @@ import { ExtendLoanDialogComponent } from '../extend-loan-dialog/extend-loan-dia
 import { EditLoanDialogComponent } from '../edit-loan-dialog/edit-loan-dialog.component';
 import { LoanTimelineComponent } from '../loan-timeline/loan-timeline.component';
 import { DocumentManagerComponent } from '../document-manager/document-manager.component';
+import { PromiseListComponent } from '../promise-list/promise-list.component';
 import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AuthService } from '../../application/auth/auth.service';
 
@@ -105,6 +106,7 @@ interface TimelineEvent {
     MatSortModule,
     LoanTimelineComponent,
     DocumentManagerComponent,
+    PromiseListComponent,
   ],
   templateUrl: './loan-details.component.html',
   styleUrls: ['./loan-details.component.scss'],

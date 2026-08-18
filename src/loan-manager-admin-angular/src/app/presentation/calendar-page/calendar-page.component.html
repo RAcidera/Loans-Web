@@ -1,0 +1,55 @@
+<mat-card class="toolbar-card">
+  <lm-calendar-toolbar
+    [viewMode]="viewMode"
+    [periodLabel]="periodLabel"
+    (today)="goToday()"
+    (prev)="prev()"
+    (next)="next()"
+    (viewModeChange)="setView($event)"
+    (newDiaryEntry)="openNewDiaryEntry()"
+    (newReminder)="openNewReminder()"
+    (newPromise)="openNewPromise()"
+  ></lm-calendar-toolbar>
+
+  <lm-calendar-filter-chips
+    [enabledTypes]="enabledTypes"
+    [advancedFiltersActive]="advancedFiltersActive"
+    (toggleType)="toggleType($event)"
+    (openAdvancedFilters)="openAdvancedFilters()"
+  ></lm-calendar-filter-chips>
+</mat-card>
+
+<mat-card class="summary-card">
+  <lm-calendar-summary [summary]="summary"></lm-calendar-summary>
+</mat-card>
+
+<mat-card class="calendar-card">
+  <lm-calendar-month-view
+    *ngIf="viewMode === 'month'"
+    [weeks]="monthWeeks"
+    (dayClick)="openDay($event)"
+    (eventClick)="openEvent($event)"
+  ></lm-calendar-month-view>
+
+  <lm-calendar-week-view
+    *ngIf="viewMode === 'week'"
+    [days]="weekDays"
+    (dayClick)="openDay($event)"
+    (eventClick)="openEvent($event)"
+  ></lm-calendar-week-view>
+
+  <lm-calendar-day-view
+    *ngIf="viewMode === 'day'"
+    [events]="dayEvents"
+    (eventClick)="openEvent($event)"
+  ></lm-calendar-day-view>
+</mat-card>
+
+<div class="legend">
+  <span class="legend__item"><span class="legend__dot legend__dot--loan-due"></span>Loan Due</span>
+  <span class="legend__item"><span class="legend__dot legend__dot--extension-due"></span>Extension Due</span>
+  <span class="legend__item"><span class="legend__dot legend__dot--reminder"></span>Follow-up Reminder</span>
+  <span class="legend__item"><span class="legend__dot legend__dot--promise"></span>Promise to Pay</span>
+  <span class="legend__item"><span class="legend__dot legend__dot--diary"></span>Diary Entry</span>
+  <span class="legend__hint">Click an event to view details</span>
+</div>

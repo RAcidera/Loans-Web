@@ -31,6 +31,11 @@ public static class DependencyInjection
         services.AddScoped<ILoanLedgerRepository, LoanLedgerRepository>();
         services.AddScoped<ILoanAuditLogRepository, LoanAuditLogRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IDiaryRepository, DiaryRepository>();
+        services.AddScoped<IDiaryCategoryRepository, DiaryCategoryRepository>();
+        services.AddScoped<IDiaryAuditLogRepository, DiaryAuditLogRepository>();
+        services.AddScoped<IPromiseToPayRepository, PromiseToPayRepository>();
+        services.AddScoped<IPromiseAuditLogRepository, PromiseAuditLogRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));

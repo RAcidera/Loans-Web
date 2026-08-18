@@ -1,0 +1,22 @@
+<div class="filter-chips">
+  <div class="filter-chips__row">
+    <button
+      type="button"
+      class="filter-chip"
+      *ngFor="let type of types"
+      [class.filter-chip--active]="isEnabled(type)"
+      [style.--chip-color]="meta[type].color"
+      (click)="toggleType.emit(type)"
+      [attr.aria-pressed]="isEnabled(type)"
+    >
+      <mat-icon class="filter-chip__check" *ngIf="isEnabled(type)">check</mat-icon>
+      <mat-icon class="filter-chip__icon">{{ meta[type].icon }}</mat-icon>
+      {{ meta[type].label }}
+    </button>
+  </div>
+
+  <button mat-stroked-button class="filter-chips__filters-btn" [class.filter-chips__filters-btn--active]="advancedFiltersActive" (click)="openAdvancedFilters.emit()">
+    <mat-icon>filter_alt</mat-icon>
+    Filters
+  </button>
+</div>

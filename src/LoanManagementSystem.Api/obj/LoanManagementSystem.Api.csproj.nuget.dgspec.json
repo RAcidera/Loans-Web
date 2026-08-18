@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj": {}
+    "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj": {}
   },
   "projects": {
-    "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj": {
+    "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj",
+        "projectUniqueName": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj",
         "projectName": "LoanManagementSystem.Api",
-        "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj",
+        "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Api\\LoanManagementSystem.Api.csproj",
         "packagesPath": "C:\\Users\\RomeoAcidera\\.nuget\\packages\\",
-        "outputPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Api\\obj\\",
+        "outputPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -33,11 +33,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj": {
-                "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj"
+              "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj": {
+                "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj"
               },
-              "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj": {
-                "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj"
+              "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj": {
+                "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj"
               }
             }
           }
@@ -96,14 +96,14 @@
         }
       }
     },
-    "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj": {
+    "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj",
+        "projectUniqueName": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj",
         "projectName": "LoanManagementSystem.Application",
-        "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj",
+        "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj",
         "packagesPath": "C:\\Users\\RomeoAcidera\\.nuget\\packages\\",
-        "outputPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\obj\\",
+        "outputPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -125,8 +125,8 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj": {
-                "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj"
+              "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj": {
+                "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj"
               }
             }
           }
@@ -176,14 +176,14 @@
         }
       }
     },
-    "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj": {
+    "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj",
+        "projectUniqueName": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj",
         "projectName": "LoanManagementSystem.Domain",
-        "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj",
+        "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj",
         "packagesPath": "C:\\Users\\RomeoAcidera\\.nuget\\packages\\",
-        "outputPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\obj\\",
+        "outputPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -248,14 +248,14 @@
         }
       }
     },
-    "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj": {
+    "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj",
+        "projectUniqueName": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj",
         "projectName": "LoanManagementSystem.Infrastructure",
-        "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj",
+        "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Infrastructure\\LoanManagementSystem.Infrastructure.csproj",
         "packagesPath": "C:\\Users\\RomeoAcidera\\.nuget\\packages\\",
-        "outputPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Infrastructure\\obj\\",
+        "outputPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -277,11 +277,11 @@
           "net8.0": {
             "targetAlias": "net8.0",
             "projectReferences": {
-              "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj": {
-                "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj"
+              "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj": {
+                "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Application\\LoanManagementSystem.Application.csproj"
               },
-              "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj": {
-                "projectPath": "D:\\BitBucket\\LoanManagementSystem\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj"
+              "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj": {
+                "projectPath": "D:\\BitBucket\\Loans-Web\\src\\LoanManagementSystem.Domain\\LoanManagementSystem.Domain.csproj"
               }
             }
           }

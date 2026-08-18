@@ -1,0 +1,46 @@
+<div class="kpi-row" *ngIf="summary">
+  <div class="kpi-card">
+    <div class="kpi-card__icon"><mat-icon>menu_book</mat-icon></div>
+    <div>
+      <div class="kpi-card__value">{{ summary.totalEntries }}</div>
+      <span class="kpi-card__label">Total Entries</span>
+      <div class="kpi-card__sub">All Time</div>
+    </div>
+  </div>
+
+  <div class="kpi-card kpi-card--info">
+    <div class="kpi-card__icon"><mat-icon>calendar_today</mat-icon></div>
+    <div>
+      <div class="kpi-card__value">{{ summary.entriesThisMonth }}</div>
+      <span class="kpi-card__label">This Month</span>
+      <div class="kpi-card__sub">{{ currentMonthLabel }}</div>
+    </div>
+  </div>
+
+  <div class="kpi-card kpi-card--good">
+    <div class="kpi-card__icon"><mat-icon>payments</mat-icon></div>
+    <div>
+      <div class="kpi-card__value mono">₱{{ summary.collectionsMonthToDate | number: '1.0-0' }}</div>
+      <span class="kpi-card__label">Collections MTD</span>
+      <div class="kpi-card__sub">Month to Date</div>
+    </div>
+  </div>
+
+  <div class="kpi-card kpi-card--warn">
+    <div class="kpi-card__icon"><mat-icon>event</mat-icon></div>
+    <div>
+      <div class="kpi-card__value">{{ summary.loanDueCount }}</div>
+      <span class="kpi-card__label">Loan Due</span>
+      <div class="kpi-card__sub">This Month</div>
+    </div>
+  </div>
+
+  <div class="kpi-card kpi-card--danger">
+    <div class="kpi-card__icon"><mat-icon>notifications</mat-icon></div>
+    <div>
+      <div class="kpi-card__value">{{ summary.pendingRemindersCount }}</div>
+      <span class="kpi-card__label">Reminders</span>
+      <div class="kpi-card__sub">Pending</div>
+    </div>
+  </div>
+</div>

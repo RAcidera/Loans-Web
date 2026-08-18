@@ -10,10 +10,16 @@ import { LoanRepository } from './domain/repositories/loan.repository';
 import { CashLedgerRepository } from './domain/repositories/cash-ledger.repository';
 import { ReportRepository } from './domain/repositories/report.repository';
 import { UserRepository } from './domain/repositories/user.repository';
+import { DiaryRepository } from './domain/repositories/diary.repository';
+import { CalendarRepository } from './domain/repositories/calendar.repository';
+import { PromiseToPayRepository } from './domain/repositories/promise-to-pay.repository';
 import { HttpLoanRepository } from './infrastructure/repositories/http-loan.repository';
 import { HttpCashLedgerRepository } from './infrastructure/repositories/http-cash-ledger.repository';
 import { HttpReportRepository } from './infrastructure/repositories/http-report.repository';
 import { HttpUserRepository } from './infrastructure/repositories/http-user.repository';
+import { HttpDiaryRepository } from './infrastructure/repositories/http-diary.repository';
+import { HttpCalendarRepository } from './infrastructure/repositories/http-calendar.repository';
+import { HttpPromiseToPayRepository } from './infrastructure/repositories/http-promise-to-pay.repository';
 import { authInterceptor } from './infrastructure/auth/auth.interceptor';
 
 // Swap the three `useClass` lines below (and drop provideHttpClient) to go
@@ -58,5 +64,8 @@ export const appConfig: ApplicationConfig = {
     { provide: CashLedgerRepository, useClass: HttpCashLedgerRepository },
     { provide: ReportRepository, useClass: HttpReportRepository },
     { provide: UserRepository, useClass: HttpUserRepository },
+    { provide: DiaryRepository, useClass: HttpDiaryRepository },
+    { provide: CalendarRepository, useClass: HttpCalendarRepository },
+    { provide: PromiseToPayRepository, useClass: HttpPromiseToPayRepository },
   ],
 };

@@ -1,0 +1,84 @@
+<div class="page-header">
+  <button mat-icon-button (click)="goBack()" aria-label="Back to diary"><mat-icon>arrow_back</mat-icon></button>
+  <h1>Diary Entry</h1>
+  <span class="spacer"></span>
+  <button mat-stroked-button (click)="editEntry()" *ngIf="entry">
+    <mat-icon>edit</mat-icon>
+    Edit
+  </button>
+  <button mat-stroked-button color="warn" (click)="removeEntry()" *ngIf="entry">
+    <mat-icon>delete</mat-icon>
+    Delete
+  </button>
+</div>
+
+<ng-container *ngIf="entry">
+  <mat-card class="section">
+    <div class="entry-header">
+      <div>
+        <div class="entry-header__top">
+          <lm-category-badge [name]="entry.categoryName" [icon]="entry.categoryIcon" [color]="entry.categoryDisplayColor"></lm-category-badge>
+          <span class="entry-header__datetime mono">{{ entry.entryDateTime | date: "MMMM d, y 'at' h:mm a" }}</span>
+        </div>
+        <h2 class="entry-header__title">{{ entry.title }}</h2>
+      </div>
+    </div>
+
+    <div class="entry-links" *ngIf="entry.customerName || entry.loanNumber">
+      <button mat-stroked-button *ngIf="entry.customerName" (click)="openCustomer()">
+        <mat-icon>person</mat-icon>
+        {{ entry.customerName }}
+      </button>
+      <button mat-stroked-button *ngIf="entry.loanNumber" (click)="openLoan()">
+        <mat-icon>receipt_long</mat-icon>
+        {{ entry.loanNumber }}
+      </button>
+    </div>
+
+    <div class="notes" *ngIf="entry.notes">
+      <h3>Notes</h3>
+      <p>{{ entry.notes }}</p>
+    </div>
+
+    <div class="tags" *ngIf="tags.length > 0">
+      <span class="tags__tag" *ngFor="let tag of tags">{{ tag }}</span>
+    </div>
+
+    <div class="reminder" *ngIf="entry.reminderDate">
+      <mat-icon>notifications</mat-icon>
+      Reminder set for {{ entry.reminderDate | date: 'MMM d, y' }}<ng-container *ngIf="entry.reminderTime"> at {{ entry.reminderTime }}</ng-container>
+    </div>
+  </mat-card>
+
+  <mat-card class="section" *ngIf="entry.snapshot">
+    <h3 class="section__title">Financial Snapshot</h3>
+    <lm-financial-snapshot [snapshot]="entry.snapshot"></lm-financial-snapshot>
+
+    <div class="compare-action">
+      <button mat-flat-button color="primary" (click)="loadComparison()" [disabled]="comparing">
+        {{ comparing ? 'Comparing…' : 'Compare to Today' }}
+      </button>
+    </div>
+
+    <div class="comparison-block" *ngIf="comparison">
+      <h3 class="section__title">Financial Comparison</h3>
+      <lm-financial-comparison [comparison]="comparison"></lm-financial-comparison>
+    </div>
+  </mat-card>
+
+  <mat-card class="section" *ngIf="!entry.snapshot">
+    <p class="empty-hint">No financial snapshot was captured for this entry.</p>
+  </mat-card>
+
+  <mat-card class="section" *ngIf="auditLog.length > 0">
+    <h3 class="section__title">Audit Information</h3>
+    <ul class="audit-list">
+      <li *ngFor="let log of auditLog">
+        <span class="audit-list__desc">{{ log.description }}</span>
+        <span class="audit-list__meta mono">{{ log.performedBy }} · {{ log.occurredAt | date: 'MMM d, y, h:mm a' }}</span>
+      </li>
+    </ul>
+  </mat-card>
+</ng-container>
+
+<p class="empty-hint" *ngIf="!loading && !entry">Diary entry not found.</p>

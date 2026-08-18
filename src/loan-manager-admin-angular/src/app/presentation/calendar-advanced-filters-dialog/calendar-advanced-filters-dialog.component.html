@@ -1,0 +1,69 @@
+<h2 class="dialog-title">Advanced filters</h2>
+
+<form [formGroup]="form" (ngSubmit)="apply()" class="dialog-form">
+  <mat-form-field appearance="outline">
+    <mat-label>Customer</mat-label>
+    <mat-select formControlName="customerId">
+      <mat-option value="">Any customer</mat-option>
+      <mat-option *ngFor="let customer of customers" [value]="customer.customerId">{{ customer.fullName }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Loan</mat-label>
+    <mat-select formControlName="loanId">
+      <mat-option value="">Any loan</mat-option>
+      <mat-option *ngFor="let loan of loans" [value]="loan.loanId">{{ loan.loanNumber }} — {{ loan.customerName }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="dialog-form__row">
+    <mat-form-field appearance="outline">
+      <mat-label>Loan status</mat-label>
+      <mat-select formControlName="loanStatuses" multiple>
+        <mat-option value="active">Active</mat-option>
+        <mat-option value="extended">Extended</mat-option>
+        <mat-option value="overdue">Overdue</mat-option>
+        <mat-option value="paid">Paid</mat-option>
+        <mat-option value="writtenoff">Written Off</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Classification</mat-label>
+      <mat-select formControlName="classifications" multiple>
+        <mat-option value="normal">Normal</mat-option>
+        <mat-option value="watchlist">Watch List</mat-option>
+        <mat-option value="badloan">Bad Loan</mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+
+  <mat-form-field appearance="outline">
+    <mat-label>Borrower type</mat-label>
+    <mat-select formControlName="borrowerType">
+      <mat-option value="">Any borrower type</mat-option>
+      <mat-option *ngFor="let type of borrowerTypes" [value]="type">{{ type }}</mat-option>
+    </mat-select>
+  </mat-form-field>
+
+  <div class="dialog-form__row">
+    <mat-form-field appearance="outline">
+      <mat-label>Amount from</mat-label>
+      <input matInput type="number" formControlName="amountMin" />
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Amount to</mat-label>
+      <input matInput type="number" formControlName="amountMax" />
+    </mat-form-field>
+  </div>
+
+  <p class="dialog-form__hint">Loan status, classification, and amount only affect events linked to a loan (loan due, extension due, promise to pay).</p>
+
+  <div class="dialog-form__actions">
+    <button type="button" mat-stroked-button (click)="clear()">Clear all</button>
+    <button type="button" mat-stroked-button (click)="cancel()">Cancel</button>
+    <button type="submit" mat-flat-button color="primary">Apply filters</button>
+  </div>
+</form>

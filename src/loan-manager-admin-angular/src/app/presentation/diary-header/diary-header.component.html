@@ -1,0 +1,31 @@
+<div class="diary-header">
+  <div class="diary-header__title">
+    <span class="diary-header__icon"><mat-icon>menu_book</mat-icon></span>
+    <div>
+      <h1>Diary / Journal</h1>
+      <p>Record important events, notes and financial snapshots.</p>
+    </div>
+  </div>
+
+  <div class="diary-header__action">
+    <button mat-flat-button color="primary" [matMenuTriggerFor]="newMenu">
+      <mat-icon>add</mat-icon>
+      New Entry
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #newMenu="matMenu">
+      <button mat-menu-item (click)="newDiaryEntry.emit()">
+        <mat-icon>edit_note</mat-icon>
+        <span>Diary Entry</span>
+      </button>
+      <button mat-menu-item (click)="newReminder.emit()">
+        <mat-icon>notifications</mat-icon>
+        <span>Follow-up / Reminder</span>
+      </button>
+      <button mat-menu-item (click)="newPromise.emit()">
+        <mat-icon>handshake</mat-icon>
+        <span>Promise to Pay</span>
+      </button>
+    </mat-menu>
+  </div>
+</div>

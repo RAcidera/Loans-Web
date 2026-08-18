@@ -124,6 +124,11 @@ using (var scope = app.Services.CreateScope())
     // Backfill is safe in every environment — idempotent per loan, applies
     // to real loans too (see its own doc comment).
     await DbSeeder.BackfillLoanLedgerAsync(db);
+
+    // Diary categories are reference data needed in every environment, not
+    // just dev demos — see SeedDiaryCategoriesAsync's own doc comment for
+    // why this isn't gated behind IsDevelopment() like SeedAsync above.
+    await DbSeeder.SeedDiaryCategoriesAsync(db);
 }
 
 // --- Middleware pipeline ---

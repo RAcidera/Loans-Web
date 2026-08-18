@@ -1,0 +1,26 @@
+<div class="quick-summary" *ngIf="summary">
+  <div class="quick-summary__header">
+    <span>Quick Summary</span>
+    <button type="button" class="quick-summary__link" (click)="viewReport()">
+      View Report
+      <mat-icon>arrow_forward</mat-icon>
+    </button>
+  </div>
+
+  <div class="quick-summary__row">
+    <span>Collections Today</span>
+    <span class="mono">₱{{ summary.collectionsToday | number: '1.2-2' }}</span>
+  </div>
+  <div class="quick-summary__row">
+    <span>Collections MTD</span>
+    <span class="mono">₱{{ summary.collectionsMonthToDate | number: '1.2-2' }}</span>
+  </div>
+  <div class="quick-summary__row">
+    <span>Loans Released Today</span>
+    <span class="mono">₱{{ summary.loanReleasesToday | number: '1.2-2' }}</span>
+  </div>
+  <div class="quick-summary__row">
+    <span>Loans Released MTD</span>
+    <span class="mono">₱{{ summary.loanReleasesMonthToDate | number: '1.2-2' }}</span>
+  </div>
+</div>

@@ -1,0 +1,40 @@
+@use '../../styles/tokens';
+@use '../_shared-dialog-form' as *;
+
+// Tighter than _shared-dialog-form's default 18px — this dialog packs in
+// more fields than most (Title/Category/Date/Time/Customer/Loan/Notes/
+// Tags/two checkboxes/optional reminder date+time), so a smaller gap plus
+// the wider dialog width (see diary-list/diary-detail's MatDialog.open
+// config) keeps it from needing to scroll once "Add reminder" is checked.
+.dialog-form {
+  gap: 13px;
+  min-width: 560px;
+
+  @include tokens.mobile {
+    min-width: 0;
+  }
+}
+
+.dialog-form__row {
+  display: flex;
+  gap: 14px;
+
+  mat-form-field {
+    flex: 1;
+    min-width: 0;
+  }
+}
+
+.dialog-form__checks {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 24px;
+  margin: -4px 0 2px;
+}
+
+.dialog-form__hint {
+  font-size: 12px;
+  color: var(--lm-text-muted);
+  margin: 0;
+}

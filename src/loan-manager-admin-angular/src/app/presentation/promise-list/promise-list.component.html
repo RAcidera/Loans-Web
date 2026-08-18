@@ -1,0 +1,47 @@
+<div class="promise-list">
+  <div class="promise-list__header">
+    <span class="promise-list__title">Promises to Pay</span>
+    <button mat-flat-button color="primary" (click)="openNew()">
+      <mat-icon>add</mat-icon>
+      New Promise
+    </button>
+  </div>
+
+  <div class="promise-row" *ngFor="let promise of promises">
+    <div class="promise-row__main">
+      <span class="chip" [ngClass]="'chip--' + promise.status">{{ statusLabel[promise.status] }}</span>
+      <span class="promise-row__amount mono">₱{{ promise.amount | number: '1.2-2' }}</span>
+      <span class="promise-row__date mono">{{ promise.promiseDate | date: 'MMM d, y' }}</span>
+      <span class="promise-row__loan mono" *ngIf="!loanId">{{ promise.loanNumber }}</span>
+      <span class="promise-row__customer" *ngIf="loanId">{{ promise.customerName }}</span>
+    </div>
+
+    <p class="promise-row__notes" *ngIf="promise.notes">{{ promise.notes }}</p>
+
+    <div class="promise-row__reschedule" *ngIf="reschedulingId === promise.promiseId">
+      <input type="date" [(ngModel)]="rescheduleDate" class="date-input" />
+      <button mat-stroked-button (click)="cancelReschedule()">Cancel</button>
+      <button mat-flat-button color="primary" (click)="confirmReschedule(promise)">Confirm</button>
+    </div>
+
+    <div class="promise-row__actions" *ngIf="reschedulingId !== promise.promiseId">
+      <ng-container *ngIf="isActionable(promise)">
+        <button mat-button (click)="markKept(promise)">Mark Kept</button>
+        <button mat-button (click)="markMissed(promise)">Mark Missed</button>
+        <button mat-button (click)="startReschedule(promise)">Reschedule</button>
+        <button mat-button color="warn" (click)="cancelPromise(promise)">Cancel</button>
+        <button mat-icon-button (click)="openEdit(promise)" aria-label="Edit promise"><mat-icon>edit</mat-icon></button>
+      </ng-container>
+      <span class="spacer"></span>
+      <button mat-icon-button [matMenuTriggerFor]="rowMenu" aria-label="More actions"><mat-icon>more_vert</mat-icon></button>
+      <mat-menu #rowMenu="matMenu">
+        <button mat-menu-item (click)="deletePromiseRow(promise)">
+          <mat-icon>delete</mat-icon>
+          Delete
+        </button>
+      </mat-menu>
+    </div>
+  </div>
+
+  <p class="empty-hint" *ngIf="!loading && promises.length === 0">No promises to pay recorded yet.</p>
+</div>
