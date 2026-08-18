@@ -14,6 +14,9 @@ namespace LoanManagementSystem.Application.Diary;
 public interface IFinancialSnapshotService
 {
     Task<FinancialPositionSnapshot> GetCurrentFinancialPositionAsync(DateOnly asOfDate, CancellationToken ct = default);
+
+    /// <summary>Collections received / loan principal released strictly within [from, to] — used by CompareSnapshotToCurrent's "Since This Snapshot" summary (requirements diary-detail-snapshot: activity between a captured snapshot and today, distinct from GetCurrentFinancialPositionAsync's calendar-month-to-date figures).</summary>
+    Task<(decimal Collections, decimal LoanReleases)> GetActivitySinceAsync(DateOnly from, DateOnly to, CancellationToken ct = default);
 }
 
 /// <summary>Every figure requirements §8's DiaryFinancialSnapshot table stores, computed live — see FinancialSnapshotService.</summary>

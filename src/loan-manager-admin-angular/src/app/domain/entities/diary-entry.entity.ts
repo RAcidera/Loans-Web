@@ -84,10 +84,13 @@ export interface FinancialComparisonMetric {
   percentChange: number | null;
 }
 
+/** collectionsSinceSnapshot/loanReleasesSinceSnapshot back the Detail page's "Since This Snapshot" band — activity strictly between the snapshot's capture date and today (server-computed; distinct from metrics, which are point-in-time snapshot-vs-today values only). */
 export interface FinancialComparison {
   snapshotDate: string;
   todayDate: string;
   metrics: FinancialComparisonMetric[];
+  collectionsSinceSnapshot: number;
+  loanReleasesSinceSnapshot: number;
 }
 
 /** Backs the Diary Entry Detail "Audit Information" section (requirements §13/§24). */

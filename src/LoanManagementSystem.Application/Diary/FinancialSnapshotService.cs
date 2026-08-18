@@ -53,4 +53,16 @@ public sealed class FinancialSnapshotService : IFinancialSnapshotService
             activeCount, overdueCount, badLoanCount,
             collectionsToday, collectionsMtd, releasesToday, releasesMtd);
     }
+
+    public async Task<(decimal Collections, decimal LoanReleases)> GetActivitySinceAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
+    {
+        if (from > to) return (0m, 0m);
+
+        var loans = await _loanRepository.GetAllWithDetailsAsync(ct);
+        var payments = loans.SelectMany(l => l.Payments).ToList();
+
+        var collections = FinancialCalculations.ComputeCollections(payments, from, to);
+        var releases = FinancialCalculations.ComputeLoanReleases(loans, from, to);
+        return (collections, releases);
+    }
 }

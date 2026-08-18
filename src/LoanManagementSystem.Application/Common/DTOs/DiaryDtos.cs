@@ -59,7 +59,8 @@ public sealed record DiaryEntryDto(
 /// </summary>
 public sealed record FinancialComparisonMetricDto(string Key, string Label, decimal SnapshotValue, decimal CurrentValue, decimal Change, decimal? PercentChange);
 
-public sealed record FinancialComparisonDto(string SnapshotDate, string TodayDate, List<FinancialComparisonMetricDto> Metrics);
+/// <summary>CollectionsSinceSnapshot/LoanReleasesSinceSnapshot back the Diary Entry Detail's "Since This Snapshot" band — activity strictly between the snapshot's capture date and today, computed by IFinancialSnapshotService.GetActivitySinceAsync (distinct from Metrics, which only ever holds point-in-time snapshot-vs-today values).</summary>
+public sealed record FinancialComparisonDto(string SnapshotDate, string TodayDate, List<FinancialComparisonMetricDto> Metrics, decimal CollectionsSinceSnapshot, decimal LoanReleasesSinceSnapshot);
 
 /// <summary>Backs the Diary Entry Detail "Audit Information" section (requirements §13/§24).</summary>
 public sealed record DiaryAuditLogEntryDto(string AuditLogId, string DiaryEntryId, string Action, string Description, string PerformedBy, string OccurredAt);

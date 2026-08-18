@@ -51,19 +51,11 @@
   </mat-card>
 
   <mat-card class="section" *ngIf="entry.snapshot">
-    <h3 class="section__title">Financial Snapshot</h3>
-    <lm-financial-snapshot [snapshot]="entry.snapshot"></lm-financial-snapshot>
+    <lm-financial-snapshot [snapshot]="entry.snapshot" [comparing]="comparing" (compare)="loadComparison()"></lm-financial-snapshot>
+  </mat-card>
 
-    <div class="compare-action">
-      <button mat-flat-button color="primary" (click)="loadComparison()" [disabled]="comparing">
-        {{ comparing ? 'Comparing…' : 'Compare to Today' }}
-      </button>
-    </div>
-
-    <div class="comparison-block" *ngIf="comparison">
-      <h3 class="section__title">Financial Comparison</h3>
-      <lm-financial-comparison [comparison]="comparison"></lm-financial-comparison>
-    </div>
+  <mat-card class="section" *ngIf="comparison">
+    <lm-financial-comparison [comparison]="comparison"></lm-financial-comparison>
   </mat-card>
 
   <mat-card class="section" *ngIf="!entry.snapshot">

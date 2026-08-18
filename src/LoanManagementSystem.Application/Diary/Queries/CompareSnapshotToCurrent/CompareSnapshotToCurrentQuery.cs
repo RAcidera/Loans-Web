@@ -32,6 +32,7 @@ public sealed class CompareSnapshotToCurrentQueryHandler : IRequestHandler<Compa
 
         var today = DateOnly.FromDateTime(DateTime.UtcNow);
         var current = await _financialSnapshotService.GetCurrentFinancialPositionAsync(today, ct);
+        var since = await _financialSnapshotService.GetActivitySinceAsync(entry.EntryDate.AddDays(1), today, ct);
 
         var metrics = new List<FinancialComparisonMetricDto>
         {
@@ -47,7 +48,9 @@ public sealed class CompareSnapshotToCurrentQueryHandler : IRequestHandler<Compa
         return new FinancialComparisonDto(
             SnapshotDate: entry.EntryDate.ToString("yyyy-MM-dd"),
             TodayDate: today.ToString("yyyy-MM-dd"),
-            Metrics: metrics);
+            Metrics: metrics,
+            CollectionsSinceSnapshot: since.Collections,
+            LoanReleasesSinceSnapshot: since.LoanReleases);
     }
 
     /// <summary>Requirements §16 — Change = Current - Snapshot; Percentage = (Change / Snapshot) x 100, null (rendered "N/A"/"New" by the frontend) when SnapshotValue is zero.</summary>
