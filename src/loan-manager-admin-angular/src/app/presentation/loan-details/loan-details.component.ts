@@ -80,8 +80,9 @@ interface TimelineEvent {
   tone: 'good' | 'neutral' | 'info';
   title: string;
   subtitle: string;
-  /** A mix of business dates (payment.paymentDate) and true timestamps (loan.createdAt, auditLog.occurredAt) — see customer-profile.component.ts's ActivityItem.date doc comment for why this is rendered with `appDateTime` for all of them. */
+  /** A mix of business dates (payment.paymentDate) and true timestamps (loan.createdAt, auditLog.occurredAt) — dateOnly picks which of appDate/appDateTime the template uses per entry, since a business date has no time-of-day/timezone meaning and must never be shifted by the configured Business Time Zone. */
   date: string;
+  dateOnly: boolean;
 }
 
 /**
@@ -281,6 +282,7 @@ export class LoanDetailsComponent implements OnInit {
       title: 'Payment made',
       subtitle: `Payment of ${fmtMoney(p.amountPaid)}`,
       date: p.paymentDate,
+      dateOnly: true,
     }));
 
     const createdEvent: TimelineEvent = {
@@ -289,6 +291,7 @@ export class LoanDetailsComponent implements OnInit {
       title: 'Loan created',
       subtitle: `Loan ${this.loan.loanNumber} created`,
       date: this.loan.createdAt,
+      dateOnly: false,
     };
 
     const auditEvents: TimelineEvent[] = this.auditLog.map((a) => ({
@@ -297,6 +300,7 @@ export class LoanDetailsComponent implements OnInit {
       title: this.getAuditActionLabel(a.action),
       subtitle: a.description,
       date: a.occurredAt,
+      dateOnly: false,
     }));
 
     return [...paymentEvents, createdEvent, ...auditEvents]

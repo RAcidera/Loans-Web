@@ -142,7 +142,7 @@
                     <span class="timeline-event__title">{{ ev.title }}</span>
                     <span class="timeline-event__subtitle">{{ ev.subtitle }}</span>
                   </div>
-                  <span class="timeline-event__date mono">{{ ev.date | appDateTime:'MMM dd, yyyy' }}</span>
+                  <span class="timeline-event__date mono">{{ ev.dateOnly ? (ev.date | appDate:'MMM dd, yyyy') : (ev.date | appDateTime:'MMM dd, yyyy') }}</span>
                 </li>
                 <li class="empty-note" *ngIf="timelineEvents.length === 0">No activity yet.</li>
               </ul>

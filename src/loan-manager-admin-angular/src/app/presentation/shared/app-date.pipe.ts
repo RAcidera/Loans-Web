@@ -7,19 +7,27 @@ import { Pipe, PipeTransform, inject } from '@angular/core';
  * reminderDate, loanDate, periodStart/periodEndInclusive, fromDate/toDate,
  * todayDate, snapshotDate — plain "yyyy-MM-dd" strings from the backend).
  *
- * Angular's DatePipe parses a bare "yyyy-MM-dd" ISO string as UTC midnight,
- * then by default formats it in the BROWSER's local timezone — for any
- * browser west of UTC that silently prints the previous day (e.g. midnight
- * UTC is 7 PM the prior day in US Eastern). Forcing the format timezone to
- * 'UTC' makes the parsed-as-UTC-midnight instant always print back as the
- * same calendar date, regardless of the browser's timezone or the
- * configured Business Time Zone — which is correct, because a business
- * date isn't an instant in the first place and was never meant to be
- * timezone-converted.
+ * Deliberately does NOT pass a timezone argument to Angular's DatePipe.
+ * That looks backwards — surely a bare date string needs pinning to some
+ * fixed zone so it can't shift? — but Angular's DatePipe does not parse a
+ * bare "yyyy-MM-dd" the way the native `Date` constructor or `Date.parse`
+ * do (which treat date-only ISO strings as UTC midnight per the ECMAScript
+ * spec). Angular's internal `toDate()` special-cases date-only strings and
+ * builds the `Date` at LOCAL midnight instead (see `common_module.mjs`'s
+ * `createDate()` — a deliberate workaround for old browsers, e.g. IE9,
+ * mis-parsing "2015-01-01"). So by the time `formatDate` runs, the instant
+ * already IS the browser's local midnight for that exact calendar day.
+ * Forcing the format timezone to 'UTC' at that point re-reads that local
+ * instant as if it were UTC, shifting it backward a full day on any
+ * machine whose OS timezone is east of UTC (Manila/UTC+8 included) — the
+ * exact "grid shows a day behind the database" bug this fixed. Passing no
+ * timezone leaves DatePipe reading the Date's own local Y/M/D components,
+ * which already equal the source string's Y/M/D — always correct,
+ * regardless of the browser's or the app's configured Business Time Zone.
  *
  * Do NOT use this for real timestamps (createdAt, occurredAt, etc.) — use
  * `appDateTime` instead, which converts to the configured Business Time
- * Zone rather than pinning to UTC. See that pipe's own doc comment.
+ * Zone. See that pipe's own doc comment.
  */
 @Pipe({ name: 'appDate', standalone: true, pure: true })
 export class AppDatePipe implements PipeTransform {
@@ -27,6 +35,6 @@ export class AppDatePipe implements PipeTransform {
 
   transform(value: string | Date | null | undefined, format = 'mediumDate'): string | null {
     if (value === null || value === undefined || value === '') return null;
-    return this.datePipe.transform(value, format, 'UTC');
+    return this.datePipe.transform(value, format);
   }
 }

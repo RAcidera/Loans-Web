@@ -308,7 +308,7 @@
             <span class="activity-item__title">{{ a.title }}</span>
             <span class="activity-item__subtitle mono">{{ a.subtitle }}</span>
           </div>
-          <span class="activity-item__date mono">{{ a.date | appDateTime:'MMM dd, yyyy' }}</span>
+          <span class="activity-item__date mono">{{ a.dateOnly ? (a.date | appDate:'MMM dd, yyyy') : (a.date | appDateTime:'MMM dd, yyyy') }}</span>
         </li>
         <li class="empty-note" *ngIf="recentActivity.length === 0">No activity yet.</li>
       </ul>

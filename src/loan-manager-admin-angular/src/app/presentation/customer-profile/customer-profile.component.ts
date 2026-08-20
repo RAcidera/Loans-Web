@@ -70,13 +70,13 @@ interface ActivityItem {
   subtitle: string;
   /**
    * A mix of business dates (payment.paymentDate) and true timestamps
-   * (loan.createdAt, customer.createdAt) — rendered with `appDateTime` in
-   * the template, which is correct for the timestamp entries and correct
-   * for the date-only entries too as long as the configured Business Time
-   * Zone stays east of UTC (true for the default, Asia/Manila); a business
-   * timezone west of UTC could show a payment-date entry a day early here.
+   * (loan.createdAt, customer.createdAt) — dateOnly picks which of
+   * appDate/appDateTime the template uses per entry, since a business date
+   * has no time-of-day/timezone meaning and must never be shifted by the
+   * configured Business Time Zone.
    */
   date: string;
+  dateOnly: boolean;
 }
 
 const TAB_LOANS = 0;
@@ -256,6 +256,7 @@ export class CustomerProfileComponent implements OnInit {
       title: 'Payment received',
       subtitle: `Loan ${p.loanNumber} - ${fmtMoney(p.amountPaid)}`,
       date: p.paymentDate,
+      dateOnly: true,
     }));
 
     const loanEvents: ActivityItem[] = this.loans.map((l) => ({
@@ -264,6 +265,7 @@ export class CustomerProfileComponent implements OnInit {
       title: 'Loan created',
       subtitle: `${l.loanNumber} - ${fmtMoney(l.principalAmount)}`,
       date: l.createdAt,
+      dateOnly: false,
     }));
 
     const customerEvent: ActivityItem = {
@@ -272,6 +274,7 @@ export class CustomerProfileComponent implements OnInit {
       title: 'Customer created',
       subtitle: this.customer.customerCode,
       date: this.customer.createdAt,
+      dateOnly: false,
     };
 
     this.recentActivity = [...paymentEvents, ...loanEvents, customerEvent]
