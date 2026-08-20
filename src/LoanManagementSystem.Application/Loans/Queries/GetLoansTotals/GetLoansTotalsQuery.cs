@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Loans.Queries.GetLoansPage;
 using LoanManagementSystem.Domain.Loans;
@@ -18,16 +19,18 @@ public sealed class GetLoansTotalsQueryHandler : IRequestHandler<GetLoansTotalsQ
 {
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public GetLoansTotalsQueryHandler(ILoanRepository loanRepository, ICustomerRepository customerRepository)
+    public GetLoansTotalsQueryHandler(ILoanRepository loanRepository, ICustomerRepository customerRepository, IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
+        _appDateTime = appDateTime;
     }
 
     public async Task<LoanTotalsDto> Handle(GetLoansTotalsQuery request, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
 
         var matchingCustomerIds = string.IsNullOrWhiteSpace(request.Search)
             ? new List<Domain.Customers.CustomerId>()

@@ -4,12 +4,13 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { DiaryFinancialSnapshot } from '../../domain/entities/diary-entry.entity';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
 
 /** Requirements §14 — the Financial Snapshot display block, reused by both the Diary timeline's inline summary and the Diary Entry Detail page. Redesigned per design assets/diary-detail-snapshot.png: a KPI card row for the four headline figures, a compact stat row for loan counts + today's activity, and an MTD row — instead of the old plain label/value grid. */
 @Component({
   selector: 'lm-financial-snapshot',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatTooltipModule, AppDateTimePipe],
   template: `
     <div class="snapshot" *ngIf="snapshot">
       <div class="snapshot__header">
@@ -18,7 +19,7 @@ import { DiaryFinancialSnapshot } from '../../domain/entities/diary-entry.entity
           <mat-icon class="snapshot__info" matTooltip="Captured figures are immutable — they never change after the entry is saved." aria-hidden="false">info_outline</mat-icon>
         </div>
         <div class="snapshot__header-right">
-          <span class="snapshot__date">Captured on {{ snapshot.snapshotDateTime | date: "MMM d, y 'at' h:mm a" }}</span>
+          <span class="snapshot__date">Captured on {{ snapshot.snapshotDateTime | appDateTime: "MMM d, y 'at' h:mm a" }}</span>
           <button mat-flat-button color="primary" class="snapshot__compare-btn" (click)="compare.emit()" [disabled]="comparing">
             <mat-icon>trending_up</mat-icon>
             {{ comparing ? 'Comparing…' : 'Compare to Today' }}

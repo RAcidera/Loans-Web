@@ -136,7 +136,7 @@
 
       <ng-container matColumnDef="dueDate">
         <th mat-header-cell *matHeaderCellDef>Due Date</th>
-        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate | date:'MM/dd/yyyy' }}</td>
+        <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate | appDate:'MM/dd/yyyy' }}</td>
       </ng-container>
 
       <ng-container matColumnDef="balance">
@@ -188,7 +188,7 @@
         </div>
         <div class="feed-item__side">
           <span class="feed-item__amount mono">+₱{{ p.amountPaid | number:'1.2-2' }}</span>
-          <span class="feed-item__date mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</span>
+          <span class="feed-item__date mono">{{ p.paymentDate | appDate:'MMM dd, yyyy' }}</span>
         </div>
       </li>
       <li class="feed-empty" *ngIf="recentPayments.length === 0">No payments recorded yet.</li>

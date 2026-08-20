@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Xlsx;
 using LoanManagementSystem.Domain.CashLedger;
@@ -23,11 +24,13 @@ public sealed class ExportCashLedgerXlsxQueryHandler : IRequestHandler<ExportCas
 
     private readonly ICashLedgerRepository _cashLedgerRepository;
     private readonly ICashLedgerXlsxExportGenerator _xlsxGenerator;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public ExportCashLedgerXlsxQueryHandler(ICashLedgerRepository cashLedgerRepository, ICashLedgerXlsxExportGenerator xlsxGenerator)
+    public ExportCashLedgerXlsxQueryHandler(ICashLedgerRepository cashLedgerRepository, ICashLedgerXlsxExportGenerator xlsxGenerator, IAppDateTimeService appDateTime)
     {
         _cashLedgerRepository = cashLedgerRepository;
         _xlsxGenerator = xlsxGenerator;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DocumentFileDto> Handle(ExportCashLedgerXlsxQuery request, CancellationToken ct)
@@ -61,7 +64,7 @@ public sealed class ExportCashLedgerXlsxQueryHandler : IRequestHandler<ExportCas
             .ToList();
 
         var bytes = _xlsxGenerator.Generate(rows);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         return new DocumentFileDto($"cash_transactions_export_{today:yyyy-MM-dd}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", bytes);
     }
 }

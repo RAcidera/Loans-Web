@@ -23,12 +23,12 @@
 // ---------------------------------------------------------
 .kpi-row {
   display: grid;
-  grid-template-columns: repeat(6, 1fr);
-  gap: 12px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
   margin-bottom: 14px;
 
   @media (max-width: 1300px) {
-    grid-template-columns: repeat(3, 1fr);
+    grid-template-columns: repeat(4, 1fr);
   }
 
   @media (max-width: 700px) {
@@ -37,7 +37,7 @@
 }
 
 .kpi-card {
-  padding: 14px;
+  padding: 10px;
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
@@ -46,13 +46,13 @@
   &__top {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
   }
 
   &__icon {
-    width: 40px;
-    height: 40px;
-    border-radius: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -61,9 +61,9 @@
     color: var(--lm-primary);
 
     mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
   }
 
@@ -87,33 +87,36 @@
   }
 
   &__label {
-    font-size: 11px;
+    font-size: 9.5px;
     color: var(--lm-text-muted);
     font-weight: 500;
     display: block;
-    white-space: nowrap;
+    white-space: normal;
+    line-height: 1.2;
   }
 
   &__value {
     font-family: var(--lm-font-display);
-    font-size: 19px;
+    font-size: 15px;
     font-weight: 800;
     color: var(--lm-text);
     margin-top: 2px;
+    white-space: nowrap;
   }
 
   &__trend {
     display: flex;
     align-items: center;
     gap: 2px;
-    font-size: 10px;
+    font-size: 9px;
     color: var(--lm-text-muted);
-    margin-top: 10px;
+    margin-top: 8px;
+    flex-wrap: wrap;
 
     mat-icon {
-      font-size: 13px;
-      width: 13px;
-      height: 13px;
+      font-size: 12px;
+      width: 12px;
+      height: 12px;
     }
 
     &--good {

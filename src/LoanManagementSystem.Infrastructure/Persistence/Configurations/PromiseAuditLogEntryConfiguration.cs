@@ -28,7 +28,7 @@ public class PromiseAuditLogEntryConfiguration : IEntityTypeConfiguration<Promis
 
         builder.Property(e => e.Description).HasColumnName("description").HasMaxLength(500);
         builder.Property(e => e.PerformedBy).HasColumnName("performed_by").HasMaxLength(100);
-        builder.Property(e => e.OccurredAtUtc).HasColumnName("occurred_at");
+        builder.Property(e => e.OccurredAtUtc).HasColumnName("occurred_at").HasColumnType("datetime2");
 
         builder.HasIndex(e => e.PromiseId);
     }

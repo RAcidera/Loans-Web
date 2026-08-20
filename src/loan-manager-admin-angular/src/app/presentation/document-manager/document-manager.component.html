@@ -26,7 +26,7 @@
       <mat-icon class="document-list__icon">{{ doc.contentType === 'application/pdf' ? 'picture_as_pdf' : 'image' }}</mat-icon>
       <div class="document-list__main">
         <span class="document-list__name">{{ doc.originalFileName }}</span>
-        <span class="document-list__meta mono">{{ formatFileSize(doc.fileSizeBytes) }} · {{ doc.uploadedAt | date: 'yyyy-MM-dd' }} · {{ doc.uploadedBy }}</span>
+        <span class="document-list__meta mono">{{ formatFileSize(doc.fileSizeBytes) }} · {{ doc.uploadedAt | appDateTime: 'yyyy-MM-dd' }} · {{ doc.uploadedBy }}</span>
       </div>
       <div class="document-list__actions">
         <button mat-icon-button type="button" (click)="view(doc)" aria-label="View document" matTooltip="View">

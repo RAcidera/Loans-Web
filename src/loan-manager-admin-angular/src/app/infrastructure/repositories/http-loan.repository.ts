@@ -42,6 +42,8 @@ function toPaymentFilterParams(filters?: PaymentPageFilters): Record<string, str
   if (filters.customerSearch) params['customerSearch'] = filters.customerSearch;
   if (filters.dateFrom) params['dateFrom'] = filters.dateFrom;
   if (filters.dateTo) params['dateTo'] = filters.dateTo;
+  if (filters.createdAtFrom) params['createdAtFrom'] = filters.createdAtFrom;
+  if (filters.createdAtTo) params['createdAtTo'] = filters.createdAtTo;
   return params;
 }
 

@@ -229,6 +229,11 @@ html {
   justify-content: flex-end;
 }
 
+// Same gotcha, same fix — the Customer Profile's Payment History tab table.
+.history-table th.mat-column-amount .mat-sort-header-container {
+  justify-content: flex-end;
+}
+
 .lm-select-panel {
   background-color: var(--lm-surface) !important;
 

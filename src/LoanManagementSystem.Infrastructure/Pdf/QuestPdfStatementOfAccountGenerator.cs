@@ -104,16 +104,20 @@ public class QuestPdfStatementOfAccountGenerator : IStatementOfAccountPdfGenerat
                         {
                             table.ColumnsDefinition(columns =>
                             {
-                                columns.RelativeColumn(34);
-                                columns.RelativeColumn(33);
-                                columns.RelativeColumn(33);
+                                columns.RelativeColumn(20);   // Extension Date
+                                columns.RelativeColumn(18);   // Additional Charges
+                                columns.RelativeColumn(6);    // spacer — extra breathing room before New Due Date
+                                columns.RelativeColumn(18);   // New Due Date
+                                columns.RelativeColumn(38);   // Remarks
                             });
 
                             table.Header(header =>
                             {
                                 header.Cell().Element(c => Th(c)).Text("Extension Date");
                                 header.Cell().Element(c => Th(c, right: true)).Text("Additional Charges");
+                                header.Cell().Element(c => Th(c)).Text("");
                                 header.Cell().Element(c => Th(c)).Text("New Due Date");
+                                header.Cell().Element(c => Th(c)).Text("Remarks");
                             });
 
                             var extIndex = 0;
@@ -122,7 +126,9 @@ public class QuestPdfStatementOfAccountGenerator : IStatementOfAccountPdfGenerat
                                 var isEven = extIndex++ % 2 == 1;
                                 table.Cell().Element(c => Td(c, isEven)).Text(FormatDate(e.ExtensionDate));
                                 table.Cell().Element(c => Td(c, isEven, right: true)).Text(Php(e.AdditionalCharges));
+                                table.Cell().Element(c => Td(c, isEven)).Text("");
                                 table.Cell().Element(c => Td(c, isEven)).Text(FormatDate(e.NewDueDate));
+                                table.Cell().Element(c => Td(c, isEven)).Text(string.IsNullOrWhiteSpace(e.Remarks) ? "—" : e.Remarks);
                             }
                         });
                     }

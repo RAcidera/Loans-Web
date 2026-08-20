@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Exceptions;
 using LoanManagementSystem.Application.Common.Mappings;
@@ -22,15 +23,18 @@ public sealed class GenerateLoanSoaQueryHandler : IRequestHandler<GenerateLoanSo
     private readonly ICustomerRepository _customerRepository;
     private readonly ILoanLedgerRepository _loanLedgerRepository;
     private readonly IStatementOfAccountPdfGenerator _pdfGenerator;
+    private readonly IAppDateTimeService _appDateTime;
 
     public GenerateLoanSoaQueryHandler(
         ILoanRepository loanRepository, ICustomerRepository customerRepository,
-        ILoanLedgerRepository loanLedgerRepository, IStatementOfAccountPdfGenerator pdfGenerator)
+        ILoanLedgerRepository loanLedgerRepository, IStatementOfAccountPdfGenerator pdfGenerator,
+        IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
         _loanLedgerRepository = loanLedgerRepository;
         _pdfGenerator = pdfGenerator;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DocumentFileDto> Handle(GenerateLoanSoaQuery request, CancellationToken ct)
@@ -53,7 +57,8 @@ public sealed class GenerateLoanSoaQueryHandler : IRequestHandler<GenerateLoanSo
             .Select(e => new SoaExtensionRowDto(
                 e.ExtensionDate.ToString("yyyy-MM-dd"),
                 e.AdditionalChargesAmount.Amount,
-                loan.DueDate.ToString("yyyy-MM-dd")))
+                loan.DueDate.ToString("yyyy-MM-dd"),
+                e.Remarks))
             .ToList();
 
         var payments = loan.Payments
@@ -73,7 +78,7 @@ public sealed class GenerateLoanSoaQueryHandler : IRequestHandler<GenerateLoanSo
             CustomerAddress: customer.Address,
             CustomerContactNumber: customer.ContactNumber,
             LoanNumber: MappingExtensions.FormatLoanNumber(loan.LoanNumber),
-            StatementDate: DateOnly.FromDateTime(DateTime.UtcNow).ToString("yyyy-MM-dd"),
+            StatementDate: _appDateTime.Today.ToString("yyyy-MM-dd"),
             LoanDate: loan.StartDate.ToString("yyyy-MM-dd"),
             DueDate: loan.DueDate.ToString("yyyy-MM-dd"),
             PrincipalAmount: loan.PrincipalAmount.Amount,

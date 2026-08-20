@@ -7,7 +7,8 @@ public sealed record PaymentDto(
     decimal AmountPaid,
     string PaymentMethod,
     string Notes,
-    string? ReferenceNumber
+    string? ReferenceNumber,
+    string CreatedAt
 );
 
 /// <summary>Matches Angular's PaymentWithCustomer projection — used for the dashboard feed and the Payments list page (CustomerId is what makes the Payments page's Customer cell clickable to the Customer Profile).</summary>
@@ -21,7 +22,8 @@ public sealed record PaymentWithCustomerDto(
     string Notes,
     string? ReferenceNumber,
     string CustomerId,
-    string CustomerName
+    string CustomerName,
+    string CreatedAt
 );
 
 /// <summary>Payments list page footer total — same filters as GetPaymentsPageQuery, no paging.</summary>
@@ -36,5 +38,6 @@ public sealed record PaymentWithLoanDto(
     decimal AmountPaid,
     string PaymentMethod,
     string Notes,
-    string? ReferenceNumber
+    string? ReferenceNumber,
+    string CreatedAt
 );

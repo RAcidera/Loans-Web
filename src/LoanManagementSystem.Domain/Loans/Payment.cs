@@ -19,6 +19,9 @@ public class Payment : Entity<PaymentId>
     /// <summary>Spec's Payment field (e.g. a GCash/bank transfer reference) — optional, no format enforced.</summary>
     public string? ReferenceNumber { get; private set; }
 
+    /// <summary>When this payment record was actually added to the system — distinct from PaymentDate, which can be backdated. Set once at creation and never mutated by Edit().</summary>
+    public DateTime CreatedAtUtc { get; private set; }
+
     private Payment() { } // EF Core
 
     internal Payment(LoanId loanId, DateOnly paymentDate, Money amountPaid, PaymentMethod paymentMethod, string notes, string? referenceNumber = null)
@@ -33,6 +36,7 @@ public class Payment : Entity<PaymentId>
         PaymentMethod = paymentMethod;
         Notes = notes;
         ReferenceNumber = referenceNumber;
+        CreatedAtUtc = DateTime.UtcNow;
     }
 
     /// <summary>Mutated only through Loan.EditPayment(), which also rolls the amount change into TotalPaid/Balance.</summary>

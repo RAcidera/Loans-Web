@@ -18,10 +18,10 @@
   border-radius: var(--lm-radius) !important;
   box-shadow: var(--lm-shadow-sm) !important;
   border: 1px solid var(--lm-border);
-  padding: 18px 20px;
+  padding: 16px;
   margin-bottom: 16px;
   display: grid;
-  grid-template-columns: 1.5fr 0.9fr 0.9fr 0.9fr;
+  grid-template-columns: 1.3fr 0.85fr 0.85fr 0.85fr 0.85fr;
   align-items: center;
 
   @include tokens.tablet {
@@ -38,8 +38,9 @@
 .cash-main {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding-right: 20px;
+  gap: 12px;
+  padding-right: 12px;
+  min-width: 0;
 
   &__text {
     min-width: 0;
@@ -47,9 +48,9 @@
 }
 
 .cash-icon {
-  width: 56px;
-  height: 56px;
-  border-radius: 14px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   flex-shrink: 0;
   background: linear-gradient(135deg, var(--lm-primary), var(--lm-primary-dark));
   color: #fff;
@@ -58,45 +59,48 @@
   justify-content: center;
 
   mat-icon {
-    font-size: 26px;
-    width: 26px;
-    height: 26px;
+    font-size: 22px;
+    width: 22px;
+    height: 22px;
   }
 }
 
 .cash-title {
-  font-size: 12px;
+  font-size: 11px;
   font-weight: 700;
   color: var(--lm-text-muted);
 }
 
 .cash-value {
   font-family: var(--lm-font-display);
-  font-size: 27px;
+  font-size: 21px;
   font-weight: 800;
   margin-top: 3px;
+  white-space: nowrap;
 }
 
 .cash-sub {
   color: var(--lm-text-muted);
-  font-size: 11px;
+  font-size: 10px;
   margin-top: 3px;
 }
 
 .summary-stat {
-  padding: 6px 20px;
+  padding: 6px 12px;
   border-left: 1px solid var(--lm-border);
+  min-width: 0;
 
   .label {
     color: var(--lm-text-muted);
-    font-size: 11px;
+    font-size: 10.5px;
   }
 
   .value {
     font-family: var(--lm-font-display);
-    font-size: 18px;
+    font-size: 15px;
     font-weight: 800;
     margin-top: 6px;
+    white-space: nowrap;
 
     &.good {
       color: var(--lm-success);

@@ -4,6 +4,7 @@ import { provideAnimations } from '@angular/platform-browser/animations';
 import { provideHttpClient, withInterceptors } from '@angular/common/http';
 import { provideNativeDateAdapter } from '@angular/material/core';
 import { MAT_FORM_FIELD_DEFAULT_OPTIONS } from '@angular/material/form-field';
+import { DatePipe } from '@angular/common';
 
 import { routes } from './app.routes';
 import { LoanRepository } from './domain/repositories/loan.repository';
@@ -13,6 +14,7 @@ import { UserRepository } from './domain/repositories/user.repository';
 import { DiaryRepository } from './domain/repositories/diary.repository';
 import { CalendarRepository } from './domain/repositories/calendar.repository';
 import { PromiseToPayRepository } from './domain/repositories/promise-to-pay.repository';
+import { SettingsRepository } from './domain/repositories/settings.repository';
 import { HttpLoanRepository } from './infrastructure/repositories/http-loan.repository';
 import { HttpCashLedgerRepository } from './infrastructure/repositories/http-cash-ledger.repository';
 import { HttpReportRepository } from './infrastructure/repositories/http-report.repository';
@@ -20,6 +22,7 @@ import { HttpUserRepository } from './infrastructure/repositories/http-user.repo
 import { HttpDiaryRepository } from './infrastructure/repositories/http-diary.repository';
 import { HttpCalendarRepository } from './infrastructure/repositories/http-calendar.repository';
 import { HttpPromiseToPayRepository } from './infrastructure/repositories/http-promise-to-pay.repository';
+import { HttpSettingsRepository } from './infrastructure/repositories/http-settings.repository';
 import { authInterceptor } from './infrastructure/auth/auth.interceptor';
 
 // Swap the three `useClass` lines below (and drop provideHttpClient) to go
@@ -67,5 +70,10 @@ export const appConfig: ApplicationConfig = {
     { provide: DiaryRepository, useClass: HttpDiaryRepository },
     { provide: CalendarRepository, useClass: HttpCalendarRepository },
     { provide: PromiseToPayRepository, useClass: HttpPromiseToPayRepository },
+    { provide: SettingsRepository, useClass: HttpSettingsRepository },
+    // Available for manual `inject(DatePipe)` (the appDateTime/appDate
+    // pipes in presentation/shared use it internally) as well as template
+    // `| date` usage — DatePipe isn't providedIn:'root' on its own.
+    DatePipe,
   ],
 };

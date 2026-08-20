@@ -447,6 +447,77 @@
   }
 }
 
+// Payments tab — compact fixed widths on every column but Notes, so the
+// dense identifying columns (date/amount/method/balance/reference/created)
+// hug the left edge and Notes alone absorbs whatever width is left over
+// (same technique as payments.component.scss's standalone Payments list).
+// Scoped by --payments (not plain .history-table) so it can't also resize
+// the unrelated mini Payment History card above, which reuses the same
+// matColumnDef keys ("date"/"amount"/"method") at a much narrower width.
+//
+// Every fixed column also gets white-space: nowrap, so its content can
+// never wrap onto a second line and inflate --lm-table-row-h — a width
+// alone isn't enough since the table's default "auto" layout algorithm
+// still wraps content that doesn't fit. With nowrap, a column that truly
+// needs more room grows the table past 100% instead, and .table-scroll's
+// overflow-x: auto turns that into a horizontal scrollbar — the same
+// "scroll, don't squish" fallback the rest of the app already uses on
+// narrow/mobile viewports, rather than a new responsive pattern here.
+.history-table--payments {
+  th.mat-column-date,
+  td.mat-column-date {
+    width: 118px;
+    white-space: nowrap;
+  }
+
+  th.mat-column-amount,
+  td.mat-column-amount {
+    width: 110px;
+    white-space: nowrap;
+  }
+
+  th.mat-column-method,
+  td.mat-column-method {
+    width: 112px;
+    white-space: nowrap;
+  }
+
+  th.mat-column-balance,
+  td.mat-column-balance {
+    width: 150px;
+    white-space: nowrap;
+  }
+
+  th.mat-column-reference,
+  td.mat-column-reference {
+    width: 112px;
+    white-space: nowrap;
+  }
+
+  th.mat-column-createdAt,
+  td.mat-column-createdAt {
+    width: 172px;
+    white-space: nowrap;
+  }
+
+  th.mat-column-actions,
+  td.mat-column-actions {
+    width: 84px;
+    white-space: nowrap;
+  }
+
+  // Notes has no declared width and no nowrap — it's the sole column that
+  // absorbs whatever's left of the table's own 100% width, wrapping onto
+  // extra lines only for a genuinely long note (acceptable; unlike the
+  // fixed columns above, that's real content growth, not layout cramping).
+
+  td.mat-column-method,
+  td.mat-column-reference {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
 .empty-note {
   font-size: 12.5px;
   color: var(--lm-text-muted);

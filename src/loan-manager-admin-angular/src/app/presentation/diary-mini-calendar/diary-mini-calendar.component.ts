@@ -1,9 +1,10 @@
-import { Component, EventEmitter, OnInit, Output } from '@angular/core';
+import { Component, EventEmitter, OnInit, Output, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 
 import { SearchDiaryEntriesUseCase } from '../../application/use-cases/search-diary-entries.use-case';
+import { BusinessTimeService } from '../../application/business-time.service';
 import { toLocalDateString } from '../shared/date-utils';
 
 interface MiniDayCell {
@@ -40,6 +41,8 @@ export class DiaryMiniCalendarComponent implements OnInit {
   weeks: MiniDayCell[][] = [];
   selectedDate: string | null = null;
   weekdayLabels = WEEKDAY_LABELS;
+
+  private readonly businessTimeService = inject(BusinessTimeService);
 
   constructor(private readonly searchEntries: SearchDiaryEntriesUseCase) {}
 
@@ -80,7 +83,7 @@ export class DiaryMiniCalendarComponent implements OnInit {
   private buildWeeks(firstOfMonth: Date, datesWithEntries: Set<string>, datesWithReminders: Set<string>): MiniDayCell[][] {
     const gridStart = new Date(firstOfMonth);
     gridStart.setDate(gridStart.getDate() - gridStart.getDay());
-    const todayKey = toLocalDateString(new Date());
+    const todayKey = this.businessTimeService.today() ?? toLocalDateString(new Date());
     const cells: MiniDayCell[] = [];
 
     for (let i = 0; i < 42; i++) {

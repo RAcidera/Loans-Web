@@ -1333,6 +1333,35 @@
         }
       }
     },
+    "/api/diary/summary": {
+      "get": {
+        "tags": [
+          "Diary"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiarySummaryDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiarySummaryDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DiarySummaryDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/diary/{id}": {
       "get": {
         "tags": [
@@ -3140,6 +3169,22 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "createdAtFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "createdAtTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
           }
         ],
         "responses": {
@@ -3201,6 +3246,22 @@
               "type": "string",
               "format": "date"
             }
+          },
+          {
+            "name": "createdAtFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "createdAtTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
           }
         ],
         "responses": {
@@ -3257,6 +3318,22 @@
           },
           {
             "name": "dateTo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "createdAtFrom",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "date"
+            }
+          },
+          {
+            "name": "createdAtTo",
             "in": "query",
             "schema": {
               "type": "string",
@@ -4281,6 +4358,83 @@
         }
       }
     },
+    "/api/settings": {
+      "get": {
+        "tags": [
+          "Settings"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/settings/business-time-zone": {
+      "put": {
+        "tags": [
+          "Settings"
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBusinessTimeZoneRequest"
+              }
+            },
+            "text/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBusinessTimeZoneRequest"
+              }
+            },
+            "application/*+json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateBusinessTimeZoneRequest"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsDto"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsDto"
+                }
+              },
+              "text/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AppSettingsDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/users": {
       "get": {
         "tags": [
@@ -4578,6 +4732,20 @@
         },
         "additionalProperties": false
       },
+      "AppSettingsDto": {
+        "type": "object",
+        "properties": {
+          "businessTimeZoneId": {
+            "type": "string",
+            "nullable": true
+          },
+          "currentBusinessDate": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "CalendarEventDto": {
         "type": "object",
         "properties": {
@@ -4610,6 +4778,27 @@
             "nullable": true
           },
           "linkedEntityId": {
+            "type": "string",
+            "nullable": true
+          },
+          "subtitle": {
+            "type": "string",
+            "nullable": true
+          },
+          "detailText": {
+            "type": "string",
+            "nullable": true
+          },
+          "amount": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "customerId": {
+            "type": "string",
+            "nullable": true
+          },
+          "loanId": {
             "type": "string",
             "nullable": true
           }
@@ -4742,6 +4931,10 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          },
+          "grossReceivables": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -4849,6 +5042,10 @@
             "nullable": true
           },
           "reminderTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
             "type": "string",
             "nullable": true
           }
@@ -5292,6 +5489,32 @@
         },
         "additionalProperties": false
       },
+      "DiaryCategoryCountDto": {
+        "type": "object",
+        "properties": {
+          "categoryId": {
+            "type": "string",
+            "nullable": true
+          },
+          "name": {
+            "type": "string",
+            "nullable": true
+          },
+          "icon": {
+            "type": "string",
+            "nullable": true
+          },
+          "displayColor": {
+            "type": "string",
+            "nullable": true
+          },
+          "count": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "additionalProperties": false
+      },
       "DiaryCategoryDto": {
         "type": "object",
         "properties": {
@@ -5361,6 +5584,10 @@
             "nullable": true
           },
           "notes": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
             "type": "string",
             "nullable": true
           },
@@ -5472,6 +5699,51 @@
         },
         "additionalProperties": false
       },
+      "DiarySummaryDto": {
+        "type": "object",
+        "properties": {
+          "totalEntries": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "entriesThisMonth": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "loanDueCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "pendingRemindersCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "collectionsToday": {
+            "type": "number",
+            "format": "double"
+          },
+          "collectionsMonthToDate": {
+            "type": "number",
+            "format": "double"
+          },
+          "loanReleasesToday": {
+            "type": "number",
+            "format": "double"
+          },
+          "loanReleasesMonthToDate": {
+            "type": "number",
+            "format": "double"
+          },
+          "categoryCounts": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DiaryCategoryCountDto"
+            },
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "EditCashTransactionRequest": {
         "type": "object",
         "properties": {
@@ -5533,6 +5805,14 @@
               "$ref": "#/components/schemas/FinancialComparisonMetricDto"
             },
             "nullable": true
+          },
+          "collectionsSinceSnapshot": {
+            "type": "number",
+            "format": "double"
+          },
+          "loanReleasesSinceSnapshot": {
+            "type": "number",
+            "format": "double"
           }
         },
         "additionalProperties": false
@@ -6029,6 +6309,11 @@
           "customerContactNumber": {
             "type": "string",
             "nullable": true
+          },
+          "daysUntilDue": {
+            "type": "integer",
+            "format": "int32",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6252,6 +6537,10 @@
           "referenceNumber": {
             "type": "string",
             "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6315,6 +6604,10 @@
           "customerName": {
             "type": "string",
             "nullable": true
+          },
+          "createdAt": {
+            "type": "string",
+            "nullable": true
           }
         },
         "additionalProperties": false
@@ -6368,6 +6661,10 @@
             "nullable": true
           },
           "referenceNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
             "type": "string",
             "nullable": true
           }
@@ -6581,6 +6878,16 @@
         },
         "additionalProperties": false
       },
+      "UpdateBusinessTimeZoneRequest": {
+        "type": "object",
+        "properties": {
+          "timeZoneId": {
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "additionalProperties": false
+      },
       "UpdateCustomerRequest": {
         "type": "object",
         "properties": {
@@ -6647,6 +6954,10 @@
             "nullable": true
           },
           "reminderTime": {
+            "type": "string",
+            "nullable": true
+          },
+          "tags": {
             "type": "string",
             "nullable": true
           }

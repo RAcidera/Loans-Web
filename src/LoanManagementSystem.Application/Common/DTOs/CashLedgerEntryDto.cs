@@ -37,5 +37,7 @@ public sealed record CashSummaryDto(
     decimal? CashOnHandChangePercent,
     decimal? CashInChangePercent,
     decimal? CashOutChangePercent,
-    decimal? NetChangePercent
+    decimal? NetChangePercent,
+    /// <summary>Backs the Transactions list page's "Total Business Position" summary figure (Gross Receivables + Cash on Hand) — computed the same way as the Dashboard's Gross Receivables KPI (FinancialCalculations.ComputeReceivables), not duplicated math.</summary>
+    decimal GrossReceivables
 );

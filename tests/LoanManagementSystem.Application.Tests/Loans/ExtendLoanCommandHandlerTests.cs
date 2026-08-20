@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.Exceptions;
 using LoanManagementSystem.Application.Loans.Commands.ExtendLoan;
 using LoanManagementSystem.Domain.Customers;
@@ -13,11 +14,13 @@ public class ExtendLoanCommandHandlerTests
 {
     private readonly Mock<ILoanRepository> _loanRepository = new();
     private readonly Mock<IUnitOfWork> _unitOfWork = new();
+    private readonly Mock<IAppDateTimeService> _appDateTime = new();
     private readonly ExtendLoanCommandHandler _handler;
 
     public ExtendLoanCommandHandlerTests()
     {
-        _handler = new ExtendLoanCommandHandler(_loanRepository.Object, _unitOfWork.Object);
+        _appDateTime.Setup(s => s.Today).Returns(DateOnly.FromDateTime(DateTime.UtcNow));
+        _handler = new ExtendLoanCommandHandler(_loanRepository.Object, _unitOfWork.Object, _appDateTime.Object);
     }
 
     [Fact]

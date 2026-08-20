@@ -34,7 +34,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
             .HasColumnName("status")
             .HasMaxLength(20);
 
-        builder.Property(c => c.CreatedAtUtc).HasColumnName("created_at");
+        builder.Property(c => c.CreatedAtUtc).HasColumnName("created_at").HasColumnType("datetime2");
 
         // --- Documents (child entities, one Customer -> many CustomerDocument) ---
         builder.HasMany(c => c.Documents)

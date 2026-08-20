@@ -21,6 +21,7 @@ import { ExportCustomersUseCase } from '../../application/use-cases/export-custo
 import { AddCustomerDialogComponent } from '../add-customer-dialog/add-customer-dialog.component';
 import { AuthService } from '../../application/auth/auth.service';
 import { todayLocalDateString } from '../shared/date-utils';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
 
 const STATUS_LABEL: Record<CustomerStatus, string> = {
   active: 'Active',
@@ -71,6 +72,7 @@ function fmtMoney(n: number): string {
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
+    AppDateTimePipe,
   ],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss'],

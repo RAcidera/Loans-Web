@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Application.Common.Xlsx;
@@ -19,13 +20,16 @@ public sealed class ExportCustomersXlsxQueryHandler : IRequestHandler<ExportCust
     private readonly ICustomerRepository _customerRepository;
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomersXlsxExportGenerator _xlsxGenerator;
+    private readonly IAppDateTimeService _appDateTime;
 
     public ExportCustomersXlsxQueryHandler(
-        ICustomerRepository customerRepository, ILoanRepository loanRepository, ICustomersXlsxExportGenerator xlsxGenerator)
+        ICustomerRepository customerRepository, ILoanRepository loanRepository, ICustomersXlsxExportGenerator xlsxGenerator,
+        IAppDateTimeService appDateTime)
     {
         _customerRepository = customerRepository;
         _loanRepository = loanRepository;
         _xlsxGenerator = xlsxGenerator;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DocumentFileDto> Handle(ExportCustomersXlsxQuery request, CancellationToken ct)
@@ -49,12 +53,12 @@ public sealed class ExportCustomersXlsxQueryHandler : IRequestHandler<ExportCust
                     Status: c.Status.ToString(),
                     LoanCount: loanCount,
                     OutstandingBalance: balance,
-                    DateAdded: c.CreatedAtUtc.ToString("yyyy-MM-dd"));
+                    DateAdded: _appDateTime.ConvertUtcToBusinessLocal(c.CreatedAtUtc).ToString("yyyy-MM-dd"));
             })
             .ToList();
 
         var bytes = _xlsxGenerator.Generate(rows);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         return new DocumentFileDto($"customers_export_{today:yyyy-MM-dd}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", bytes);
     }
 }

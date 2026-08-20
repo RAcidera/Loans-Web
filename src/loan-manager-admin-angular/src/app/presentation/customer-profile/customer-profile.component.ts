@@ -13,6 +13,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { Customer } from '../../domain/entities/customer.entity';
 import { Loan, LoanClassification, LoanStatus } from '../../domain/entities/loan.entity';
+import { PaymentMethod } from '../../domain/entities/payment.entity';
 import { GetCustomerDetailUseCase } from '../../application/use-cases/get-customer-detail.use-case';
 import { GetCustomerPaymentHistoryUseCase } from '../../application/use-cases/get-customer-payment-history.use-case';
 import { GetCustomerPaymentsPageUseCase } from '../../application/use-cases/get-customer-payments-page.use-case';
@@ -24,6 +25,8 @@ import { EditCustomerDialogComponent } from '../edit-customer-dialog/edit-custom
 import { AddLoanDialogComponent } from '../add-loan-dialog/add-loan-dialog.component';
 import { AddPaymentDialogComponent } from '../add-payment-dialog/add-payment-dialog.component';
 import { AuthService } from '../../application/auth/auth.service';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 function fmtMoney(n: number): string {
   return `₱${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -35,6 +38,13 @@ const STATUS_LABEL: Record<LoanStatus, string> = {
   paid: 'Paid',
   overdue: 'Overdue',
   writtenoff: 'Written Off',
+};
+
+const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
+  cash: 'Cash',
+  gcash: 'GCash',
+  bank_transfer: 'Bank transfer',
+  other: 'Other',
 };
 
 const CLASSIFICATION_LABEL: Record<LoanClassification, string> = {
@@ -58,6 +68,14 @@ interface ActivityItem {
   tone: 'good' | 'neutral' | 'info';
   title: string;
   subtitle: string;
+  /**
+   * A mix of business dates (payment.paymentDate) and true timestamps
+   * (loan.createdAt, customer.createdAt) — rendered with `appDateTime` in
+   * the template, which is correct for the timestamp entries and correct
+   * for the date-only entries too as long as the configured Business Time
+   * Zone stays east of UTC (true for the default, Asia/Manila); a business
+   * timezone west of UTC could show a payment-date entry a day early here.
+   */
   date: string;
 }
 
@@ -103,6 +121,8 @@ function relativeFromNow(dateStr: string): string {
     MatDialogModule,
     DocumentManagerComponent,
     PromiseListComponent,
+    AppDateTimePipe,
+    AppDatePipe,
   ],
   templateUrl: './customer-profile.component.html',
   styleUrls: ['./customer-profile.component.scss'],
@@ -126,9 +146,10 @@ export class CustomerProfileComponent implements OnInit {
     'id', 'loanDate', 'principal', 'interestPercent', 'interestCharges', 'dueDate',
     'totalPaid', 'balance', 'terms', 'status', 'classification', 'actions',
   ];
-  paymentColumns = ['date', 'loan', 'amount', 'reference', 'notes'];
+  paymentColumns = ['date', 'loan', 'amount', 'method', 'reference', 'createdAt', 'notes'];
   statusLabel = STATUS_LABEL;
   classificationLabel = CLASSIFICATION_LABEL;
+  methodLabel = PAYMENT_METHOD_LABEL;
 
   searchTerm = '';
   filteredLoans: Loan[] = [];
@@ -347,6 +368,10 @@ export class CustomerProfileComponent implements OnInit {
 
   getClassificationLabel(classification: LoanClassification): string {
     return this.classificationLabel[classification];
+  }
+
+  getMethodLabel(method: PaymentMethod): string {
+    return this.methodLabel[method];
   }
 
   focusLoansTab(): void {

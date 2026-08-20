@@ -68,7 +68,7 @@ public class LoanConfiguration : IEntityTypeConfiguration<Loan>
 
         builder.Property(l => l.Remarks).HasColumnName("remarks").HasMaxLength(1000);
 
-        builder.Property(l => l.CreatedAtUtc).HasColumnName("created_at");
+        builder.Property(l => l.CreatedAtUtc).HasColumnName("created_at").HasColumnType("datetime2");
 
         // --- Extensions (child entities, one Loan -> many LoanExtension) ---
         builder.HasMany(l => l.Extensions)

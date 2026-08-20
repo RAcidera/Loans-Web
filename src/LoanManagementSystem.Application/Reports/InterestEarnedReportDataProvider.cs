@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Interest;
 using LoanManagementSystem.Application.Common.Mappings;
@@ -23,20 +24,23 @@ public sealed class InterestEarnedReportDataProvider
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IInterestCalculationService _interestCalculationService;
+    private readonly IAppDateTimeService _appDateTime;
 
     public InterestEarnedReportDataProvider(
-        ILoanRepository loanRepository, ICustomerRepository customerRepository, IInterestCalculationService interestCalculationService)
+        ILoanRepository loanRepository, ICustomerRepository customerRepository, IInterestCalculationService interestCalculationService,
+        IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
         _interestCalculationService = interestCalculationService;
+        _appDateTime = appDateTime;
     }
 
     /// <summary>Loads every loan matching the non-date filters (search/status/classification) — the date-range overlap is applied later, per report window, in BuildRows.</summary>
     public async Task<(List<Loan> Loans, Dictionary<CustomerId, string> CustomerNames)> LoadFilteredLoansAsync(
         string? search, string? status, string? classification, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         var loans = await _loanRepository.GetAllWithDetailsAsync(ct);
         foreach (var loan in loans)
             loan.RefreshOverdueStatus(today);

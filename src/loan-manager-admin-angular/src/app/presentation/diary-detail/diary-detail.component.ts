@@ -17,6 +17,8 @@ import { FinancialSnapshotComponent } from '../financial-snapshot/financial-snap
 import { FinancialComparisonComponent } from '../financial-comparison/financial-comparison.component';
 import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { parseTags } from '../shared/tags-utils';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 /** Requirements §13 — the dedicated Diary Entry Detail page (not a modal, per requirements §25). */
 @Component({
@@ -31,6 +33,8 @@ import { parseTags } from '../shared/tags-utils';
     CategoryBadgeComponent,
     FinancialSnapshotComponent,
     FinancialComparisonComponent,
+    AppDateTimePipe,
+    AppDatePipe,
   ],
   templateUrl: './diary-detail.component.html',
   styleUrls: ['./diary-detail.component.scss'],

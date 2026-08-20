@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Domain.Customers;
 using LoanManagementSystem.Domain.Loans;
@@ -16,16 +17,18 @@ public sealed record GetCustomerReceivablesQuery(string CustomerId) : IRequest<D
 public sealed class GetCustomerReceivablesQueryHandler : IRequestHandler<GetCustomerReceivablesQuery, DashboardReceivablesDto>
 {
     private readonly ILoanRepository _loanRepository;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public GetCustomerReceivablesQueryHandler(ILoanRepository loanRepository)
+    public GetCustomerReceivablesQueryHandler(ILoanRepository loanRepository, IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DashboardReceivablesDto> Handle(GetCustomerReceivablesQuery request, CancellationToken ct)
     {
         var loans = await _loanRepository.GetByCustomerAsync(CustomerId.Parse(request.CustomerId), ct);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
 
         foreach (var loan in loans)
             loan.RefreshOverdueStatus(today);

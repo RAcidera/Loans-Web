@@ -25,6 +25,7 @@ import { AddCashTransactionDialogComponent } from '../add-cash-transaction-dialo
 import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AuthService } from '../../application/auth/auth.service';
 import { toLocalDateString, todayLocalDateString } from '../shared/date-utils';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 const TYPE_LABEL: Record<CashTransactionType, string> = {
   loan_release: 'Loan Release',
@@ -76,6 +77,7 @@ function fmtMoney(n: number): string {
     MatMenuModule,
     MatTooltipModule,
     MatDialogModule,
+    AppDatePipe,
   ],
   templateUrl: './cash-funds.component.html',
   styleUrls: ['./cash-funds.component.scss'],

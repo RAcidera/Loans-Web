@@ -4,6 +4,7 @@ using LoanManagementSystem.Domain.Customers;
 using LoanManagementSystem.Domain.Diary;
 using LoanManagementSystem.Domain.Identity;
 using LoanManagementSystem.Domain.Loans;
+using LoanManagementSystem.Domain.Settings;
 using LoanManagementSystem.Domain.ValueObjects;
 using Microsoft.EntityFrameworkCore;
 
@@ -165,6 +166,24 @@ public static class DbSeeder
         if (toAdd.Count > 0)
             db.DiaryCategories.AddRange(toAdd);
 
+        await db.SaveChangesAsync();
+    }
+
+    /// <summary>
+    /// General Settings' default values — runs unconditionally in every
+    /// environment (like SeedDiaryCategoriesAsync above), not gated behind
+    /// IsDevelopment(), so a fresh Production database gets a working
+    /// Business Time Zone on first deploy rather than IAppDateTimeService
+    /// silently falling back to BusinessTimeZoneCache's hardcoded default
+    /// until an admin visits Settings. Idempotent — only inserts the key if
+    /// it doesn't already exist, never overwrites an admin's chosen value.
+    /// </summary>
+    public static async Task SeedDefaultSettingsAsync(AppDbContext db)
+    {
+        var exists = await db.AppSettings.AnyAsync(s => s.Key == AppSetting.Keys.BusinessTimeZone);
+        if (exists) return;
+
+        db.AppSettings.Add(AppSetting.Create(AppSetting.Keys.BusinessTimeZone, "Asia/Manila"));
         await db.SaveChangesAsync();
     }
 

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { FinancialComparison, FinancialComparisonMetric } from '../../domain/entities/diary-entry.entity';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 /** Which direction of change is a "good" outcome for a given metric key — requirements §17. Money-shaped keys render with a peso sign; count-shaped keys render as plain numbers. */
 type Direction = 'lowerIsBetter' | 'higherIsBetter' | 'neutral';
@@ -12,6 +13,7 @@ const METRIC_DIRECTION: Record<string, Direction> = {
   collectibleReceivables: 'neutral',
   badLoanReceivables: 'lowerIsBetter',
   cashOnHand: 'higherIsBetter',
+  totalBusinessPosition: 'neutral',
   activeLoanCount: 'neutral',
   overdueLoanCount: 'lowerIsBetter',
   badLoanCount: 'lowerIsBetter',
@@ -30,14 +32,14 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
 @Component({
   selector: 'lm-financial-comparison',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule, MatIconModule, MatButtonModule, AppDatePipe],
   template: `
     <div class="comparison" *ngIf="comparison">
       <div class="comparison__header">
         <div class="comparison__heading">
           <span class="comparison__title">FINANCIAL COMPARISON</span>
           <span class="comparison__subtitle">
-            Snapshot vs Today ({{ comparison.todayDate | date: 'MMM d, y' }})
+            Snapshot vs Today ({{ comparison.todayDate | appDate: 'MMM d, y' }})
           </span>
         </div>
         <button mat-stroked-button class="comparison__export-btn" (click)="exportCsv()">
@@ -53,11 +55,11 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
               <th class="comparison__metric-head">Metric</th>
               <th>
                 Snapshot
-                <span class="comparison__col-date mono">{{ comparison.snapshotDate | date: 'MMM d, y' }}</span>
+                <span class="comparison__col-date mono">{{ comparison.snapshotDate | appDate: 'MMM d, y' }}</span>
               </th>
               <th>
                 Today
-                <span class="comparison__col-date mono">{{ comparison.todayDate | date: 'MMM d, y' }}</span>
+                <span class="comparison__col-date mono">{{ comparison.todayDate | appDate: 'MMM d, y' }}</span>
               </th>
               <th>Change</th>
               <th>% Change</th>
@@ -206,6 +208,12 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
           text-align: right;
           padding: 9px 10px;
           border-bottom: 1px solid var(--lm-border);
+        }
+
+        // Snapshot/Today/Change/% Change figures — heavier than the table's plain
+        // 400 default so they read as the primary data, not the Metric label.
+        td.mono {
+          font-weight: 500;
         }
 
         tbody tr:last-child td {

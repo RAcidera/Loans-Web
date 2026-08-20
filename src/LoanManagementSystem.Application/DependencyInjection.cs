@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.Interest;
 using LoanManagementSystem.Application.Diary;
 using LoanManagementSystem.Application.Reports;
@@ -23,6 +24,14 @@ public static class DependencyInjection
         services.AddScoped<IInterestCalculationService, InterestCalculationService>();
         services.AddScoped<InterestEarnedReportDataProvider>();
         services.AddScoped<IFinancialSnapshotService, FinancialSnapshotService>();
+
+        // Business Time Zone strategy: TimeProvider.System is the real
+        // clock, swappable in tests; BusinessTimeZoneCache is a singleton
+        // so its one in-memory value is shared and refreshed instantly on
+        // update across every request (see its own doc comment).
+        services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<IBusinessTimeZoneCache, BusinessTimeZoneCache>();
+        services.AddScoped<IAppDateTimeService, AppDateTimeService>();
 
         return services;
     }

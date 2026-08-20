@@ -31,7 +31,7 @@ public class DiaryFinancialSnapshotConfiguration : IEntityTypeConfiguration<Diar
         builder.Property(s => s.CollectionsMonthToDate).HasColumnName("collections_month_to_date").HasColumnType("decimal(12,2)");
         builder.Property(s => s.LoanReleasesToday).HasColumnName("loan_releases_today").HasColumnType("decimal(12,2)");
         builder.Property(s => s.LoanReleasesMonthToDate).HasColumnName("loan_releases_month_to_date").HasColumnType("decimal(12,2)");
-        builder.Property(s => s.SnapshotDateTimeUtc).HasColumnName("snapshot_datetime");
+        builder.Property(s => s.SnapshotDateTimeUtc).HasColumnName("snapshot_datetime").HasColumnType("datetime2");
 
         builder.HasIndex(s => s.DiaryEntryId).IsUnique();
     }

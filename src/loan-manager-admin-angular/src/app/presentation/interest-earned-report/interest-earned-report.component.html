@@ -141,7 +141,7 @@
 
   <mat-card class="summary-note" *ngIf="overview as ov2">
     <h2>Current Period Summary</h2>
-    <p class="period-range">{{ filters.value.fromDate | date:'MMM d, y' }} – {{ filters.value.toDate | date:'MMM d, y' }}</p>
+    <p class="period-range">{{ filters.value.fromDate | appDate:'MMM d, y' }} – {{ filters.value.toDate | appDate:'MMM d, y' }}</p>
     <div class="big">{{ fmtMoney(ov2.summary.totalEarnedInterest) }}</div>
     <p>This is the interest earned within the selected period based on elapsed loan and extension days.</p>
     <p>
@@ -176,13 +176,13 @@
 
     <ng-container matColumnDef="loanDate">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="loanDate">Loan Date</th>
-      <td mat-cell *matCellDef="let r" class="mono">{{ r.loanDate | date:'MM/dd/yyyy' }}</td>
+      <td mat-cell *matCellDef="let r" class="mono">{{ r.loanDate | appDate:'MM/dd/yyyy' }}</td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="dueDate">
       <th mat-header-cell *matHeaderCellDef mat-sort-header="dueDate">Due Date</th>
-      <td mat-cell *matCellDef="let r" class="mono">{{ r.dueDate | date:'MM/dd/yyyy' }}</td>
+      <td mat-cell *matCellDef="let r" class="mono">{{ r.dueDate | appDate:'MM/dd/yyyy' }}</td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 

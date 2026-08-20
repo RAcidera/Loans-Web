@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Domain.Diary;
@@ -32,16 +33,19 @@ public sealed class GetCalendarEventsQueryHandler : IRequestHandler<GetCalendarE
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IPromiseToPayRepository _promiseRepository;
+    private readonly IAppDateTimeService _appDateTime;
 
     public GetCalendarEventsQueryHandler(
         IDiaryRepository diaryRepository, IDiaryCategoryRepository diaryCategoryRepository,
-        ILoanRepository loanRepository, ICustomerRepository customerRepository, IPromiseToPayRepository promiseRepository)
+        ILoanRepository loanRepository, ICustomerRepository customerRepository, IPromiseToPayRepository promiseRepository,
+        IAppDateTimeService appDateTime)
     {
         _diaryRepository = diaryRepository;
         _diaryCategoryRepository = diaryCategoryRepository;
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
         _promiseRepository = promiseRepository;
+        _appDateTime = appDateTime;
     }
 
     public async Task<List<CalendarEventDto>> Handle(GetCalendarEventsQuery request, CancellationToken ct)
@@ -134,7 +138,7 @@ public sealed class GetCalendarEventsQueryHandler : IRequestHandler<GetCalendarE
     private async Task<List<CalendarEventDto>> GetLoanDueEventsAsync(DateOnly from, DateOnly to, HashSet<string>? types, CancellationToken ct)
     {
         var loans = await _loanRepository.GetAllAsync(ct);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         foreach (var loan in loans)
             loan.RefreshOverdueStatus(today);
 

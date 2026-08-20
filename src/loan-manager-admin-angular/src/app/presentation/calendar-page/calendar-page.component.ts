@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -11,6 +11,7 @@ import { Loan } from '../../domain/entities/loan.entity';
 import { GetCalendarEventsUseCase } from '../../application/use-cases/get-calendar-events.use-case';
 import { GetCustomersUseCase } from '../../application/use-cases/get-customers.use-case';
 import { GetLoansUseCase } from '../../application/use-cases/get-loans.use-case';
+import { BusinessTimeService } from '../../application/business-time.service';
 import { toLocalDateString } from '../shared/date-utils';
 import { CalendarDayCellData } from '../shared/calendar-day-cell.model';
 import { CALENDAR_EVENT_TYPES } from '../shared/calendar-event-meta';
@@ -80,6 +81,8 @@ export class CalendarPageComponent implements OnInit {
   private loans: Loan[] = [];
   private loansById = new Map<string, Loan>();
   private customersById = new Map<string, Customer>();
+
+  private readonly businessTimeService = inject(BusinessTimeService);
 
   constructor(
     private readonly getEvents: GetCalendarEventsUseCase,
@@ -303,7 +306,7 @@ export class CalendarPageComponent implements OnInit {
   private buildWeeks(byDate: Map<string, CalendarEvent[]>, maxVisible: number): CalendarDayCellData[][] {
     const { from } = this.range();
     const totalDays = this.viewMode === 'week' ? 7 : 42;
-    const todayKey = toLocalDateString(new Date());
+    const todayKey = this.businessTimeService.today() ?? toLocalDateString(new Date());
     const cells: CalendarDayCellData[] = [];
 
     for (let i = 0; i < totalDays; i++) {

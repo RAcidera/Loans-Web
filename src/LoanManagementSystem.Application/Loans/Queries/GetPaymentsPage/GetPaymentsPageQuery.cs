@@ -18,7 +18,8 @@ namespace LoanManagementSystem.Application.Loans.Queries.GetPaymentsPage;
 /// </summary>
 public sealed record GetPaymentsPageQuery(
     int PageIndex, int PageSize, string? LoanSearch, string? CustomerSearch,
-    DateOnly? DateFrom, DateOnly? DateTo, string? SortBy, string? SortDir)
+    DateOnly? DateFrom, DateOnly? DateTo, string? SortBy, string? SortDir,
+    DateOnly? CreatedAtFrom = null, DateOnly? CreatedAtTo = null)
     : IRequest<PagedResult<PaymentWithCustomerDto>>;
 
 public sealed class GetPaymentsPageQueryHandler : IRequestHandler<GetPaymentsPageQuery, PagedResult<PaymentWithCustomerDto>>
@@ -40,7 +41,8 @@ public sealed class GetPaymentsPageQueryHandler : IRequestHandler<GetPaymentsPag
         var effectiveCustomerIds = await GetPaymentsTotalsQueryHandler.ResolveCustomerIdsAsync(_customerRepository, request.CustomerSearch, ct);
 
         var (rows, totalCount) = await _loanRepository.GetPaymentsPageAsync(
-            pageIndex, pageSize, request.LoanSearch, effectiveCustomerIds, request.DateFrom, request.DateTo, request.SortBy, request.SortDir, ct);
+            pageIndex, pageSize, request.LoanSearch, effectiveCustomerIds, request.DateFrom, request.DateTo, request.SortBy, request.SortDir, ct,
+            request.CreatedAtFrom, request.CreatedAtTo);
 
         var items = rows.Select(r => r.Payment.ToDtoWithCustomer(r.CustomerId.ToString(), r.CustomerName, r.LoanNumber)).ToList();
         return new PagedResult<PaymentWithCustomerDto>(items, totalCount);

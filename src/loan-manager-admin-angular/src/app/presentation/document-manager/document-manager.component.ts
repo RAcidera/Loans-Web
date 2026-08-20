@@ -18,6 +18,7 @@ import { DownloadLoanDocumentUseCase } from '../../application/use-cases/downloa
 import { DeleteLoanDocumentUseCase } from '../../application/use-cases/delete-loan-document.use-case';
 import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AuthService } from '../../application/auth/auth.service';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
 
 type OwnerType = 'customer' | 'loan';
 type AnyDocument = CustomerDocument | LoanDocument;
@@ -41,7 +42,7 @@ function formatFileSize(bytes: number): string {
 @Component({
   selector: 'lm-document-manager',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatProgressSpinnerModule, MatTooltipModule, AppDateTimePipe],
   templateUrl: './document-manager.component.html',
   styleUrls: ['./document-manager.component.scss'],
 })

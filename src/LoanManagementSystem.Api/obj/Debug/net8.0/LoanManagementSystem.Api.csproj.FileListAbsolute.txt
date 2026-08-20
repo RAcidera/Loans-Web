@@ -391,3 +391,4 @@ D:\BitBucket\Loans-Web\src\LoanManagementSystem.Api\obj\Debug\net8.0\refint\Loan
 D:\BitBucket\Loans-Web\src\LoanManagementSystem.Api\obj\Debug\net8.0\LoanManagementSystem.Api.pdb
 D:\BitBucket\Loans-Web\src\LoanManagementSystem.Api\obj\Debug\net8.0\LoanManagementSystem.Api.genruntimeconfig.cache
 D:\BitBucket\Loans-Web\src\LoanManagementSystem.Api\obj\Debug\net8.0\ref\LoanManagementSystem.Api.dll
+D:\BitBucket\Loans-Web\src\LoanManagementSystem.Api\obj\Debug\net8.0\staticwebassets.upToDateCheck.txt

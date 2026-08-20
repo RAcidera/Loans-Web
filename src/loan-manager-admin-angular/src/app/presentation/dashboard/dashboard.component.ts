@@ -14,6 +14,7 @@ import { GetCashSummaryUseCase } from '../../application/use-cases/get-cash-summ
 import { GetRecentPaymentsUseCase } from '../../application/use-cases/get-recent-payments.use-case';
 import { GetDashboardSummaryUseCase } from '../../application/use-cases/get-dashboard-summary.use-case';
 import { ChartTooltipDirective } from '../shared/chart-tooltip.directive';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 const STATUS_LABEL: Record<LoanStatus, string> = {
   active: 'Active',
@@ -93,7 +94,7 @@ function fmtCompactMoney(n: number): string {
 @Component({
   selector: 'lm-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, ChartTooltipDirective],
+  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, ChartTooltipDirective, AppDatePipe],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
@@ -144,9 +145,10 @@ export class DashboardComponent implements OnInit {
         { label: 'Gross Receivables', value: fmtMoney(summary.grossReceivables), icon: 'account_balance_wallet', tone: 'neutral', changePercent: summary.grossReceivablesChangePercent, onClick: () => this.router.navigate(['/reports']) },
         { label: 'Collectible Receivables', value: fmtMoney(summary.collectibleReceivables), icon: 'savings', tone: 'good', changePercent: summary.collectibleReceivablesChangePercent, onClick: () => this.router.navigate(['/reports']) },
         { label: 'Bad Loan Receivables', value: fmtMoney(summary.badLoanReceivables), icon: 'warning_amber', tone: hasBadLoans ? 'danger' : 'good', changePercent: summary.badLoanReceivablesChangePercent, valueColor: hasBadLoans ? 'var(--lm-danger)' : 'var(--lm-success)', onClick: goToLoans(undefined, 'badloan') },
+        { label: 'Cash on Hand', value: fmtCompactMoney(cash.cashOnHand), icon: 'payments', tone: cashHealthy ? 'good' : 'danger', changePercent: cash.cashOnHandChangePercent, valueColor: cashHealthy ? 'var(--lm-success)' : 'var(--lm-danger)', onClick: () => this.router.navigate(['/cash-funds']) },
+        { label: 'Total Business Position', value: fmtMoney(summary.grossReceivables + cash.cashOnHand), icon: 'account_balance', tone: 'neutral', changePercent: null, onClick: () => this.router.navigate(['/reports']) },
         { label: 'Active Loans', value: `${summary.activeLoansCount}`, icon: 'receipt_long', tone: 'good', changePercent: summary.activeLoansChangePercent, onClick: goToLoans('active') },
         { label: 'Overdue Loans', value: `${summary.overdueLoansCount}`, icon: 'error_outline', tone: summary.overdueLoansCount > 0 ? 'danger' : 'neutral', changePercent: summary.overdueLoansChangePercent, onClick: goToLoans('overdue') },
-        { label: 'Cash on Hand', value: fmtCompactMoney(cash.cashOnHand), icon: 'payments', tone: cashHealthy ? 'good' : 'danger', changePercent: cash.cashOnHandChangePercent, valueColor: cashHealthy ? 'var(--lm-success)' : 'var(--lm-danger)', onClick: () => this.router.navigate(['/cash-funds']) },
       ];
     });
 

@@ -31,6 +31,6 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
             .HasColumnName("status")
             .HasMaxLength(20);
 
-        builder.Property(u => u.CreatedAtUtc).HasColumnName("created_at");
+        builder.Property(u => u.CreatedAtUtc).HasColumnName("created_at").HasColumnType("datetime2");
     }
 }

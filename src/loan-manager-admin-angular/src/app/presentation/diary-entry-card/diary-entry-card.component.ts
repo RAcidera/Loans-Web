@@ -9,6 +9,7 @@ import { Loan } from '../../domain/entities/loan.entity';
 import { CategoryBadgeComponent } from '../category-badge/category-badge.component';
 import { DiarySnapshotPreviewComponent } from '../diary-snapshot-preview/diary-snapshot-preview.component';
 import { parseTags } from '../shared/tags-utils';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 /**
  * Requirements diary-modern §7's compact Entry Card — timeline dot/avatar,
@@ -23,7 +24,7 @@ import { parseTags } from '../shared/tags-utils';
 @Component({
   selector: 'lm-diary-entry-card',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule, MatMenuModule, CategoryBadgeComponent, DiarySnapshotPreviewComponent],
+  imports: [CommonModule, MatIconModule, MatButtonModule, MatMenuModule, CategoryBadgeComponent, DiarySnapshotPreviewComponent, AppDatePipe],
   templateUrl: './diary-entry-card.component.html',
   styleUrls: ['./diary-entry-card.component.scss'],
 })

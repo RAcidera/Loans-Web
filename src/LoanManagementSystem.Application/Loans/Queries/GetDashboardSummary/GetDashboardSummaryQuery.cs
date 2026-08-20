@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Financial;
 using LoanManagementSystem.Application.Common.Mappings;
@@ -20,16 +21,18 @@ public sealed class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboa
 {
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public GetDashboardSummaryQueryHandler(ILoanRepository loanRepository, ICustomerRepository customerRepository)
+    public GetDashboardSummaryQueryHandler(ILoanRepository loanRepository, ICustomerRepository customerRepository, IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DashboardSummaryDto> Handle(GetDashboardSummaryQuery request, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         var loans = await _loanRepository.GetAllWithDetailsAsync(ct);
 
         foreach (var loan in loans)

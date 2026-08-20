@@ -14,6 +14,8 @@ import { Subject, Subscription, debounceTime, distinctUntilChanged, forkJoin } f
 import { DiaryCategory, DiaryEntry, DiarySummary } from '../../domain/entities/diary-entry.entity';
 import { Customer } from '../../domain/entities/customer.entity';
 import { Loan } from '../../domain/entities/loan.entity';
+import { BusinessTimeService } from '../../application/business-time.service';
+import { addDaysToDateString, todayLocalDateString } from '../shared/date-utils';
 import { SearchDiaryEntriesUseCase } from '../../application/use-cases/search-diary-entries.use-case';
 import { GetDiaryCategoriesUseCase } from '../../application/use-cases/get-diary-categories.use-case';
 import { GetDiarySummaryUseCase } from '../../application/use-cases/get-diary-summary.use-case';
@@ -86,6 +88,7 @@ export class DiaryListComponent implements OnInit, OnDestroy {
   private readonly searchSubscription: Subscription;
 
   private readonly fb = inject(FormBuilder);
+  private readonly businessTimeService = inject(BusinessTimeService);
   filters = this.fb.group({
     categoryId: [null as string | null],
     dateFrom: [null as string | null],
@@ -155,10 +158,12 @@ export class DiaryListComponent implements OnInit, OnDestroy {
   }
 
   private groupByDay(entries: DiaryEntry[]): DiaryDayGroup[] {
-    const todayKey = new Date().toISOString().slice(0, 10);
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const yesterdayKey = yesterday.toISOString().slice(0, 10);
+    // Business-local "today" (sourced from the backend via
+    // BusinessTimeService), not the browser's own clock/timezone — see that
+    // service's doc comment. todayLocalDateString() is only a fallback for
+    // the brief window before the service's first fetch resolves.
+    const todayKey = this.businessTimeService.today() ?? todayLocalDateString();
+    const yesterdayKey = addDaysToDateString(todayKey, -1);
     const groups: DiaryDayGroup[] = [];
 
     for (const entry of entries) {

@@ -121,21 +121,21 @@ const EXTENSIONS: Record<string, LoanExtension[]> = {
 
 const PAYMENTS: Record<string, Payment[]> = {
   'L-2034': [
-    { paymentId: 'P-5001', loanId: 'L-2034', paymentDate: '2026-07-10', amountPaid: 1000, paymentMethod: 'cash', notes: '' },
-    { paymentId: 'P-5002', loanId: 'L-2034', paymentDate: '2026-07-25', amountPaid: 1000, paymentMethod: 'gcash', notes: '' },
+    { paymentId: 'P-5001', loanId: 'L-2034', paymentDate: '2026-07-10', amountPaid: 1000, paymentMethod: 'cash', notes: '', createdAt: '2026-07-10T00:00:00.000Z' },
+    { paymentId: 'P-5002', loanId: 'L-2034', paymentDate: '2026-07-25', amountPaid: 1000, paymentMethod: 'gcash', notes: '', createdAt: '2026-07-25T00:00:00.000Z' },
   ],
   'L-2035': [
-    { paymentId: 'P-5010', loanId: 'L-2035', paymentDate: '2026-07-01', amountPaid: 1545, paymentMethod: 'cash', notes: '' },
-    { paymentId: 'P-5011', loanId: 'L-2035', paymentDate: '2026-07-14', amountPaid: 1545, paymentMethod: 'cash', notes: 'Full settlement' },
+    { paymentId: 'P-5010', loanId: 'L-2035', paymentDate: '2026-07-01', amountPaid: 1545, paymentMethod: 'cash', notes: '', createdAt: '2026-07-01T00:00:00.000Z' },
+    { paymentId: 'P-5011', loanId: 'L-2035', paymentDate: '2026-07-14', amountPaid: 1545, paymentMethod: 'cash', notes: 'Full settlement', createdAt: '2026-07-14T00:00:00.000Z' },
   ],
   'L-2037': [
-    { paymentId: 'P-5020', loanId: 'L-2037', paymentDate: '2026-06-05', amountPaid: 1000, paymentMethod: 'cash', notes: '' },
+    { paymentId: 'P-5020', loanId: 'L-2037', paymentDate: '2026-06-05', amountPaid: 1000, paymentMethod: 'cash', notes: '', createdAt: '2026-06-05T00:00:00.000Z' },
   ],
   'L-2038': [
-    { paymentId: 'P-5030', loanId: 'L-2038', paymentDate: '2026-07-20', amountPaid: 400, paymentMethod: 'gcash', notes: '' },
+    { paymentId: 'P-5030', loanId: 'L-2038', paymentDate: '2026-07-20', amountPaid: 400, paymentMethod: 'gcash', notes: '', createdAt: '2026-07-20T00:00:00.000Z' },
   ],
   'L-2039': [
-    { paymentId: 'P-5040', loanId: 'L-2039', paymentDate: '2026-05-30', amountPaid: 500, paymentMethod: 'cash', notes: 'Partial payment before extension' },
+    { paymentId: 'P-5040', loanId: 'L-2039', paymentDate: '2026-05-30', amountPaid: 500, paymentMethod: 'cash', notes: 'Partial payment before extension', createdAt: '2026-05-30T00:00:00.000Z' },
   ],
 };
 
@@ -798,6 +798,7 @@ export class MockLoanRepository extends LoanRepository {
       paymentMethod,
       notes,
       referenceNumber,
+      createdAt: new Date().toISOString(),
     };
     this.payments[loanId] = [...(this.payments[loanId] ?? []), payment];
 

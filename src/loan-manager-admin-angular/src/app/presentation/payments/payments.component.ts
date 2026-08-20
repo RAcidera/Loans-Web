@@ -18,6 +18,8 @@ import { GetPaymentsPageUseCase } from '../../application/use-cases/get-payments
 import { GetPaymentsTotalsUseCase } from '../../application/use-cases/get-payments-totals.use-case';
 import { ExportPaymentsUseCase } from '../../application/use-cases/export-payments.use-case';
 import { toLocalDateString, todayLocalDateString } from '../shared/date-utils';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 /** Maps mat-sort-header column ids (template) to the backend's GetPaymentsPage sortBy values. */
 const SORT_KEY: Record<string, string> = {
@@ -62,12 +64,14 @@ function toDateString(date: Date | null): string | undefined {
     MatDatepickerModule,
     MatIconModule,
     MatButtonModule,
+    AppDateTimePipe,
+    AppDatePipe,
   ],
   templateUrl: './payments.component.html',
   styleUrls: ['./payments.component.scss'],
 })
 export class PaymentsComponent implements OnInit, OnDestroy {
-  displayedColumns = ['loanNumber', 'customer', 'paymentDate', 'amountPaid', 'paymentMethod', 'referenceNumber', 'notes'];
+  displayedColumns = ['loanNumber', 'customer', 'paymentDate', 'createdAt', 'amountPaid', 'paymentMethod', 'referenceNumber', 'notes'];
   dataSource = new MatTableDataSource<PaymentWithCustomer>([]);
   methodLabel = PAYMENT_METHOD_LABEL;
 
@@ -94,6 +98,8 @@ export class PaymentsComponent implements OnInit, OnDestroy {
   filters = this.fb.group({
     dateFrom: [null as Date | null],
     dateTo: [null as Date | null],
+    createdAtFrom: [null as Date | null],
+    createdAtTo: [null as Date | null],
   });
 
   constructor(
@@ -133,6 +139,8 @@ export class PaymentsComponent implements OnInit, OnDestroy {
       customerSearch: this.customerSearchTerm || undefined,
       dateFrom: toDateString(raw.dateFrom),
       dateTo: toDateString(raw.dateTo),
+      createdAtFrom: toDateString(raw.createdAtFrom),
+      createdAtTo: toDateString(raw.createdAtTo),
     };
   }
 
@@ -160,7 +168,7 @@ export class PaymentsComponent implements OnInit, OnDestroy {
   }
 
   clearFilters(): void {
-    this.filters.reset({ dateFrom: null, dateTo: null });
+    this.filters.reset({ dateFrom: null, dateTo: null, createdAtFrom: null, createdAtTo: null });
     this.loanSearchTerm = '';
     this.customerSearchTerm = '';
     this.applyFilters();

@@ -43,9 +43,9 @@ public class PromiseToPayConfiguration : IEntityTypeConfiguration<PromiseToPay>
             .HasMaxLength(20);
 
         builder.Property(p => p.CreatedBy).HasColumnName("created_by").HasMaxLength(100);
-        builder.Property(p => p.CreatedAtUtc).HasColumnName("created_at");
+        builder.Property(p => p.CreatedAtUtc).HasColumnName("created_at").HasColumnType("datetime2");
         builder.Property(p => p.ModifiedBy).HasColumnName("modified_by").HasMaxLength(100);
-        builder.Property(p => p.ModifiedAtUtc).HasColumnName("modified_at");
+        builder.Property(p => p.ModifiedAtUtc).HasColumnName("modified_at").HasColumnType("datetime2");
 
         builder.HasIndex(p => p.CustomerId);
         builder.HasIndex(p => p.LoanId);

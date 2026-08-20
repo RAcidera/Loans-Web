@@ -83,7 +83,7 @@
       </div>
       <div class="hero-stat">
         <span class="hero-stat__label">Due Date</span>
-        <span class="hero-stat__value mono">{{ loan.dueDate | date:'MMM dd, yyyy' }}</span>
+        <span class="hero-stat__value mono">{{ loan.dueDate | appDate:'MMM dd, yyyy' }}</span>
       </div>
     </div>
   </mat-card>
@@ -98,14 +98,14 @@
             <section class="info-card">
               <div class="info-card__header">Loan Information</div>
               <div class="info-card__body">
-                <div class="info-row"><span>Loan Date</span><strong class="mono">{{ loan.startDate | date:'MMM dd, yyyy' }}</strong></div>
-                <div class="info-row"><span>Due Date</span><strong class="mono">{{ loan.dueDate | date:'MMM dd, yyyy' }}</strong></div>
+                <div class="info-row"><span>Loan Date</span><strong class="mono">{{ loan.startDate | appDate:'MMM dd, yyyy' }}</strong></div>
+                <div class="info-row"><span>Due Date</span><strong class="mono">{{ loan.dueDate | appDate:'MMM dd, yyyy' }}</strong></div>
                 <div class="info-row"><span>Loan Term</span><strong>{{ loan.paymentTermsMonths }} month{{ loan.paymentTermsMonths === 1 ? '' : 's' }}</strong></div>
                 <div class="info-row"><span>Interest Rate</span><strong class="mono">{{ loan.interestRate * 100 | number:'1.2-2' }}%</strong></div>
                 <div class="info-row"><span>Interest Amount</span><strong class="mono">₱{{ loan.totalInterest | number:'1.2-2' }}</strong></div>
                 <div class="info-row"><span>Loan Status</span><strong><span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span></strong></div>
                 <div class="info-row"><span>Loan Classification</span><strong><span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span></strong></div>
-                <div class="info-row"><span>Created At</span><strong class="mono">{{ loan.createdAt | date:'MMM dd, yyyy' }}</strong></div>
+                <div class="info-row"><span>Created At</span><strong class="mono">{{ loan.createdAt | appDateTime:'MMM dd, yyyy' }}</strong></div>
                 <div class="info-row info-row--full" *ngIf="loan.remarks"><span>Remarks</span><strong>{{ loan.remarks }}</strong></div>
               </div>
             </section>
@@ -142,7 +142,7 @@
                     <span class="timeline-event__title">{{ ev.title }}</span>
                     <span class="timeline-event__subtitle">{{ ev.subtitle }}</span>
                   </div>
-                  <span class="timeline-event__date mono">{{ ev.date | date:'MMM dd, yyyy' }}</span>
+                  <span class="timeline-event__date mono">{{ ev.date | appDateTime:'MMM dd, yyyy' }}</span>
                 </li>
                 <li class="empty-note" *ngIf="timelineEvents.length === 0">No activity yet.</li>
               </ul>
@@ -161,7 +161,7 @@
               <table mat-table [dataSource]="recentPayments" class="history-table">
                 <ng-container matColumnDef="date">
                   <th mat-header-cell *matHeaderCellDef>Payment Date</th>
-                  <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</td>
+                  <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | appDate:'MMM dd, yyyy' }}</td>
                 </ng-container>
                 <ng-container matColumnDef="amount">
                   <th mat-header-cell *matHeaderCellDef class="right">Amount</th>
@@ -194,7 +194,7 @@
               <table mat-table [dataSource]="extensions" class="history-table">
                 <ng-container matColumnDef="date">
                   <th mat-header-cell *matHeaderCellDef>Date</th>
-                  <td mat-cell *matCellDef="let e" class="mono">{{ e.extensionDate | date:'MMM dd, yyyy' }}</td>
+                  <td mat-cell *matCellDef="let e" class="mono">{{ e.extensionDate | appDate:'MMM dd, yyyy' }}</td>
                 </ng-container>
                 <ng-container matColumnDef="days">
                   <th mat-header-cell *matHeaderCellDef class="right">Days</th>
@@ -222,10 +222,10 @@
       <mat-tab label="Payments">
         <div class="tab-content">
           <div class="table-scroll">
-          <table mat-table [dataSource]="paymentsPageItems" matSort (matSortChange)="onPaymentsSort($event)" class="history-table">
+          <table mat-table [dataSource]="paymentsPageItems" matSort (matSortChange)="onPaymentsSort($event)" class="history-table history-table--payments">
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Date</th>
-              <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</td>
+              <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | appDate:'MMM dd, yyyy' }}</td>
               <td mat-footer-cell *matFooterCellDef>Total</td>
             </ng-container>
             <ng-container matColumnDef="amount">
@@ -239,13 +239,18 @@
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="balance">
-              <th mat-header-cell *matHeaderCellDef>Running Balance</th>
+              <th mat-header-cell *matHeaderCellDef class="right">Running Balance</th>
               <td mat-cell *matCellDef="let p" class="mono right">₱{{ getPaymentRunningBalance(p) | number:'1.2-2' }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="reference">
               <th mat-header-cell *matHeaderCellDef>Reference #</th>
               <td mat-cell *matCellDef="let p" class="mono">{{ p.referenceNumber || '—' }}</td>
+              <td mat-footer-cell *matFooterCellDef></td>
+            </ng-container>
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>Created</th>
+              <td mat-cell *matCellDef="let p" class="mono">{{ p.createdAt | appDateTime:'MM/dd/yyyy h:mm a' }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="notes">
@@ -286,21 +291,21 @@
           <table mat-table [dataSource]="extensions" class="history-table">
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let e" class="mono">{{ e.extensionDate | date:'MMM dd, yyyy' }}</td>
+              <td mat-cell *matCellDef="let e" class="mono">{{ e.extensionDate | appDate:'MMM dd, yyyy' }}</td>
               <td mat-footer-cell *matFooterCellDef>Total</td>
             </ng-container>
             <ng-container matColumnDef="days">
-              <th mat-header-cell *matHeaderCellDef>Days</th>
+              <th mat-header-cell *matHeaderCellDef class="right">Days</th>
               <td mat-cell *matCellDef="let e" class="mono right">+{{ e.extensionDays }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
             <ng-container matColumnDef="charges">
-              <th mat-header-cell *matHeaderCellDef>Charges</th>
+              <th mat-header-cell *matHeaderCellDef class="right">Charges</th>
               <td mat-cell *matCellDef="let e" class="mono right">₱{{ e.additionalChargesAmount | number:'1.2-2' }}</td>
               <td mat-footer-cell *matFooterCellDef class="mono right">₱{{ totalExtensionCharges | number:'1.2-2' }}</td>
             </ng-container>
             <ng-container matColumnDef="balance">
-              <th mat-header-cell *matHeaderCellDef>Running Balance</th>
+              <th mat-header-cell *matHeaderCellDef class="right">Running Balance</th>
               <td mat-cell *matCellDef="let e" class="mono right">₱{{ getExtensionRunningBalance(e) | number:'1.2-2' }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
@@ -347,7 +352,7 @@
           <table mat-table [dataSource]="auditLog" class="history-table">
             <ng-container matColumnDef="occurredAt">
               <th mat-header-cell *matHeaderCellDef>Date</th>
-              <td mat-cell *matCellDef="let a" class="mono">{{ a.occurredAt | date: 'MMM dd, yyyy HH:mm' }}</td>
+              <td mat-cell *matCellDef="let a" class="mono">{{ a.occurredAt | appDateTime: 'MMM dd, yyyy HH:mm' }}</td>
             </ng-container>
             <ng-container matColumnDef="action">
               <th mat-header-cell *matHeaderCellDef>Action</th>

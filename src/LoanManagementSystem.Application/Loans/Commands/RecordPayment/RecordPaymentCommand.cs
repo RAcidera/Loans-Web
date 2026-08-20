@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Exceptions;
 using LoanManagementSystem.Application.Common.Mappings;
@@ -21,11 +22,13 @@ public sealed class RecordPaymentCommandHandler : IRequestHandler<RecordPaymentC
 {
     private readonly ILoanRepository _loanRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public RecordPaymentCommandHandler(ILoanRepository loanRepository, IUnitOfWork unitOfWork)
+    public RecordPaymentCommandHandler(ILoanRepository loanRepository, IUnitOfWork unitOfWork, IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _unitOfWork = unitOfWork;
+        _appDateTime = appDateTime;
     }
 
     public async Task<PaymentDto> Handle(RecordPaymentCommand request, CancellationToken ct)
@@ -36,7 +39,7 @@ public sealed class RecordPaymentCommandHandler : IRequestHandler<RecordPaymentC
 
         var paymentDate = request.PaymentDate is not null
             ? DateOnly.Parse(request.PaymentDate)
-            : DateOnly.FromDateTime(DateTime.UtcNow);
+            : _appDateTime.Today;
 
         var payment = loan.RecordPayment(
             Money.Of(request.AmountPaid),

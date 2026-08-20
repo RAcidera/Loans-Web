@@ -729,6 +729,10 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
                         .HasColumnType("decimal(12,2)")
                         .HasColumnName("amount_paid");
 
+                    b.Property<DateTime>("CreatedAtUtc")
+                        .HasColumnType("datetime2")
+                        .HasColumnName("created_at");
+
                     b.Property<Guid>("LoanId")
                         .HasColumnType("uniqueidentifier")
                         .HasColumnName("loan_id");
@@ -863,6 +867,32 @@ namespace LoanManagementSystem.Infrastructure.Persistence.Migrations
                     b.HasIndex("PromiseDate");
 
                     b.ToTable("promises_to_pay", (string)null);
+                });
+
+            modelBuilder.Entity("LoanManagementSystem.Domain.Settings.AppSetting", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("setting_id");
+
+                    b.Property<string>("Key")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)")
+                        .HasColumnName("key");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasMaxLength(500)
+                        .HasColumnType("nvarchar(500)")
+                        .HasColumnName("value");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Key")
+                        .IsUnique();
+
+                    b.ToTable("app_settings", (string)null);
                 });
 
             modelBuilder.Entity("LoanManagementSystem.Domain.Customers.CustomerDocument", b =>

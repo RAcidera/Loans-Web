@@ -19,7 +19,7 @@
       <div class="period-card__header">{{ p.label }}</div>
       <div class="period-card__row">
         <span>Period</span>
-        <span class="mono">{{ p.periodStart | date:'MMM d, y' }} – {{ p.periodEndInclusive | date:'MMM d, y' }}</span>
+        <span class="mono">{{ p.periodStart | appDate:'MMM d, y' }} – {{ p.periodEndInclusive | appDate:'MMM d, y' }}</span>
       </div>
       <div class="period-card__row">
         <span>Contract Amount</span>

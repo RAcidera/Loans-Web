@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { DiaryFinancialSnapshot } from '../../domain/entities/diary-entry.entity';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
 
 /**
  * Requirements diary-modern §12's Snapshot Preview — the Timeline card's
@@ -13,12 +14,12 @@ import { DiaryFinancialSnapshot } from '../../domain/entities/diary-entry.entity
 @Component({
   selector: 'lm-diary-snapshot-preview',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, AppDateTimePipe],
   template: `
     <div class="preview" *ngIf="snapshot">
       <div class="preview__header">
         <span class="preview__title">Financial Snapshot</span>
-        <span class="preview__time mono">{{ snapshot.snapshotDateTime | date: 'h:mm a' }}</span>
+        <span class="preview__time mono">{{ snapshot.snapshotDateTime | appDateTime: 'h:mm a' }}</span>
       </div>
       <div class="preview__row">
         <span>Gross Receivables</span>

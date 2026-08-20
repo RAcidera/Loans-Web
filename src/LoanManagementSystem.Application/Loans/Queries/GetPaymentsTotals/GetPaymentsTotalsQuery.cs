@@ -7,7 +7,8 @@ namespace LoanManagementSystem.Application.Loans.Queries.GetPaymentsTotals;
 
 /// <summary>Same filter set as GetPaymentsPageQuery, minus paging/sort — backs the Payments list's footer total.</summary>
 public sealed record GetPaymentsTotalsQuery(
-    string? LoanSearch, string? CustomerSearch, DateOnly? DateFrom, DateOnly? DateTo)
+    string? LoanSearch, string? CustomerSearch, DateOnly? DateFrom, DateOnly? DateTo,
+    DateOnly? CreatedAtFrom = null, DateOnly? CreatedAtTo = null)
     : IRequest<PaymentsTotalsDto>;
 
 public sealed class GetPaymentsTotalsQueryHandler : IRequestHandler<GetPaymentsTotalsQuery, PaymentsTotalsDto>
@@ -26,7 +27,8 @@ public sealed class GetPaymentsTotalsQueryHandler : IRequestHandler<GetPaymentsT
         var effectiveCustomerIds = await ResolveCustomerIdsAsync(_customerRepository, request.CustomerSearch, ct);
 
         var rows = await _loanRepository.GetPaymentsFilteredAsync(
-            request.LoanSearch, effectiveCustomerIds, request.DateFrom, request.DateTo, ct);
+            request.LoanSearch, effectiveCustomerIds, request.DateFrom, request.DateTo, ct,
+            request.CreatedAtFrom, request.CreatedAtTo);
 
         return new PaymentsTotalsDto(
             TotalAmountPaid: rows.Sum(r => r.Payment.AmountPaid.Amount),

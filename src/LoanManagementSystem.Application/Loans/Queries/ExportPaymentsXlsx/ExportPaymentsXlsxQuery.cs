@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Application.Common.Xlsx;
@@ -13,7 +14,8 @@ namespace LoanManagementSystem.Application.Loans.Queries.ExportPaymentsXlsx;
 /// the visible page, same scope as the footer total.
 /// </summary>
 public sealed record ExportPaymentsXlsxQuery(
-    string? LoanSearch, string? CustomerSearch, DateOnly? DateFrom, DateOnly? DateTo)
+    string? LoanSearch, string? CustomerSearch, DateOnly? DateFrom, DateOnly? DateTo,
+    DateOnly? CreatedAtFrom = null, DateOnly? CreatedAtTo = null)
     : IRequest<DocumentFileDto>;
 
 public sealed class ExportPaymentsXlsxQueryHandler : IRequestHandler<ExportPaymentsXlsxQuery, DocumentFileDto>
@@ -21,13 +23,16 @@ public sealed class ExportPaymentsXlsxQueryHandler : IRequestHandler<ExportPayme
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IPaymentsXlsxExportGenerator _xlsxGenerator;
+    private readonly IAppDateTimeService _appDateTime;
 
     public ExportPaymentsXlsxQueryHandler(
-        ILoanRepository loanRepository, ICustomerRepository customerRepository, IPaymentsXlsxExportGenerator xlsxGenerator)
+        ILoanRepository loanRepository, ICustomerRepository customerRepository, IPaymentsXlsxExportGenerator xlsxGenerator,
+        IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
         _xlsxGenerator = xlsxGenerator;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DocumentFileDto> Handle(ExportPaymentsXlsxQuery request, CancellationToken ct)
@@ -35,7 +40,8 @@ public sealed class ExportPaymentsXlsxQueryHandler : IRequestHandler<ExportPayme
         var effectiveCustomerIds = await GetPaymentsTotalsQueryHandler.ResolveCustomerIdsAsync(_customerRepository, request.CustomerSearch, ct);
 
         var rows = await _loanRepository.GetPaymentsFilteredAsync(
-            request.LoanSearch, effectiveCustomerIds, request.DateFrom, request.DateTo, ct);
+            request.LoanSearch, effectiveCustomerIds, request.DateFrom, request.DateTo, ct,
+            request.CreatedAtFrom, request.CreatedAtTo);
 
         var exportRows = rows
             .OrderByDescending(r => r.Payment.PaymentDate)
@@ -50,7 +56,7 @@ public sealed class ExportPaymentsXlsxQueryHandler : IRequestHandler<ExportPayme
             .ToList();
 
         var bytes = _xlsxGenerator.Generate(exportRows);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         return new DocumentFileDto($"payments_export_{today:yyyy-MM-dd}.xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", bytes);
     }
 

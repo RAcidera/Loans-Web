@@ -38,7 +38,8 @@ public interface ILoanRepository
     /// </summary>
     Task<(List<(Payment Payment, CustomerId CustomerId, string CustomerName, int LoanNumber)> Items, int TotalCount)> GetPaymentsPageAsync(
         int pageIndex, int pageSize, string? loanSearch, IReadOnlyCollection<CustomerId> matchingCustomerIds,
-        DateOnly? dateFrom, DateOnly? dateTo, string? sortBy, string? sortDir, CancellationToken ct = default);
+        DateOnly? dateFrom, DateOnly? dateTo, string? sortBy, string? sortDir, CancellationToken ct = default,
+        DateOnly? createdAtFrom = null, DateOnly? createdAtTo = null);
 
     /// <summary>
     /// Every payment matching the same filters as GetPaymentsPageAsync, with
@@ -48,7 +49,8 @@ public interface ILoanRepository
     /// </summary>
     Task<List<(Payment Payment, CustomerId CustomerId, string CustomerName, int LoanNumber)>> GetPaymentsFilteredAsync(
         string? loanSearch, IReadOnlyCollection<CustomerId> matchingCustomerIds,
-        DateOnly? dateFrom, DateOnly? dateTo, CancellationToken ct = default);
+        DateOnly? dateFrom, DateOnly? dateTo, CancellationToken ct = default,
+        DateOnly? createdAtFrom = null, DateOnly? createdAtTo = null);
 
     /// <summary>
     /// One page of a single customer's payments across all of their loans,

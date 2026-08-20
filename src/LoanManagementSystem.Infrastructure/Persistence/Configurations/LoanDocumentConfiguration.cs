@@ -29,7 +29,7 @@ public class LoanDocumentConfiguration : IEntityTypeConfiguration<LoanDocument>
         // see that file's comment on this property.
         builder.Property(d => d.Content).HasColumnName("content").IsRequired();
 
-        builder.Property(d => d.UploadedAtUtc).HasColumnName("uploaded_at");
+        builder.Property(d => d.UploadedAtUtc).HasColumnName("uploaded_at").HasColumnType("datetime2");
         builder.Property(d => d.UploadedBy).HasColumnName("uploaded_by").HasMaxLength(100);
     }
 }

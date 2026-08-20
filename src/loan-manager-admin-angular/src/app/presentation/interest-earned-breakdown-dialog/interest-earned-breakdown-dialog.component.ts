@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 
 import { InterestEarnedLoanBreakdown } from '../../domain/entities/interest-earned-report.entity';
 import { GetInterestEarnedLoanBreakdownUseCase } from '../../application/use-cases/get-interest-earned-loan-breakdown.use-case';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 export interface InterestEarnedBreakdownDialogData {
   loanId: string;
@@ -26,7 +27,7 @@ function fmtMoney(n: number): string {
 @Component({
   selector: 'lm-interest-earned-breakdown-dialog',
   standalone: true,
-  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule],
+  imports: [CommonModule, MatDialogModule, MatButtonModule, MatIconModule, AppDatePipe],
   templateUrl: './interest-earned-breakdown-dialog.component.html',
   styleUrls: ['./interest-earned-breakdown-dialog.component.scss'],
 })

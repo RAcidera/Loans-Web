@@ -60,4 +60,6 @@ export interface CashSummary {
   cashInChangePercent: number | null;
   cashOutChangePercent: number | null;
   netChangePercent: number | null;
+  /** Backs the Total Business Position summary figure (Gross Receivables + Cash on Hand). */
+  grossReceivables: number;
 }

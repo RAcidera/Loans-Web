@@ -13,6 +13,8 @@ export interface Payment {
   paymentMethod: PaymentMethod;
   notes: string;
   referenceNumber?: string;
+  /** When this payment record was actually added to the system — distinct from paymentDate, which can be backdated. Server-assigned, never sent on create/update. */
+  createdAt: string;
 }
 
 /** A payment enriched with the owning customer/loan — backs the dashboard's "recent payments" feed (SRS wireframe 2) and the standalone Payments list page. */
@@ -35,4 +37,6 @@ export interface PaymentPageFilters {
   customerSearch?: string;
   dateFrom?: string;
   dateTo?: string;
+  createdAtFrom?: string;
+  createdAtTo?: string;
 }

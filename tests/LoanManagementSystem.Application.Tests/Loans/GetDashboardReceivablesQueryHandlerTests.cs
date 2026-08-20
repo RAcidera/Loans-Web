@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Loans.Queries.GetDashboardReceivables;
 using LoanManagementSystem.Domain.Customers;
 using LoanManagementSystem.Domain.Loans;
@@ -11,17 +12,19 @@ namespace LoanManagementSystem.Application.Tests.Loans;
 public class GetDashboardReceivablesQueryHandlerTests
 {
     private readonly Mock<ILoanRepository> _loanRepository = new();
+    private readonly Mock<IAppDateTimeService> _appDateTime = new();
     private readonly GetDashboardReceivablesQueryHandler _handler;
 
     public GetDashboardReceivablesQueryHandlerTests()
     {
-        _handler = new GetDashboardReceivablesQueryHandler(_loanRepository.Object);
+        _appDateTime.Setup(s => s.Today).Returns(DateOnly.FromDateTime(DateTime.UtcNow));
+        _handler = new GetDashboardReceivablesQueryHandler(_loanRepository.Object, _appDateTime.Object);
     }
 
     [Fact]
     public async Task Handle_ComputesGrossCollectibleAndBadLoanReceivables()
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Object.Today;
 
         // Active, normal classification: 1000 @ 3% => balance 1030.
         var active = Loan.Originate(CustomerId.New(), Money.Of(1000), InterestRate.Default, today, 60);
@@ -51,7 +54,7 @@ public class GetDashboardReceivablesQueryHandlerTests
     [Fact]
     public async Task Handle_CountsLoansDueWithinTheNextSevenDays()
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Object.Today;
 
         var dueSoon = Loan.Originate(CustomerId.New(), Money.Of(1000), InterestRate.Default, today.AddDays(-58), 60); // due in 2 days
         var dueLater = Loan.Originate(CustomerId.New(), Money.Of(1000), InterestRate.Default, today, 60); // due in 60 days

@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Pdf;
 using LoanManagementSystem.Application.Common.Xlsx;
@@ -14,11 +15,14 @@ public sealed class GenerateInterestEarnedReportPdfQueryHandler : IRequestHandle
 {
     private readonly InterestEarnedReportDataProvider _dataProvider;
     private readonly IInterestEarnedReportPdfGenerator _pdfGenerator;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public GenerateInterestEarnedReportPdfQueryHandler(InterestEarnedReportDataProvider dataProvider, IInterestEarnedReportPdfGenerator pdfGenerator)
+    public GenerateInterestEarnedReportPdfQueryHandler(
+        InterestEarnedReportDataProvider dataProvider, IInterestEarnedReportPdfGenerator pdfGenerator, IAppDateTimeService appDateTime)
     {
         _dataProvider = dataProvider;
         _pdfGenerator = pdfGenerator;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DocumentFileDto> Handle(GenerateInterestEarnedReportPdfQuery request, CancellationToken ct)
@@ -51,17 +55,21 @@ public sealed class GenerateInterestEarnedReportPdfQueryHandler : IRequestHandle
             Adjustment: r.Adjustment, FinalEarned: r.FinalEarned, Status: StatusLabel(r.Status), Classification: ClassificationLabel(r.Classification)))
             .ToList();
 
+        // Business-local, not UTC: this PDF is read by local business staff,
+        // so "Generated At" should read as unambiguous business-local time
+        // rather than requiring the reader to mentally convert from UTC.
+        var generatedAtBusinessLocal = _appDateTime.ConvertUtcToBusinessLocal(_appDateTime.UtcNow);
         var pdfDto = new InterestEarnedReportPdfDto(
             FromDate: request.FromDate.ToString("yyyy-MM-dd"),
             ToDate: request.ToDate.ToString("yyyy-MM-dd"),
-            GeneratedAt: DateTime.UtcNow.ToString("MMM dd, yyyy h:mm tt") + " UTC",
+            GeneratedAt: generatedAtBusinessLocal.ToString("MMM dd, yyyy h:mm tt") + $" ({_appDateTime.BusinessTimeZoneId})",
             FiltersSummary: BuildFiltersSummary(request),
             Summary: summary,
             Totals: totals,
             Rows: exportRows);
 
         var bytes = _pdfGenerator.Generate(pdfDto);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         return new DocumentFileDto($"interest_earned_report_{today:yyyy-MM-dd}.pdf", "application/pdf", bytes);
     }
 

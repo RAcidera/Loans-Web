@@ -9,6 +9,11 @@
   </div>
 
   <div class="summary-stat">
+    <div class="label">Total Business Position</div>
+    <div class="value">{{ fmtMoney(summary.grossReceivables + summary.cashOnHand) }}</div>
+  </div>
+
+  <div class="summary-stat">
     <div class="label">Cash In (This Month)</div>
     <div class="value good">{{ fmtMoney(summary.cashInThisMonth) }}</div>
     <div class="sub" *ngIf="summary.cashInChangePercent !== null" [ngClass]="trendClass(summary.cashInChangePercent)">
@@ -101,7 +106,7 @@
   <table mat-table [dataSource]="dataSource" class="ledger-table">
     <ng-container matColumnDef="date">
       <th mat-header-cell *matHeaderCellDef>Date</th>
-      <td mat-cell *matCellDef="let e" class="mono">{{ e.transactionDate | date:'MMM d, y' }}</td>
+      <td mat-cell *matCellDef="let e" class="mono">{{ e.transactionDate | appDate:'MMM d, y' }}</td>
       <td mat-footer-cell *matFooterCellDef>TOTALS (This Period)</td>
     </ng-container>
 

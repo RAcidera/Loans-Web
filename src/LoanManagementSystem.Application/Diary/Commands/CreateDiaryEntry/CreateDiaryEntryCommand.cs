@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Exceptions;
 using LoanManagementSystem.Application.Common.Mappings;
@@ -39,10 +40,12 @@ public sealed class CreateDiaryEntryCommandHandler : IRequestHandler<CreateDiary
     private readonly ILoanRepository _loanRepository;
     private readonly IFinancialSnapshotService _financialSnapshotService;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAppDateTimeService _appDateTime;
 
     public CreateDiaryEntryCommandHandler(
         IDiaryRepository diaryRepository, IDiaryCategoryRepository categoryRepository, ICustomerRepository customerRepository,
-        ILoanRepository loanRepository, IFinancialSnapshotService financialSnapshotService, IUnitOfWork unitOfWork)
+        ILoanRepository loanRepository, IFinancialSnapshotService financialSnapshotService, IUnitOfWork unitOfWork,
+        IAppDateTimeService appDateTime)
     {
         _diaryRepository = diaryRepository;
         _categoryRepository = categoryRepository;
@@ -50,6 +53,7 @@ public sealed class CreateDiaryEntryCommandHandler : IRequestHandler<CreateDiary
         _loanRepository = loanRepository;
         _financialSnapshotService = financialSnapshotService;
         _unitOfWork = unitOfWork;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DiaryEntryDto> Handle(CreateDiaryEntryCommand request, CancellationToken ct)
@@ -80,8 +84,8 @@ public sealed class CreateDiaryEntryCommandHandler : IRequestHandler<CreateDiary
             loanNumber = loan.LoanNumber;
         }
 
-        var entryDate = request.EntryDate is not null ? DateOnly.Parse(request.EntryDate) : DateOnly.FromDateTime(DateTime.UtcNow);
-        var entryTime = request.EntryTime is not null ? TimeOnly.Parse(request.EntryTime) : TimeOnly.FromDateTime(DateTime.UtcNow);
+        var entryDate = request.EntryDate is not null ? DateOnly.Parse(request.EntryDate) : _appDateTime.Today;
+        var entryTime = request.EntryTime is not null ? TimeOnly.Parse(request.EntryTime) : _appDateTime.TimeOfDay;
         var reminderDate = request.ReminderDate is not null ? DateOnly.Parse(request.ReminderDate) : (DateOnly?)null;
         var reminderTime = request.ReminderTime is not null ? TimeOnly.Parse(request.ReminderTime) : (TimeOnly?)null;
 

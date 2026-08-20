@@ -32,6 +32,8 @@ import { DocumentManagerComponent } from '../document-manager/document-manager.c
 import { PromiseListComponent } from '../promise-list/promise-list.component';
 import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AuthService } from '../../application/auth/auth.service';
+import { AppDateTimePipe } from '../shared/app-date-time.pipe';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 const STATUS_LABEL: Record<LoanStatus, string> = {
   active: 'Active',
@@ -78,6 +80,7 @@ interface TimelineEvent {
   tone: 'good' | 'neutral' | 'info';
   title: string;
   subtitle: string;
+  /** A mix of business dates (payment.paymentDate) and true timestamps (loan.createdAt, auditLog.occurredAt) — see customer-profile.component.ts's ActivityItem.date doc comment for why this is rendered with `appDateTime` for all of them. */
   date: string;
 }
 
@@ -107,6 +110,8 @@ interface TimelineEvent {
     LoanTimelineComponent,
     DocumentManagerComponent,
     PromiseListComponent,
+    AppDateTimePipe,
+    AppDatePipe,
   ],
   templateUrl: './loan-details.component.html',
   styleUrls: ['./loan-details.component.scss'],
@@ -133,7 +138,7 @@ export class LoanDetailsComponent implements OnInit {
   paymentMethodLabel = PAYMENT_METHOD_LABEL;
   auditActionLabel = AUDIT_ACTION_LABEL;
 
-  paymentColumns = ['date', 'amount', 'method', 'balance', 'reference', 'notes', 'actions'];
+  paymentColumns = ['date', 'amount', 'method', 'balance', 'reference', 'createdAt', 'notes', 'actions'];
   paymentFooterColumns = ['footerLabel', 'footerAmount', 'footerMethod', 'footerReference', 'footerNotes', 'footerActions'];
   extensionColumns = ['date', 'days', 'charges', 'balance', 'remarks', 'actions'];
   extensionFooterColumns = ['footerLabel', 'footerDays', 'footerCharges', 'footerRemarks', 'footerActions'];
@@ -250,9 +255,16 @@ export class LoanDetailsComponent implements OnInit {
       return { tone: 'danger', icon: 'error', text: `This loan is overdue. ${balance} remains outstanding and payment is past due.` };
     }
 
-    const daysUntilDue = Math.ceil((new Date(loan.dueDate).getTime() - Date.now()) / 86_400_000);
+    // Server-computed (business-local "today" vs. dueDate) rather than
+    // recomputed here from the browser's own clock — see loan.entity.ts's
+    // daysUntilDue doc comment for why that would risk disagreeing with the
+    // backend's own Overdue/Active status decision.
+    const daysUntilDue = loan.daysUntilDue ?? Math.ceil((new Date(loan.dueDate).getTime() - Date.now()) / 86_400_000);
     if (daysUntilDue >= 0 && daysUntilDue <= DUE_SOON_DAYS) {
-      const dueDateLabel = new Date(loan.dueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' });
+      // dueDate is a plain business date with no time-of-day/timezone
+      // meaning — format in UTC so no browser timezone can shift the day,
+      // same reasoning as the appDate pipe used in templates.
+      const dueDateLabel = new Date(loan.dueDate).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric', timeZone: 'UTC' });
       return { tone: 'warn', icon: 'schedule', text: `This loan is due soon. ${balance} remains outstanding and is due on ${dueDateLabel}.` };
     }
 

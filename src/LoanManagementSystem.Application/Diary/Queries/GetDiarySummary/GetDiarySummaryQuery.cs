@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.Repositories;
@@ -14,20 +15,23 @@ public sealed class GetDiarySummaryQueryHandler : IRequestHandler<GetDiarySummar
     private readonly IDiaryCategoryRepository _categoryRepository;
     private readonly ILoanRepository _loanRepository;
     private readonly IFinancialSnapshotService _financialSnapshotService;
+    private readonly IAppDateTimeService _appDateTime;
 
     public GetDiarySummaryQueryHandler(
         IDiaryRepository diaryRepository, IDiaryCategoryRepository categoryRepository,
-        ILoanRepository loanRepository, IFinancialSnapshotService financialSnapshotService)
+        ILoanRepository loanRepository, IFinancialSnapshotService financialSnapshotService,
+        IAppDateTimeService appDateTime)
     {
         _diaryRepository = diaryRepository;
         _categoryRepository = categoryRepository;
         _loanRepository = loanRepository;
         _financialSnapshotService = financialSnapshotService;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DiarySummaryDto> Handle(GetDiarySummaryQuery request, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         var entries = await _diaryRepository.SearchAsync(new DiarySearchFilters(), ct);
 
         var totalEntries = entries.Count;

@@ -181,20 +181,30 @@
     grid-template-columns: 1fr;
   }
 
+  // Icon on the left, vertically centered against a left-aligned text
+  // block (label/value/caption stacked) to its right — matching the
+  // Customers list page's KPI row rather than this page's old layout
+  // (icon+label header row, value/caption stacked below on their own).
+  // flex-direction: row is needed explicitly — <mat-card> (unlike the
+  // plain <div class="kpi-card"> the Customers list page uses) carries
+  // Angular Material's own mat-mdc-card default of flex-direction: column,
+  // which otherwise silently wins since this rule never used to contest it.
   .kpi-card {
-    padding: 17px 18px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
     border-radius: 11px !important;
-    min-height: 112px;
   }
 
-  .kpi-card__head {
-    display: flex;
-    align-items: center;
-    gap: 9px;
+  .kpi-card__body {
+    min-width: 0;
   }
 
   .kpi-card__icon {
     margin-bottom: 0;
+    flex-shrink: 0;
   }
 
   .kpi-card__label {
@@ -203,7 +213,7 @@
 
   .kpi-card__value {
     font-weight: 700;
-    margin-top: 12px;
+    margin-top: 2px;
     margin-bottom: 0;
   }
 }

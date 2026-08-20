@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Financial;
 using LoanManagementSystem.Domain.CashLedger;
@@ -12,15 +13,21 @@ public sealed record GetCashSummaryQuery : IRequest<CashSummaryDto>;
 /// The Cash Transactions page's top summary card: current Cash on Hand
 /// (Formulas 1-2: Total_Cash_In - Total_Cash_Out over the WHOLE ledger),
 /// plus This Month's Cash In/Cash Out/Net Change as secondary context, each
-/// compared against the same figures for last calendar month.
+/// compared against the same figures for last calendar month. Also exposes
+/// Gross Receivables so the page can display Total Business Position
+/// (Gross Receivables + Cash on Hand) without re-deriving the formula.
 /// </summary>
 public sealed class GetCashSummaryQueryHandler : IRequestHandler<GetCashSummaryQuery, CashSummaryDto>
 {
     private readonly ICashLedgerRepository _cashLedgerRepository;
+    private readonly ILoanRepository _loanRepository;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public GetCashSummaryQueryHandler(ICashLedgerRepository cashLedgerRepository)
+    public GetCashSummaryQueryHandler(ICashLedgerRepository cashLedgerRepository, ILoanRepository loanRepository, IAppDateTimeService appDateTime)
     {
         _cashLedgerRepository = cashLedgerRepository;
+        _loanRepository = loanRepository;
+        _appDateTime = appDateTime;
     }
 
     public async Task<CashSummaryDto> Handle(GetCashSummaryQuery request, CancellationToken ct)
@@ -28,7 +35,13 @@ public sealed class GetCashSummaryQueryHandler : IRequestHandler<GetCashSummaryQ
         var entries = await _cashLedgerRepository.GetAllAsync(ct);
         var cashOnHand = FinancialCalculations.ComputeCashOnHand(entries);
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
+
+        var loans = await _loanRepository.GetAllWithDetailsAsync(ct);
+        foreach (var loan in loans)
+            loan.RefreshOverdueStatus(today);
+        var (grossReceivables, _, _) = FinancialCalculations.ComputeReceivables(loans);
+
         var monthStart = new DateOnly(today.Year, today.Month, 1);
         var lastMonthStart = monthStart.AddMonths(-1);
 
@@ -55,7 +68,8 @@ public sealed class GetCashSummaryQueryHandler : IRequestHandler<GetCashSummaryQ
             CashOnHandChangePercent: PercentChange(cashOnHand, cashOnHandOneMonthAgo),
             CashInChangePercent: PercentChange(cashInThisMonth, cashInLastMonth),
             CashOutChangePercent: PercentChange(cashOutThisMonth, cashOutLastMonth),
-            NetChangePercent: PercentChange(netChangeThisMonth, netChangeLastMonth)
+            NetChangePercent: PercentChange(netChangeThisMonth, netChangeLastMonth),
+            GrossReceivables: grossReceivables
         );
     }
 

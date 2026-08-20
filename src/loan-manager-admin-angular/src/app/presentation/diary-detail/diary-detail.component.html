@@ -18,7 +18,7 @@
       <div>
         <div class="entry-header__top">
           <lm-category-badge [name]="entry.categoryName" [icon]="entry.categoryIcon" [color]="entry.categoryDisplayColor"></lm-category-badge>
-          <span class="entry-header__datetime mono">{{ entry.entryDateTime | date: "MMMM d, y 'at' h:mm a" }}</span>
+          <span class="entry-header__datetime mono">{{ entry.entryDateTime | appDateTime: "MMMM d, y 'at' h:mm a" }}</span>
         </div>
         <h2 class="entry-header__title">{{ entry.title }}</h2>
       </div>
@@ -46,7 +46,7 @@
 
     <div class="reminder" *ngIf="entry.reminderDate">
       <mat-icon>notifications</mat-icon>
-      Reminder set for {{ entry.reminderDate | date: 'MMM d, y' }}<ng-container *ngIf="entry.reminderTime"> at {{ entry.reminderTime }}</ng-container>
+      Reminder set for {{ entry.reminderDate | appDate: 'MMM d, y' }}<ng-container *ngIf="entry.reminderTime"> at {{ entry.reminderTime }}</ng-container>
     </div>
   </mat-card>
 
@@ -67,7 +67,7 @@
     <ul class="audit-list">
       <li *ngFor="let log of auditLog">
         <span class="audit-list__desc">{{ log.description }}</span>
-        <span class="audit-list__meta mono">{{ log.performedBy }} · {{ log.occurredAt | date: 'MMM d, y, h:mm a' }}</span>
+        <span class="audit-list__meta mono">{{ log.performedBy }} · {{ log.occurredAt | appDateTime: 'MMM d, y, h:mm a' }}</span>
       </li>
     </ul>
   </mat-card>

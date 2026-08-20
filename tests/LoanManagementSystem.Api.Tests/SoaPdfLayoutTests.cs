@@ -50,7 +50,7 @@ public class SoaPdfLayoutTests
                 150m, "cash", "REF-1001", 10000m - i * 150m, "Weekly installment"))
             .ToList();
         var extensions = Enumerable.Range(1, 3)
-            .Select(i => new SoaExtensionRowDto(new DateOnly(2026, 8, 1).AddDays(i * 5).ToString("yyyy-MM-dd"), 50m, "2026-10-08"))
+            .Select(i => new SoaExtensionRowDto(new DateOnly(2026, 8, 1).AddDays(i * 5).ToString("yyyy-MM-dd"), 50m, "2026-10-08", "Requested by customer"))
             .ToList();
 
         var statement = new StatementOfAccountDto(

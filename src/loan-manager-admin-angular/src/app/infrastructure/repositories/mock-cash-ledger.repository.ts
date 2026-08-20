@@ -87,6 +87,7 @@ export class MockCashLedgerRepository extends CashLedgerRepository {
       cashInChangePercent: null,
       cashOutChangePercent: null,
       netChangePercent: null,
+      grossReceivables: 0,
     };
   }
 

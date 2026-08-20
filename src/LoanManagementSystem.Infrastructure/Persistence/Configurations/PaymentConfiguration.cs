@@ -41,5 +41,7 @@ public class PaymentConfiguration : IEntityTypeConfiguration<Payment>
         builder.Property(p => p.Notes).HasColumnName("notes").HasMaxLength(500);
 
         builder.Property(p => p.ReferenceNumber).HasColumnName("reference_number").HasMaxLength(100);
+
+        builder.Property(p => p.CreatedAtUtc).HasColumnName("created_at").HasColumnType("datetime2");
     }
 }

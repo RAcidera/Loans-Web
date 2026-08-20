@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Loans.Queries.GetCustomerReceivables;
 using LoanManagementSystem.Domain.Customers;
 using LoanManagementSystem.Domain.Loans;
@@ -11,18 +12,20 @@ namespace LoanManagementSystem.Application.Tests.Loans;
 public class GetCustomerReceivablesQueryHandlerTests
 {
     private readonly Mock<ILoanRepository> _loanRepository = new();
+    private readonly Mock<IAppDateTimeService> _appDateTime = new();
     private readonly GetCustomerReceivablesQueryHandler _handler;
 
     public GetCustomerReceivablesQueryHandlerTests()
     {
-        _handler = new GetCustomerReceivablesQueryHandler(_loanRepository.Object);
+        _appDateTime.Setup(s => s.Today).Returns(DateOnly.FromDateTime(DateTime.UtcNow));
+        _handler = new GetCustomerReceivablesQueryHandler(_loanRepository.Object, _appDateTime.Object);
     }
 
     [Fact]
     public async Task Handle_ComputesReceivables_ScopedToGivenCustomerOnly()
     {
         var customerId = CustomerId.New();
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Object.Today;
 
         // This customer: one active (1030) and one bad-loan-classified (2060).
         var active = Loan.Originate(customerId, Money.Of(1000), InterestRate.Default, today, 60);

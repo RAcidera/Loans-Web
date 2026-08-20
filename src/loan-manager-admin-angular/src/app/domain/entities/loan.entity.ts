@@ -35,6 +35,8 @@ export interface Loan {
   createdAt: string;
   /** Only populated by GetLoanDetailUseCase (the Loan Details page's "Contact" stat) — every other loan-list fetch omits it. */
   customerContactNumber?: string;
+  /** dueDate - business-local today, computed server-side (negative once overdue). Only populated by GetLoanDetailUseCase — see LoanDto.DaysUntilDue on the backend for why this isn't recomputed client-side from the browser's clock. */
+  daysUntilDue?: number;
 }
 
 /**

@@ -48,7 +48,7 @@ public class LoanLedgerEntryConfiguration : IEntityTypeConfiguration<LoanLedgerE
             .HasColumnType("decimal(12,2)");
 
         builder.Property(e => e.Remarks).HasColumnName("remarks").HasMaxLength(500);
-        builder.Property(e => e.CreatedAtUtc).HasColumnName("created_at");
+        builder.Property(e => e.CreatedAtUtc).HasColumnName("created_at").HasColumnType("datetime2");
 
         builder.HasIndex(e => e.LoanId);
     }

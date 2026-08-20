@@ -1,4 +1,37 @@
 <section *ngIf="authService.hasRole('admin')" class="settings-section">
+  <mat-card class="table-card general-settings-card">
+    <div class="table-card__header">
+      <div>
+        <h2>General Settings</h2>
+        <p>Application-wide configuration</p>
+      </div>
+    </div>
+
+    <p class="users-error" *ngIf="settingsError">{{ settingsError }}</p>
+
+    <div class="general-settings-row">
+      <mat-form-field appearance="outline" class="timezone-field">
+        <mat-label>Business Time Zone</mat-label>
+        <mat-select [(value)]="businessTimeZoneId">
+          <mat-option *ngFor="let tz of timeZoneOptions" [value]="tz">{{ tz }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <p class="general-settings-hint">
+        Controls what "today", dashboard totals, and due dates mean across the app — independent of the server's own clock.
+      </p>
+      <button
+        mat-flat-button
+        color="primary"
+        [disabled]="businessTimeZoneId === savedBusinessTimeZoneId || savingSettings"
+        (click)="saveBusinessTimeZone()"
+      >
+        {{ savingSettings ? 'Saving…' : 'Save' }}
+      </button>
+    </div>
+  </mat-card>
+</section>
+
+<section *ngIf="authService.hasRole('admin')" class="settings-section">
   <mat-card class="table-card">
     <div class="table-card__header">
       <div>
@@ -78,7 +111,7 @@
 
         <ng-container matColumnDef="createdAt">
           <th mat-header-cell *matHeaderCellDef>Created</th>
-          <td mat-cell *matCellDef="let u" class="mono">{{ u.createdAt | date:'MM/dd/yyyy' }}</td>
+          <td mat-cell *matCellDef="let u" class="mono">{{ u.createdAt | appDateTime:'MM/dd/yyyy' }}</td>
         </ng-container>
 
         <ng-container matColumnDef="actions">

@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Domain.Repositories;
@@ -32,11 +33,13 @@ public sealed class AddCashTransactionCommandHandler : IRequestHandler<AddCashTr
 
     private readonly ICashLedgerRepository _cashLedgerRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public AddCashTransactionCommandHandler(ICashLedgerRepository cashLedgerRepository, IUnitOfWork unitOfWork)
+    public AddCashTransactionCommandHandler(ICashLedgerRepository cashLedgerRepository, IUnitOfWork unitOfWork, IAppDateTimeService appDateTime)
     {
         _cashLedgerRepository = cashLedgerRepository;
         _unitOfWork = unitOfWork;
+        _appDateTime = appDateTime;
     }
 
     public async Task<CashLedgerEntryDto> Handle(AddCashTransactionCommand request, CancellationToken ct)
@@ -48,7 +51,7 @@ public sealed class AddCashTransactionCommandHandler : IRequestHandler<AddCashTr
         var type = MappingExtensions.ParseCashTransactionType(request.TransactionType);
         var transactionDate = request.TransactionDate is not null
             ? DateOnly.Parse(request.TransactionDate)
-            : DateOnly.FromDateTime(DateTime.UtcNow);
+            : _appDateTime.Today;
 
         var entry = DomainCashLedgerEntry.Record(type, Money.Of(request.Amount), request.Remarks, transactionDate, isCashIn: request.IsCashIn);
 

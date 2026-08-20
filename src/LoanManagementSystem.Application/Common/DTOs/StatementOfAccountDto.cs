@@ -28,7 +28,7 @@ public sealed record StatementOfAccountDto(
     string Classification
 );
 
-public sealed record SoaExtensionRowDto(string ExtensionDate, decimal AdditionalCharges, string NewDueDate);
+public sealed record SoaExtensionRowDto(string ExtensionDate, decimal AdditionalCharges, string NewDueDate, string Remarks);
 
 /// <summary>PaymentMethod is the wire-format string (see MappingExtensions.ToWireString) — the PDF generator owns turning it into a display label, same split as everywhere else in this codebase.</summary>
 public sealed record SoaPaymentRowDto(

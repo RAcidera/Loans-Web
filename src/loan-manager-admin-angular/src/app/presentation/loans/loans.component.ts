@@ -23,6 +23,7 @@ import { ExportLoansUseCase } from '../../application/use-cases/export-loans.use
 import { AddLoanDialogComponent } from '../add-loan-dialog/add-loan-dialog.component';
 import { AuthService } from '../../application/auth/auth.service';
 import { toLocalDateString, todayLocalDateString } from '../shared/date-utils';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 /** Maps mat-sort-header column ids (template) to the backend's GetLoansPage sortBy values. */
 const SORT_KEY: Record<string, string> = {
@@ -96,6 +97,7 @@ function fmtMoney(n: number): string {
     MatIconModule,
     MatButtonModule,
     MatDialogModule,
+    AppDatePipe,
   ],
   templateUrl: './loans.component.html',
   styleUrls: ['./loans.component.scss'],

@@ -34,7 +34,7 @@
         </div>
         <div class="context-panel__cell" *ngIf="loan">
           <span class="context-panel__label">Due Date</span>
-          <span class="context-panel__value mono">{{ loan.dueDate | date: 'MMM d, y' }}</span>
+          <span class="context-panel__value mono">{{ loan.dueDate | appDate: 'MMM d, y' }}</span>
         </div>
       </div>
       <div class="context-panel__row" *ngIf="entry.loanNumber">

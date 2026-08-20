@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Exceptions;
 using LoanManagementSystem.Application.Diary;
@@ -14,11 +15,13 @@ public sealed class CompareSnapshotToCurrentQueryHandler : IRequestHandler<Compa
 {
     private readonly IDiaryRepository _diaryRepository;
     private readonly IFinancialSnapshotService _financialSnapshotService;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public CompareSnapshotToCurrentQueryHandler(IDiaryRepository diaryRepository, IFinancialSnapshotService financialSnapshotService)
+    public CompareSnapshotToCurrentQueryHandler(IDiaryRepository diaryRepository, IFinancialSnapshotService financialSnapshotService, IAppDateTimeService appDateTime)
     {
         _diaryRepository = diaryRepository;
         _financialSnapshotService = financialSnapshotService;
+        _appDateTime = appDateTime;
     }
 
     public async Task<FinancialComparisonDto> Handle(CompareSnapshotToCurrentQuery request, CancellationToken ct)
@@ -30,7 +33,7 @@ public sealed class CompareSnapshotToCurrentQueryHandler : IRequestHandler<Compa
         var snapshot = entry.Snapshot
             ?? throw new NotFoundException(nameof(DiaryFinancialSnapshot), request.DiaryEntryId);
 
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
         var current = await _financialSnapshotService.GetCurrentFinancialPositionAsync(today, ct);
         var since = await _financialSnapshotService.GetActivitySinceAsync(entry.EntryDate.AddDays(1), today, ct);
 
@@ -40,6 +43,7 @@ public sealed class CompareSnapshotToCurrentQueryHandler : IRequestHandler<Compa
             BuildMetric("collectibleReceivables", "Collectible Receivables", snapshot.CollectibleReceivables, current.CollectibleReceivables),
             BuildMetric("badLoanReceivables", "Bad Loan Receivables", snapshot.BadLoanReceivables, current.BadLoanReceivables),
             BuildMetric("cashOnHand", "Cash on Hand", snapshot.CashOnHand, current.CashOnHand),
+            BuildMetric("totalBusinessPosition", "Total Business Position", snapshot.GrossReceivables + snapshot.CashOnHand, current.GrossReceivables + current.CashOnHand),
             BuildMetric("activeLoanCount", "Active Loans", snapshot.ActiveLoanCount, current.ActiveLoanCount),
             BuildMetric("overdueLoanCount", "Overdue Loans", snapshot.OverdueLoanCount, current.OverdueLoanCount),
             BuildMetric("badLoanCount", "Bad Loans", snapshot.BadLoanCount, current.BadLoanCount),

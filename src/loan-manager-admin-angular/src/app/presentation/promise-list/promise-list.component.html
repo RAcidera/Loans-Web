@@ -11,7 +11,7 @@
     <div class="promise-row__main">
       <span class="chip" [ngClass]="'chip--' + promise.status">{{ statusLabel[promise.status] }}</span>
       <span class="promise-row__amount mono">₱{{ promise.amount | number: '1.2-2' }}</span>
-      <span class="promise-row__date mono">{{ promise.promiseDate | date: 'MMM d, y' }}</span>
+      <span class="promise-row__date mono">{{ promise.promiseDate | appDate: 'MMM d, y' }}</span>
       <span class="promise-row__loan mono" *ngIf="!loanId">{{ promise.loanNumber }}</span>
       <span class="promise-row__customer" *ngIf="loanId">{{ promise.customerName }}</span>
     </div>

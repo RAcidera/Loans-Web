@@ -46,9 +46,9 @@ public class DiaryEntryConfiguration : IEntityTypeConfiguration<DiaryEntry>
         builder.Property(e => e.ReminderTime).HasColumnName("reminder_time").HasColumnType("time");
 
         builder.Property(e => e.CreatedBy).HasColumnName("created_by").HasMaxLength(100);
-        builder.Property(e => e.CreatedAtUtc).HasColumnName("created_at");
+        builder.Property(e => e.CreatedAtUtc).HasColumnName("created_at").HasColumnType("datetime2");
         builder.Property(e => e.ModifiedBy).HasColumnName("modified_by").HasMaxLength(100);
-        builder.Property(e => e.ModifiedAtUtc).HasColumnName("modified_at");
+        builder.Property(e => e.ModifiedAtUtc).HasColumnName("modified_at").HasColumnType("datetime2");
 
         // --- Snapshot (child entity, one DiaryEntry -> zero-or-one DiaryFinancialSnapshot) ---
         builder.HasOne(e => e.Snapshot)

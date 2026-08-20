@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
+import { BusinessTimeService } from '../business-time.service';
 
 export type UserRole = 'admin' | 'staff';
 
@@ -38,7 +39,7 @@ export class AuthService {
   readonly username = signal<string | null>(null);
   readonly role = signal<UserRole | null>(null);
 
-  constructor(private readonly http: HttpClient) {
+  constructor(private readonly http: HttpClient, private readonly businessTimeService: BusinessTimeService) {
     this.restoreSession();
   }
 
@@ -57,6 +58,10 @@ export class AuthService {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(session));
         this.username.set(response.username);
         this.role.set(response.role);
+        // BusinessTimeService's own startup fetch ran before login (no
+        // token yet, so it 401'd and fell back to the hardcoded default) —
+        // refresh now that a valid token exists.
+        this.businessTimeService.refresh();
       }),
     );
   }

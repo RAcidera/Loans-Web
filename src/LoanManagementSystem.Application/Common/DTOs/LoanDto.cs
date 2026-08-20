@@ -23,5 +23,7 @@ public sealed record LoanDto(
     string Remarks,
     string CreatedAt,
     /// <summary>Only populated by GetLoanDetailQuery (the Loan Details page's "Contact" stat) — every other caller of Loan.ToDto() omits it.</summary>
-    string? CustomerContactNumber = null
+    string? CustomerContactNumber = null,
+    /// <summary>DueDate.DayNumber - business-local Today.DayNumber (negative once overdue). Only populated by GetLoanDetailQuery (the Loan Details page's "days until due" banner) — computed server-side against the Business Time Zone so it never disagrees with Loan.RefreshOverdueStatus's own decision, unlike a client-side recomputation from the browser's clock would.</summary>
+    int? DaysUntilDue = null
 );

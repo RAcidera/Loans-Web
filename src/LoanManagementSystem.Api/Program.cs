@@ -2,7 +2,9 @@ using System.Text;
 using System.Text.Json.Serialization;
 using LoanManagementSystem.Api.Middleware;
 using LoanManagementSystem.Application;
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.Security;
+using LoanManagementSystem.Domain.Repositories;
 using LoanManagementSystem.Infrastructure;
 using LoanManagementSystem.Infrastructure.Persistence;
 using LoanManagementSystem.Infrastructure.Persistence.Seed;
@@ -129,6 +131,18 @@ using (var scope = app.Services.CreateScope())
     // just dev demos — see SeedDiaryCategoriesAsync's own doc comment for
     // why this isn't gated behind IsDevelopment() like SeedAsync above.
     await DbSeeder.SeedDiaryCategoriesAsync(db);
+
+    // General Settings' defaults (Business Time Zone) — same "every
+    // environment" reasoning as Diary categories above.
+    await DbSeeder.SeedDefaultSettingsAsync(db);
+
+    // Populate the shared Business Time Zone cache before the app starts
+    // serving requests, so IAppDateTimeService.Today is correct from the
+    // very first request instead of falling back to BusinessTimeZoneCache's
+    // hardcoded default until something happens to trigger a refresh.
+    var settingsRepository = scope.ServiceProvider.GetRequiredService<ISettingsRepository>();
+    var businessTimeZoneCache = scope.ServiceProvider.GetRequiredService<IBusinessTimeZoneCache>();
+    await businessTimeZoneCache.RefreshAsync(settingsRepository);
 }
 
 // --- Middleware pipeline ---

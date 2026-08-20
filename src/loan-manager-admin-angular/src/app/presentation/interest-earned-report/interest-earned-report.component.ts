@@ -22,6 +22,7 @@ import { ExportInterestEarnedXlsxUseCase, ExportInterestEarnedPdfUseCase } from 
 import { InterestEarnedBreakdownDialogComponent } from '../interest-earned-breakdown-dialog/interest-earned-breakdown-dialog.component';
 import { firstOfMonthLocalDateString, todayLocalDateString } from '../shared/date-utils';
 import { ChartTooltipDirective } from '../shared/chart-tooltip.directive';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 const STATUS_LABEL: Record<LoanStatus, string> = {
   active: 'Active',
@@ -75,6 +76,7 @@ interface BarGroup {
     MatTooltipModule,
     MatDialogModule,
     ChartTooltipDirective,
+    AppDatePipe,
   ],
   templateUrl: './interest-earned-report.component.html',
   styleUrls: ['./interest-earned-report.component.scss'],

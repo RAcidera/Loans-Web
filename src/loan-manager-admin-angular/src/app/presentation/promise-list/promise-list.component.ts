@@ -18,6 +18,7 @@ import { ReschedulePromiseUseCase } from '../../application/use-cases/reschedule
 import { CancelPromiseUseCase } from '../../application/use-cases/cancel-promise.use-case';
 import { PromiseFormDialogComponent } from '../promise-form-dialog/promise-form-dialog.component';
 import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
 const STATUS_LABEL: Record<PromiseStatus, string> = {
   pending: 'Pending',
@@ -38,7 +39,7 @@ const STATUS_LABEL: Record<PromiseStatus, string> = {
 @Component({
   selector: 'lm-promise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatDialogModule],
+  imports: [CommonModule, FormsModule, MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatDialogModule, AppDatePipe],
   templateUrl: './promise-list.component.html',
   styleUrls: ['./promise-list.component.scss'],
 })

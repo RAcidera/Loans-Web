@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Domain.Customers;
 using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.Repositories;
@@ -9,10 +10,12 @@ namespace LoanManagementSystem.Infrastructure.Repositories;
 public class LoanRepository : ILoanRepository
 {
     private readonly AppDbContext _db;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public LoanRepository(AppDbContext db)
+    public LoanRepository(AppDbContext db, IAppDateTimeService appDateTime)
     {
         _db = db;
+        _appDateTime = appDateTime;
     }
 
     // Tracked (no AsNoTracking) + Extensions/Payments included: this is the
@@ -83,7 +86,8 @@ public class LoanRepository : ILoanRepository
 
     public async Task<(List<(Payment Payment, CustomerId CustomerId, string CustomerName, int LoanNumber)> Items, int TotalCount)> GetPaymentsPageAsync(
         int pageIndex, int pageSize, string? loanSearch, IReadOnlyCollection<CustomerId> matchingCustomerIds,
-        DateOnly? dateFrom, DateOnly? dateTo, string? sortBy, string? sortDir, CancellationToken ct = default)
+        DateOnly? dateFrom, DateOnly? dateTo, string? sortBy, string? sortDir, CancellationToken ct = default,
+        DateOnly? createdAtFrom = null, DateOnly? createdAtTo = null)
     {
         var query = _db.Set<Payment>()
             .AsNoTracking()
@@ -105,6 +109,17 @@ public class LoanRepository : ILoanRepository
             query = query.Where(x => x.Payment.PaymentDate >= from);
         if (dateTo is { } to)
             query = query.Where(x => x.Payment.PaymentDate <= to);
+
+        // Payment.CreatedAtUtc is a UTC instant, but createdFrom/createdTo are
+        // business-local calendar dates picked in the UI — comparing against
+        // naive midnight (as this used to) silently used UTC midnight
+        // instead of business midnight, shifting the effective window by the
+        // business timezone's offset. GetStartOfBusinessDayUtc converts the
+        // business-local day boundary to the correct UTC instant first.
+        if (createdAtFrom is { } createdFrom)
+            query = query.Where(x => x.Payment.CreatedAtUtc >= _appDateTime.GetStartOfBusinessDayUtc(createdFrom));
+        if (createdAtTo is { } createdTo)
+            query = query.Where(x => x.Payment.CreatedAtUtc < _appDateTime.GetStartOfBusinessDayUtc(createdTo.AddDays(1)));
 
         var totalCount = await query.CountAsync(ct);
 
@@ -128,7 +143,8 @@ public class LoanRepository : ILoanRepository
 
     public async Task<List<(Payment Payment, CustomerId CustomerId, string CustomerName, int LoanNumber)>> GetPaymentsFilteredAsync(
         string? loanSearch, IReadOnlyCollection<CustomerId> matchingCustomerIds,
-        DateOnly? dateFrom, DateOnly? dateTo, CancellationToken ct = default)
+        DateOnly? dateFrom, DateOnly? dateTo, CancellationToken ct = default,
+        DateOnly? createdAtFrom = null, DateOnly? createdAtTo = null)
     {
         var query = _db.Set<Payment>()
             .AsNoTracking()
@@ -150,6 +166,17 @@ public class LoanRepository : ILoanRepository
             query = query.Where(x => x.Payment.PaymentDate >= from);
         if (dateTo is { } to)
             query = query.Where(x => x.Payment.PaymentDate <= to);
+
+        // Payment.CreatedAtUtc is a UTC instant, but createdFrom/createdTo are
+        // business-local calendar dates picked in the UI — comparing against
+        // naive midnight (as this used to) silently used UTC midnight
+        // instead of business midnight, shifting the effective window by the
+        // business timezone's offset. GetStartOfBusinessDayUtc converts the
+        // business-local day boundary to the correct UTC instant first.
+        if (createdAtFrom is { } createdFrom)
+            query = query.Where(x => x.Payment.CreatedAtUtc >= _appDateTime.GetStartOfBusinessDayUtc(createdFrom));
+        if (createdAtTo is { } createdTo)
+            query = query.Where(x => x.Payment.CreatedAtUtc < _appDateTime.GetStartOfBusinessDayUtc(createdTo.AddDays(1)));
 
         var rows = await query.ToListAsync(ct);
         return rows.Select(r => (r.Payment, r.CustomerId, r.FullName, r.LoanNumber)).ToList();

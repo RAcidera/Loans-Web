@@ -42,3 +42,18 @@ export function nowLocalTimeString(): string {
   const minutes = String(now.getMinutes()).padStart(2, '0');
   return `${hours}:${minutes}`;
 }
+
+/**
+ * Adds (or subtracts, for a negative count) whole days to a plain
+ * "yyyy-MM-dd" business-date string, returning another "yyyy-MM-dd" string.
+ * Deliberately does the arithmetic in UTC — a business date has no
+ * time-of-day/timezone meaning, so parsing/reformatting it through the
+ * browser's LOCAL timezone (as `new Date(dateString)` + `setDate` would)
+ * risks the exact off-by-one-day class of bug this module's other helpers
+ * already guard against, just via a different code path.
+ */
+export function addDaysToDateString(dateString: string, days: number): string {
+  const [year, month, day] = dateString.split('-').map(Number);
+  const utc = new Date(Date.UTC(year, month - 1, day + days));
+  return `${utc.getUTCFullYear()}-${String(utc.getUTCMonth() + 1).padStart(2, '0')}-${String(utc.getUTCDate()).padStart(2, '0')}`;
+}

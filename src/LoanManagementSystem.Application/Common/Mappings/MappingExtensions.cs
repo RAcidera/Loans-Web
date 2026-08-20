@@ -32,7 +32,7 @@ public static class MappingExtensions
         NicknameAlias: customer.NicknameAlias,
         Notes: customer.Notes,
         Status: customer.Status.ToString().ToLowerInvariant(),
-        CreatedAt: customer.CreatedAtUtc.ToString("yyyy-MM-dd")
+        CreatedAt: customer.CreatedAtUtc.ToString("O")
     );
 
     public static CustomerDocumentDto ToDto(this CustomerDocument document) => new(
@@ -65,7 +65,7 @@ public static class MappingExtensions
         NicknameAlias: customer.NicknameAlias,
         Notes: customer.Notes,
         Status: customer.Status.ToString().ToLowerInvariant(),
-        CreatedAt: customer.CreatedAtUtc.ToString("yyyy-MM-dd"),
+        CreatedAt: customer.CreatedAtUtc.ToString("O"),
         LoanCount: loanCount,
         OutstandingBalance: outstandingBalance
     );
@@ -75,10 +75,10 @@ public static class MappingExtensions
         Username: user.Username,
         Role: user.Role.ToString().ToLowerInvariant(),
         Status: user.Status.ToString().ToLowerInvariant(),
-        CreatedAt: user.CreatedAtUtc.ToString("yyyy-MM-dd")
+        CreatedAt: user.CreatedAtUtc.ToString("O")
     );
 
-    public static LoanDto ToDto(this Loan loan, string customerName, string? customerContactNumber = null) => new(
+    public static LoanDto ToDto(this Loan loan, string customerName, string? customerContactNumber = null, int? daysUntilDue = null) => new(
         LoanId: loan.Id.ToString(),
         LoanNumber: FormatLoanNumber(loan.LoanNumber),
         CustomerId: loan.CustomerId.ToString(),
@@ -97,8 +97,9 @@ public static class MappingExtensions
         Status: loan.Status.ToString().ToLowerInvariant(),
         Classification: loan.Classification.ToString().ToLowerInvariant(),
         Remarks: loan.Remarks,
-        CreatedAt: loan.CreatedAtUtc.ToString("yyyy-MM-dd"),
-        CustomerContactNumber: customerContactNumber
+        CreatedAt: loan.CreatedAtUtc.ToString("O"),
+        CustomerContactNumber: customerContactNumber,
+        DaysUntilDue: daysUntilDue
     );
 
     /// <summary>(Principal + Interest) / (Payment terms in months * 30) — see LoanDto.DailyPayment.</summary>
@@ -124,7 +125,8 @@ public static class MappingExtensions
         AmountPaid: payment.AmountPaid.Amount,
         PaymentMethod: ToWireString(payment.PaymentMethod),
         Notes: payment.Notes,
-        ReferenceNumber: payment.ReferenceNumber
+        ReferenceNumber: payment.ReferenceNumber,
+        CreatedAt: payment.CreatedAtUtc.ToString("O")
     );
 
     public static PaymentWithCustomerDto ToDtoWithCustomer(this Payment payment, string customerId, string customerName, int loanNumber) => new(
@@ -137,7 +139,8 @@ public static class MappingExtensions
         Notes: payment.Notes,
         ReferenceNumber: payment.ReferenceNumber,
         CustomerId: customerId,
-        CustomerName: customerName
+        CustomerName: customerName,
+        CreatedAt: payment.CreatedAtUtc.ToString("O")
     );
 
     public static PaymentWithLoanDto ToDtoWithLoan(this Payment payment, int loanNumber) => new(
@@ -148,7 +151,8 @@ public static class MappingExtensions
         AmountPaid: payment.AmountPaid.Amount,
         PaymentMethod: ToWireString(payment.PaymentMethod),
         Notes: payment.Notes,
-        ReferenceNumber: payment.ReferenceNumber
+        ReferenceNumber: payment.ReferenceNumber,
+        CreatedAt: payment.CreatedAtUtc.ToString("O")
     );
 
     public static LoanLedgerEntryDto ToDto(this LoanLedgerEntry entry) => new(

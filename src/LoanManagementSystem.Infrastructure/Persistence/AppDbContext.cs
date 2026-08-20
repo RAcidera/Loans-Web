@@ -5,8 +5,11 @@ using LoanManagementSystem.Domain.Diary;
 using LoanManagementSystem.Domain.Identity;
 using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.Promises;
+using LoanManagementSystem.Domain.Settings;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace LoanManagementSystem.Infrastructure.Persistence;
 
@@ -30,6 +33,34 @@ public class AppDbContext : DbContext
     public DbSet<DiaryAuditLogEntry> DiaryAuditLogEntries => Set<DiaryAuditLogEntry>();
     public DbSet<PromiseToPay> PromisesToPay => Set<PromiseToPay>();
     public DbSet<PromiseAuditLogEntry> PromiseAuditLogEntries => Set<PromiseAuditLogEntry>();
+    public DbSet<AppSetting> AppSettings => Set<AppSetting>();
+
+    /// <summary>
+    /// SQL Server's datetime2 columns (every DateTime property in this
+    /// model — all of them audit timestamps written as DateTime.UtcNow, see
+    /// each aggregate's *AtUtc naming convention) carry no offset, so EF
+    /// materializes them with Kind = Unspecified by default. That silently
+    /// broke every "O"-format ISO string this API returns (PaymentDto.CreatedAt,
+    /// LoanAuditLogEntryDto.OccurredAt, etc.): Unspecified serializes to
+    /// "O" without a trailing "Z", and both the browser's Date constructor
+    /// and Angular's DatePipe then parse that string as LOCAL time, not
+    /// UTC — an 8-hour display error for a UTC+8 business timezone. Tagging
+    /// every DateTime as Kind=Utc on the way out of the database (this is
+    /// always correct, since nothing in this codebase ever writes a
+    /// non-UTC DateTime) fixes that at the source, once, instead of
+    /// per-property.
+    /// </summary>
+    protected override void ConfigureConventions(ModelConfigurationBuilder configurationBuilder)
+    {
+        configurationBuilder.Properties<DateTime>().HaveConversion<UtcDateTimeConverter>();
+    }
+
+    private sealed class UtcDateTimeConverter : ValueConverter<DateTime, DateTime>
+    {
+        public UtcDateTimeConverter() : base(v => v, v => DateTime.SpecifyKind(v, DateTimeKind.Utc))
+        {
+        }
+    }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

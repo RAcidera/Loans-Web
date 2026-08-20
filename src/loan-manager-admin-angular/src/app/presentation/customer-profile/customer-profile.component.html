@@ -25,7 +25,7 @@
         <h2>{{ customer.fullName }}</h2>
         <span class="nickname" *ngIf="customer.nicknameAlias">"{{ customer.nicknameAlias }}"</span>
       </div>
-      <p class="identity-card__meta mono">{{ customer.customerCode }} &bull; Since {{ customer.createdAt | date:'MMM dd, yyyy' }}</p>
+      <p class="identity-card__meta mono">{{ customer.customerCode }} &bull; Since {{ customer.createdAt | appDateTime:'MMM dd, yyyy' }}</p>
       <div class="identity-card__tags">
         <span class="chip" [ngClass]="'chip--' + customer.status">{{ customer.status === 'active' ? 'Active' : 'Inactive' }}</span>
         <span class="chip chip--tag" *ngIf="customer.borrowerType">{{ customer.borrowerType }}</span>
@@ -59,13 +59,13 @@
 
   <section class="kpi-row">
     <mat-card class="kpi-card" *ngFor="let kpi of financialKpis" [ngClass]="'kpi-card--' + kpi.tone">
-      <div class="kpi-card__head">
-        <span class="kpi-card__icon"><mat-icon>{{ kpi.icon }}</mat-icon></span>
+      <div class="kpi-card__icon"><mat-icon>{{ kpi.icon }}</mat-icon></div>
+      <div class="kpi-card__body">
         <span class="kpi-card__label">{{ kpi.label }}</span>
+        <div class="kpi-card__value">{{ kpi.value }}</div>
+        <p class="kpi-card__caption" *ngIf="!kpi.captionClickable">{{ kpi.caption }}</p>
+        <a class="kpi-card__caption kpi-card__caption--link" *ngIf="kpi.captionClickable" (click)="focusLoansTab()">{{ kpi.caption }}</a>
       </div>
-      <div class="kpi-card__value">{{ kpi.value }}</div>
-      <p class="kpi-card__caption" *ngIf="!kpi.captionClickable">{{ kpi.caption }}</p>
-      <a class="kpi-card__caption kpi-card__caption--link" *ngIf="kpi.captionClickable" (click)="focusLoansTab()">{{ kpi.caption }}</a>
     </mat-card>
   </section>
 
@@ -112,7 +112,7 @@
 
             <ng-container matColumnDef="loanDate">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Loan Date</th>
-              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.startDate | date:'MMM dd, yyyy' }}</td>
+              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.startDate | appDate:'MMM dd, yyyy' }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
@@ -136,7 +136,7 @@
 
             <ng-container matColumnDef="dueDate">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</th>
-              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate | date:'MMM dd, yyyy' }}</td>
+              <td mat-cell *matCellDef="let loan" class="mono">{{ loan.dueDate | appDate:'MMM dd, yyyy' }}</td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
 
@@ -203,7 +203,7 @@
           <table mat-table [dataSource]="paymentHistoryItems" matSort (matSortChange)="onPaymentHistorySort($event)" class="history-table">
             <ng-container matColumnDef="date">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Payment Date</th>
-              <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | date:'MMM dd, yyyy' }}</td>
+              <td mat-cell *matCellDef="let p" class="mono">{{ p.paymentDate | appDate:'MMM dd, yyyy' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="loan">
@@ -218,9 +218,19 @@
               <td mat-cell *matCellDef="let p" class="mono right">₱{{ p.amountPaid | number:'1.2-2' }}</td>
             </ng-container>
 
+            <ng-container matColumnDef="method">
+              <th mat-header-cell *matHeaderCellDef>Payment Method</th>
+              <td mat-cell *matCellDef="let p">{{ getMethodLabel(p.paymentMethod) }}</td>
+            </ng-container>
+
             <ng-container matColumnDef="reference">
               <th mat-header-cell *matHeaderCellDef>Reference Number</th>
               <td mat-cell *matCellDef="let p" class="mono">{{ p.referenceNumber || '—' }}</td>
+            </ng-container>
+
+            <ng-container matColumnDef="createdAt">
+              <th mat-header-cell *matHeaderCellDef>Created</th>
+              <td mat-cell *matCellDef="let p" class="mono">{{ p.createdAt | appDateTime:'MM/dd/yyyy h:mm a' }}</td>
             </ng-container>
 
             <ng-container matColumnDef="notes">
@@ -279,7 +289,7 @@
         <div class="footer-fields__row"><dt>Borrower Type</dt><dd>{{ customer.borrowerType || '—' }}</dd></div>
         <div class="footer-fields__row"><dt>Contact Number</dt><dd class="mono">{{ customer.contactNumber || '—' }}</dd></div>
         <div class="footer-fields__row"><dt>Address</dt><dd>{{ customer.address || '—' }}</dd></div>
-        <div class="footer-fields__row"><dt>Customer Since</dt><dd class="mono">{{ customer.createdAt | date:'MMM dd, yyyy' }}</dd></div>
+        <div class="footer-fields__row"><dt>Customer Since</dt><dd class="mono">{{ customer.createdAt | appDateTime:'MMM dd, yyyy' }}</dd></div>
         <div class="footer-fields__row"><dt>Notes</dt><dd>{{ customer.notes || '—' }}</dd></div>
       </dl>
     </mat-card>
@@ -298,7 +308,7 @@
             <span class="activity-item__title">{{ a.title }}</span>
             <span class="activity-item__subtitle mono">{{ a.subtitle }}</span>
           </div>
-          <span class="activity-item__date mono">{{ a.date | date:'MMM dd, yyyy' }}</span>
+          <span class="activity-item__date mono">{{ a.date | appDateTime:'MMM dd, yyyy' }}</span>
         </li>
         <li class="empty-note" *ngIf="recentActivity.length === 0">No activity yet.</li>
       </ul>

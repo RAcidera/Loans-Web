@@ -34,7 +34,7 @@ public class CustomerDocumentConfiguration : IEntityTypeConfiguration<CustomerDo
         // default mapping for byte[], BLOB, needs no size at all).
         builder.Property(d => d.Content).HasColumnName("content").IsRequired();
 
-        builder.Property(d => d.UploadedAtUtc).HasColumnName("uploaded_at");
+        builder.Property(d => d.UploadedAtUtc).HasColumnName("uploaded_at").HasColumnType("datetime2");
         builder.Property(d => d.UploadedBy).HasColumnName("uploaded_by").HasMaxLength(100);
     }
 }

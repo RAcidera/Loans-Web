@@ -1,4 +1,5 @@
 using System.Globalization;
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using MediatR;
 
@@ -12,17 +13,19 @@ public sealed record GetInterestEarnedMonthlyChartQuery(
 public sealed class GetInterestEarnedMonthlyChartQueryHandler : IRequestHandler<GetInterestEarnedMonthlyChartQuery, List<InterestEarnedMonthlyPointDto>>
 {
     private readonly InterestEarnedReportDataProvider _dataProvider;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public GetInterestEarnedMonthlyChartQueryHandler(InterestEarnedReportDataProvider dataProvider)
+    public GetInterestEarnedMonthlyChartQueryHandler(InterestEarnedReportDataProvider dataProvider, IAppDateTimeService appDateTime)
     {
         _dataProvider = dataProvider;
+        _appDateTime = appDateTime;
     }
 
     public async Task<List<InterestEarnedMonthlyPointDto>> Handle(GetInterestEarnedMonthlyChartQuery request, CancellationToken ct)
     {
         var (loans, customerNames) = await _dataProvider.LoadFilteredLoansAsync(request.Search, request.Status, request.Classification, ct);
 
-        var currentYear = DateTime.UtcNow.Year;
+        var currentYear = _appDateTime.Today.Year;
         var previousYear = currentYear - 1;
         var points = new List<InterestEarnedMonthlyPointDto>();
 

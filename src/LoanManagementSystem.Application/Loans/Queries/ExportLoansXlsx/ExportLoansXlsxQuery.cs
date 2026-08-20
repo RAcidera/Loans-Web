@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Application.Common.Xlsx;
@@ -25,18 +26,21 @@ public sealed class ExportLoansXlsxQueryHandler : IRequestHandler<ExportLoansXls
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly ILoansXlsxExportGenerator _xlsxGenerator;
+    private readonly IAppDateTimeService _appDateTime;
 
     public ExportLoansXlsxQueryHandler(
-        ILoanRepository loanRepository, ICustomerRepository customerRepository, ILoansXlsxExportGenerator xlsxGenerator)
+        ILoanRepository loanRepository, ICustomerRepository customerRepository, ILoansXlsxExportGenerator xlsxGenerator,
+        IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
         _xlsxGenerator = xlsxGenerator;
+        _appDateTime = appDateTime;
     }
 
     public async Task<DocumentFileDto> Handle(ExportLoansXlsxQuery request, CancellationToken ct)
     {
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
 
         var matchingCustomerIds = string.IsNullOrWhiteSpace(request.Search)
             ? new List<Domain.Customers.CustomerId>()

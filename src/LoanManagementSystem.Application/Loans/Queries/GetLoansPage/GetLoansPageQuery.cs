@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Mappings;
 using LoanManagementSystem.Application.Common.Models;
@@ -26,18 +27,20 @@ public sealed class GetLoansPageQueryHandler : IRequestHandler<GetLoansPageQuery
 {
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public GetLoansPageQueryHandler(ILoanRepository loanRepository, ICustomerRepository customerRepository)
+    public GetLoansPageQueryHandler(ILoanRepository loanRepository, ICustomerRepository customerRepository, IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
+        _appDateTime = appDateTime;
     }
 
     public async Task<PagedResult<LoanDto>> Handle(GetLoansPageQuery request, CancellationToken ct)
     {
         var pageIndex = Math.Max(0, request.PageIndex);
         var pageSize = Math.Max(1, request.PageSize);
-        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+        var today = _appDateTime.Today;
 
         // Loan and Customer are separate aggregates with no EF navigation
         // property between them — resolve a customer-name search into an

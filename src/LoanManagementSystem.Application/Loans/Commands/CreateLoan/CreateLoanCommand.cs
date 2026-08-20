@@ -1,3 +1,4 @@
+using LoanManagementSystem.Application.Common.DateTimeHandling;
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Common.Exceptions;
 using LoanManagementSystem.Application.Common.Mappings;
@@ -30,12 +31,15 @@ public sealed class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IUnitOfWork _unitOfWork;
+    private readonly IAppDateTimeService _appDateTime;
 
-    public CreateLoanCommandHandler(ILoanRepository loanRepository, ICustomerRepository customerRepository, IUnitOfWork unitOfWork)
+    public CreateLoanCommandHandler(
+        ILoanRepository loanRepository, ICustomerRepository customerRepository, IUnitOfWork unitOfWork, IAppDateTimeService appDateTime)
     {
         _loanRepository = loanRepository;
         _customerRepository = customerRepository;
         _unitOfWork = unitOfWork;
+        _appDateTime = appDateTime;
     }
 
     public async Task<LoanDto> Handle(CreateLoanCommand request, CancellationToken ct)
@@ -46,7 +50,7 @@ public sealed class CreateLoanCommandHandler : IRequestHandler<CreateLoanCommand
 
         var startDate = request.StartDate is not null
             ? DateOnly.Parse(request.StartDate)
-            : DateOnly.FromDateTime(DateTime.UtcNow);
+            : _appDateTime.Today;
 
         var rate = request.InterestRate is not null ? InterestRate.Of(request.InterestRate.Value) : InterestRate.Default;
         var paymentTermsMonths = request.PaymentTermsMonths ?? 2;

@@ -36,6 +36,7 @@ public static class DependencyInjection
         services.AddScoped<IDiaryAuditLogRepository, DiaryAuditLogRepository>();
         services.AddScoped<IPromiseToPayRepository, PromiseToPayRepository>();
         services.AddScoped<IPromiseAuditLogRepository, PromiseAuditLogRepository>();
+        services.AddScoped<ISettingsRepository, SettingsRepository>();
         services.AddScoped<IUnitOfWork, UnitOfWork>();
 
         services.Configure<JwtSettings>(configuration.GetSection(JwtSettings.SectionName));
