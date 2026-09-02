@@ -202,6 +202,39 @@
       color: var(--lm-text-muted);
       margin: 0;
     }
+
+    &--with-action {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+    }
+  }
+}
+
+.overview-toggle {
+  display: flex;
+  flex-shrink: 0;
+  border: 1px solid var(--lm-border);
+  border-radius: 999px;
+  padding: 2px;
+  gap: 2px;
+
+  &__btn {
+    border: none;
+    background: transparent;
+    color: var(--lm-text-muted);
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.6;
+    padding: 3px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+
+    &--active {
+      background: var(--lm-primary);
+      color: var(--lm-primary-contrast, #fff);
+    }
   }
 }
 

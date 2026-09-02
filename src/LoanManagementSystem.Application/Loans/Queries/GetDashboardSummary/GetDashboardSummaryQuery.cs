@@ -75,6 +75,7 @@ public sealed class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboa
             OverdueLoansChangePercent: PercentChange(overdueCount, priorOverdueCount),
             LoansDueThisWeekCount: dueThisWeekCount,
             MonthlyCollections: BuildMonthlyCollections(loans, today),
+            MonthlyLoansReleased: BuildMonthlyLoansReleased(loans, today),
             Last7DaysCollections: BuildLast7DaysCollections(loans, today),
             ReceivablesBreakdown: BuildReceivablesBreakdown(loans),
             RecentLoans: recentLoans
@@ -109,6 +110,23 @@ public sealed class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboa
             var monthName = new DateOnly(thisYear, month, 1).ToString("MMM");
             var thisYearTotal = payments.Where(p => p.PaymentDate.Year == thisYear && p.PaymentDate.Month == month).Sum(p => p.AmountPaid.Amount);
             var lastYearTotal = payments.Where(p => p.PaymentDate.Year == lastYear && p.PaymentDate.Month == month).Sum(p => p.AmountPaid.Amount);
+            months.Add(new MonthlyCollectionDto(monthName, thisYearTotal, lastYearTotal));
+        }
+
+        return months;
+    }
+
+    private static List<MonthlyCollectionDto> BuildMonthlyLoansReleased(List<Loan> loans, DateOnly today)
+    {
+        var thisYear = today.Year;
+        var lastYear = thisYear - 1;
+
+        var months = new List<MonthlyCollectionDto>();
+        for (var month = 1; month <= 12; month++)
+        {
+            var monthName = new DateOnly(thisYear, month, 1).ToString("MMM");
+            var thisYearTotal = loans.Where(l => l.StartDate.Year == thisYear && l.StartDate.Month == month).Sum(l => l.PrincipalAmount.Amount);
+            var lastYearTotal = loans.Where(l => l.StartDate.Year == lastYear && l.StartDate.Month == month).Sum(l => l.PrincipalAmount.Amount);
             months.Add(new MonthlyCollectionDto(monthName, thisYearTotal, lastYearTotal));
         }
 

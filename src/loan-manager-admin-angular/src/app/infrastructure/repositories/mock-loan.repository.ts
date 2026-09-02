@@ -397,6 +397,15 @@ export class MockLoanRepository extends LoanRepository {
       lastYear: 0, // mock data doesn't carry a prior year's worth of payments
     }));
 
+    const monthlyLoansReleased: MonthlyCollection[] = monthNames.map((month, i) => ({
+      month,
+      thisYear: this.loans.filter((l) => {
+        const d = new Date(l.startDate);
+        return d.getFullYear() === today.getFullYear() && d.getMonth() === i;
+      }).reduce((sum, l) => sum + l.principalAmount, 0),
+      lastYear: 0, // mock data doesn't carry a prior year's worth of loans
+    }));
+
     const last7DaysCollections: DailyCollection[] = Array.from({ length: 7 }, (_, i) => {
       const date = new Date(today);
       date.setDate(date.getDate() - (6 - i));
@@ -424,6 +433,7 @@ export class MockLoanRepository extends LoanRepository {
       overdueLoansChangePercent: null,
       loansDueThisWeekCount: 0,
       monthlyCollections,
+      monthlyLoansReleased,
       last7DaysCollections,
       receivablesBreakdown: {
         current: active.reduce((sum, l) => sum + l.totalAmountDue, 0),

@@ -39,6 +39,8 @@ export interface DashboardSummary {
   overdueLoansChangePercent: number | null;
   loansDueThisWeekCount: number;
   monthlyCollections: MonthlyCollection[];
+  /** Same shape as monthlyCollections (this year vs. last year per month) but summing originated principal instead of collected payments — backs the "Loans" toggle on the Collections Overview chart. */
+  monthlyLoansReleased: MonthlyCollection[];
   last7DaysCollections: DailyCollection[];
   receivablesBreakdown: ReceivablesBreakdown;
   recentLoans: Loan[];

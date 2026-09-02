@@ -27,9 +27,25 @@
 
 <div class="charts-row">
   <mat-card class="chart-card chart-card--bar">
-    <div class="chart-card__header">
-      <h2>Collections Overview</h2>
-      <p>Monthly collections comparison</p>
+    <div class="chart-card__header chart-card__header--with-action">
+      <div>
+        <h2>{{ overviewTitle }}</h2>
+        <p>{{ overviewSubtitle }}</p>
+      </div>
+      <div class="overview-toggle">
+        <button
+          type="button"
+          class="overview-toggle__btn"
+          [class.overview-toggle__btn--active]="overviewMode === 'collections'"
+          (click)="setOverviewMode('collections')"
+        >Collections</button>
+        <button
+          type="button"
+          class="overview-toggle__btn"
+          [class.overview-toggle__btn--active]="overviewMode === 'loans'"
+          (click)="setOverviewMode('loans')"
+        >Loans</button>
+      </div>
     </div>
     <div class="chart-legend">
       <span class="chart-legend__item"><i class="chart-legend__dot chart-legend__dot--this-year"></i>This Year</span>

@@ -106,6 +106,10 @@ export class DashboardComponent implements OnInit {
   recentLoanColumns = ['id', 'customer', 'principal', 'dueDate', 'balance', 'status', 'actions'];
 
   monthlyCollections: MonthlyCollection[] = [];
+  monthlyLoansReleased: MonthlyCollection[] = [];
+  overviewMode: 'collections' | 'loans' = 'collections';
+  overviewTitle = 'Collections Overview';
+  overviewSubtitle = 'Monthly collections comparison';
   barChartMax = 0;
   barGroups: BarGroup[] = [];
 
@@ -132,7 +136,8 @@ export class DashboardComponent implements OnInit {
     }).subscribe(({ cash, summary }) => {
       this.recentLoans = summary.recentLoans;
       this.monthlyCollections = summary.monthlyCollections;
-      this.buildBarChart(summary.monthlyCollections);
+      this.monthlyLoansReleased = summary.monthlyLoansReleased;
+      this.buildBarChart(this.overviewMode === 'collections' ? this.monthlyCollections : this.monthlyLoansReleased);
       this.buildLineChart(summary.last7DaysCollections);
       this.buildDonutChart(summary.receivablesBreakdown);
 
@@ -153,6 +158,14 @@ export class DashboardComponent implements OnInit {
     });
 
     this.getRecentPayments.execute(5).subscribe((payments) => (this.recentPayments = payments));
+  }
+
+  setOverviewMode(mode: 'collections' | 'loans'): void {
+    if (this.overviewMode === mode) return;
+    this.overviewMode = mode;
+    this.overviewTitle = mode === 'collections' ? 'Collections Overview' : 'Loans Overview';
+    this.overviewSubtitle = mode === 'collections' ? 'Monthly collections comparison' : 'Monthly loans comparison';
+    this.buildBarChart(mode === 'collections' ? this.monthlyCollections : this.monthlyLoansReleased);
   }
 
   private buildBarChart(months: MonthlyCollection[]): void {

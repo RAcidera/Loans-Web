@@ -20,12 +20,18 @@ public sealed record DashboardSummaryDto(
     decimal? OverdueLoansChangePercent,
     int LoansDueThisWeekCount,
     List<MonthlyCollectionDto> MonthlyCollections,
+    List<MonthlyCollectionDto> MonthlyLoansReleased,
     List<DailyCollectionDto> Last7DaysCollections,
     ReceivablesBreakdownDto ReceivablesBreakdown,
     List<LoanDto> RecentLoans
 );
 
-/// <summary>One calendar month's collected-payments total, this year vs. the same month last year — "Collections Overview" bar chart.</summary>
+/// <summary>
+/// One calendar month's total, this year vs. the same month last year —
+/// backs the "Collections Overview" bar chart (collected-payments totals)
+/// and, via MonthlyLoansReleased above, the same chart's "Loans" toggle
+/// (originated-principal totals). Same shape, different underlying sum.
+/// </summary>
 public sealed record MonthlyCollectionDto(string Month, decimal ThisYear, decimal LastYear);
 
 /// <summary>One day's collected-payments total — "Collections (Past 7 Days)" line chart.</summary>
