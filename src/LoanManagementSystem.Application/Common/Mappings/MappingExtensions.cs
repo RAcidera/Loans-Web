@@ -155,7 +155,8 @@ public static class MappingExtensions
         CreatedAt: payment.CreatedAtUtc.ToString("O")
     );
 
-    public static LoanLedgerEntryDto ToDto(this LoanLedgerEntry entry) => new(
+    /// <param name="runningBalance">Balance immediately after this entry, computed by the caller over the FULL chronological ledger (TransactionDate order) — falls back to the entry's own stamped RunningBalance, which is only correct when entries happen to have been recorded in date order (see LoanLedgerEntry's doc comment).</param>
+    public static LoanLedgerEntryDto ToDto(this LoanLedgerEntry entry, decimal? runningBalance = null) => new(
         LedgerId: entry.Id.ToString(),
         LoanId: entry.LoanId.ToString(),
         TransactionDate: entry.TransactionDate.ToString("yyyy-MM-dd"),
@@ -163,7 +164,7 @@ public static class MappingExtensions
         ReferenceId: entry.ReferenceId,
         Debit: entry.Debit.Amount,
         Credit: entry.Credit.Amount,
-        RunningBalance: entry.RunningBalance.Amount,
+        RunningBalance: runningBalance ?? entry.RunningBalance.Amount,
         Remarks: entry.Remarks,
         CreatedAt: entry.CreatedAtUtc.ToString("O")
     );

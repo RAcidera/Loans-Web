@@ -13,6 +13,9 @@ public interface ILoanLedgerRepository
     /// <summary>Finds this loan's Payment-type row by ReferenceId (the PaymentId, already unique) — used by PaymentEditedEventHandler to revise it in place.</summary>
     Task<LoanLedgerEntry?> GetByPaymentReferenceAsync(LoanId loanId, PaymentId paymentId, CancellationToken ct = default);
 
+    /// <summary>Finds this loan's single row of the given type (LoanReleased/InterestAdded are each created exactly once, at origination) — used by LoanOriginationEditedEventHandler to revise it in place.</summary>
+    Task<LoanLedgerEntry?> GetByLoanIdAndTypeAsync(LoanId loanId, LoanLedgerTransactionType type, CancellationToken ct = default);
+
     /// <summary>Finds this loan's row by a plain ReferenceId string (a PaymentId or LoanExtensionId's ToString()) — used by PaymentDeletedEventHandler/LoanExtensionDeletedEventHandler to find the row to remove.</summary>
     Task<LoanLedgerEntry?> GetByReferenceIdAsync(LoanId loanId, string referenceId, CancellationToken ct = default);
 

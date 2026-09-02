@@ -14,8 +14,10 @@ public sealed record GenerateLoanSoaQuery(string LoanId) : IRequest<DocumentFile
 /// <summary>
 /// Assembles Customer Info, Loan Info, Extension History, Payment History
 /// (sourced from the Phase 6 ledger for authoritative running balances —
-/// not re-derived from Payments/Extensions ad hoc), and Summary into a PDF
-/// via IStatementOfAccountPdfGenerator.
+/// not re-derived from Payments/Extensions ad hoc, though the balance
+/// itself is recomputed chronologically over that ledger rather than
+/// trusting each row's stamped snapshot; see the comment in Handle), and
+/// Summary into a PDF via IStatementOfAccountPdfGenerator.
 /// </summary>
 public sealed class GenerateLoanSoaQueryHandler : IRequestHandler<GenerateLoanSoaQuery, DocumentFileDto>
 {
@@ -47,9 +49,22 @@ public sealed class GenerateLoanSoaQueryHandler : IRequestHandler<GenerateLoanSo
             ?? throw new NotFoundException("Customer", loan.CustomerId.ToString());
 
         var ledger = await _loanLedgerRepository.GetByLoanIdAsync(loanId, ct);
-        var paymentBalanceByPaymentId = ledger
-            .Where(e => e.TransactionType == LoanLedgerTransactionType.Payment && e.ReferenceId is not null)
-            .ToDictionary(e => e.ReferenceId!, e => e.RunningBalance.Amount);
+
+        // Each entry's stamped RunningBalance reflects the loan's Balance at
+        // RECORDING time (see LoanLedgerEntry's doc comment) — correct only
+        // when entries are recorded in date order. An antedated payment (or
+        // one edited to an earlier date after later payments already exist)
+        // breaks that assumption, so the balance shown against each payment
+        // row here is recomputed chronologically from SignedAmount over the
+        // FULL ledger, sorted by TransactionDate, instead of trusted as-is.
+        var runningBalance = 0m;
+        var paymentBalanceByPaymentId = new Dictionary<string, decimal>();
+        foreach (var entry in ledger.OrderBy(e => e.TransactionDate).ThenBy(e => e.CreatedAtUtc))
+        {
+            runningBalance += entry.SignedAmount;
+            if (entry.TransactionType == LoanLedgerTransactionType.Payment && entry.ReferenceId is not null)
+                paymentBalanceByPaymentId[entry.ReferenceId] = runningBalance;
+        }
 
         var extensions = loan.Extensions
             .OrderBy(e => e.ExtensionDate)

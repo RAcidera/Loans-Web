@@ -182,10 +182,10 @@ public class Loan : AggregateRoot<LoanId>
     /// can adjust" for goodwill discounts. Editing InterestRate alone (no
     /// explicit InterestAmount) recomputes TotalInterest from the new rate.
     ///
-    /// Changing Principal or StartDate raises LoanOriginationEditedDomainEvent
-    /// so the mirrored cash_ledger `loan_release` entry stays correct — see
-    /// that event's doc comment for why this is scoped to cash_ledger only,
-    /// not the loan's own ledger history.
+    /// Changing Principal, StartDate, and/or the resulting TotalInterest
+    /// raises LoanOriginationEditedDomainEvent so the mirrored cash_ledger
+    /// `loan_release` entry and this loan's own loan_ledger LoanReleased/
+    /// InterestAdded rows all stay correct — see that event's doc comment.
     ///
     /// Allowed on a Paid loan (a correction after the fact should still be
     /// possible) — only WrittenOff blocks further edits, unlike Extend()/
@@ -200,6 +200,7 @@ public class Loan : AggregateRoot<LoanId>
         EnsureNotWrittenOff();
 
         var originationChanged = (principal is { } p && p != PrincipalAmount) || (startDate is { } s && s != StartDate);
+        var oldTotalInterest = TotalInterest;
 
         if (interestRate is { } newRate && interestAmount is null)
         {
@@ -221,7 +222,7 @@ public class Loan : AggregateRoot<LoanId>
         Balance = TotalAmountDue.Subtract(TotalPaid);
 
         RaiseDomainEvent(new LoanEditedDomainEvent(Id, editedBy));
-        if (originationChanged)
+        if (originationChanged || TotalInterest != oldTotalInterest)
             RaiseDomainEvent(new LoanOriginationEditedDomainEvent(Id, PrincipalAmount, StartDate));
     }
 
@@ -279,12 +280,17 @@ public class Loan : AggregateRoot<LoanId>
     /// AdditionalChargesAmount contribution out of DueDate/
     /// TotalExtensionCharges before applying the new values — otherwise the
     /// old and new contributions would both remain in effect at once.
+    /// Raises LoanExtensionEditedDomainEvent when the charge amount and/or
+    /// date actually changed, so the mirroring loan_ledger row gets revised
+    /// too — see that event's doc comment.
     /// </summary>
     public LoanExtension EditExtension(LoanExtensionId extensionId, int extensionDays, Money additionalChargesAmount, string remarks, DateOnly extensionDate)
     {
         EnsureNotWrittenOff();
         var extension = _extensions.FirstOrDefault(e => e.Id == extensionId)
             ?? throw new DomainException("Extension not found on this loan.");
+
+        var chargesOrDateChanged = additionalChargesAmount != extension.AdditionalChargesAmount || extensionDate != extension.ExtensionDate;
 
         DueDate = DueDate.AddDays(-extension.ExtensionDays).AddDays(extensionDays);
         TotalExtensionCharges = TotalExtensionCharges.Subtract(extension.AdditionalChargesAmount).Add(additionalChargesAmount);
@@ -293,6 +299,9 @@ public class Loan : AggregateRoot<LoanId>
 
         TotalAmountDue = PrincipalAmount.Add(TotalInterest).Add(TotalExtensionCharges);
         Balance = TotalAmountDue.Subtract(TotalPaid);
+
+        if (chargesOrDateChanged)
+            RaiseDomainEvent(new LoanExtensionEditedDomainEvent(Id, extension.Id, additionalChargesAmount, extensionDate));
 
         return extension;
     }

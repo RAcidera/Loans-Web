@@ -14,7 +14,13 @@ namespace LoanManagementSystem.Domain.Loans;
 /// edited in place — correcting a mistake means adding a new entry, not
 /// rewriting history. RunningBalance is stamped at creation time from the
 /// Loan's own Balance field (single source of truth for the number itself;
-/// this ledger only records the history of how it got there).
+/// this ledger only records the history of how it got there) — but that
+/// makes it a snapshot of recording order, not transaction-date order, so
+/// it's only correct when entries happen to be recorded in date order. An
+/// antedated/backdated entry breaks that assumption; readers that must be
+/// correct even then (GenerateLoanSoaQuery, GetLoanLedgerQuery) recompute
+/// a true running balance from SignedAmount over the full ledger sorted by
+/// TransactionDate instead of trusting this stamped value.
 /// </summary>
 public class LoanLedgerEntry : AggregateRoot<LoanLedgerEntryId>
 {
@@ -30,6 +36,9 @@ public class LoanLedgerEntry : AggregateRoot<LoanLedgerEntryId>
     public Money RunningBalance { get; private set; } = null!;
     public string Remarks { get; private set; } = string.Empty;
     public DateTime CreatedAtUtc { get; private set; }
+
+    /// <summary>Debit minus Credit — this entry's own effect on the balance, independent of when it was recorded. Used to recompute a true chronological running balance at read time (see GenerateLoanSoaQuery/GetLoanLedgerQuery), since the stamped RunningBalance below is only correct when entries are recorded in date order.</summary>
+    public decimal SignedAmount => Debit.Amount - Credit.Amount;
 
     private LoanLedgerEntry() { } // EF Core
 
@@ -62,6 +71,24 @@ public class LoanLedgerEntry : AggregateRoot<LoanLedgerEntryId>
     {
         Credit = credit;
         RunningBalance = runningBalance;
+        TransactionDate = transactionDate;
+    }
+
+    /// <summary>
+    /// Revises this row's Debit/TransactionDate in place — used by both
+    /// LoanOriginationEditedEventHandler (keeping the LoanReleased/
+    /// InterestAdded rows a loan was opened with in sync with a corrected
+    /// principal, disbursement date, or interest amount) and
+    /// LoanExtensionEditedEventHandler (keeping an Extension row in sync
+    /// with a corrected charge amount or date). Safe to do (unlike once
+    /// revising any of these rows in place would have been) precisely
+    /// because readers no longer trust the stamped RunningBalance chain —
+    /// see this class's doc comment — so there's nothing left to
+    /// desynchronize by moving a row's own date/amount.
+    /// </summary>
+    public void ReviseDebit(Money debit, DateOnly transactionDate)
+    {
+        Debit = debit;
         TransactionDate = transactionDate;
     }
 

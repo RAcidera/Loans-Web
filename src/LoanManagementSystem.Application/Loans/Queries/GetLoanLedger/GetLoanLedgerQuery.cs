@@ -21,6 +21,20 @@ public sealed class GetLoanLedgerQueryHandler : IRequestHandler<GetLoanLedgerQue
     public async Task<List<LoanLedgerEntryDto>> Handle(GetLoanLedgerQuery request, CancellationToken ct)
     {
         var entries = await _loanLedgerRepository.GetByLoanIdAsync(LoanId.Parse(request.LoanId), ct);
-        return entries.OrderBy(e => e.TransactionDate).ThenBy(e => e.CreatedAtUtc).Select(e => e.ToDto()).ToList();
+        var ordered = entries.OrderBy(e => e.TransactionDate).ThenBy(e => e.CreatedAtUtc).ToList();
+
+        // Recomputed chronologically from SignedAmount rather than trusting
+        // each row's stamped RunningBalance — see LoanLedgerEntry's doc
+        // comment for why the stamped value alone can't be trusted once a
+        // payment/extension has been antedated or edited to an earlier date.
+        var runningBalance = 0m;
+        var balanceByEntryId = new Dictionary<LoanLedgerEntryId, decimal>();
+        foreach (var entry in ordered)
+        {
+            runningBalance += entry.SignedAmount;
+            balanceByEntryId[entry.Id] = runningBalance;
+        }
+
+        return ordered.Select(e => e.ToDto(balanceByEntryId[e.Id])).ToList();
     }
 }

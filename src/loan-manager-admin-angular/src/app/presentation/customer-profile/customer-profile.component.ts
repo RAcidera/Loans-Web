@@ -143,8 +143,8 @@ export class CustomerProfileComponent implements OnInit {
   selectedTabIndex = TAB_LOANS;
 
   displayedColumns = [
-    'id', 'loanDate', 'principal', 'interestPercent', 'interestCharges', 'dueDate',
-    'totalPaid', 'balance', 'terms', 'status', 'classification', 'actions',
+    'id', 'loanDate', 'principal', 'interestPercent', 'dueDate',
+    'totalPaid', 'balance', 'lastPaymentAmount', 'lastPaymentDate', 'status', 'classification', 'actions',
   ];
   paymentColumns = ['date', 'loan', 'amount', 'method', 'reference', 'createdAt', 'notes'];
   statusLabel = STATUS_LABEL;
@@ -338,11 +338,11 @@ export class CustomerProfileComponent implements OnInit {
       case 'loanDate': return loan.startDate;
       case 'principal': return loan.principalAmount;
       case 'interestPercent': return loan.interestRate;
-      case 'interestCharges': return loan.totalInterest + loan.totalExtensionCharges;
       case 'dueDate': return loan.dueDate;
       case 'totalPaid': return loan.totalPaid;
       case 'balance': return loan.balance;
-      case 'terms': return loan.paymentTermsMonths;
+      case 'lastPaymentAmount': return this.getLastPayment(loan)?.amountPaid ?? -1;
+      case 'lastPaymentDate': return this.getLastPayment(loan)?.paymentDate ?? '';
       case 'status': return loan.status;
       case 'classification': return loan.classification;
       default: return '';
@@ -353,16 +353,17 @@ export class CustomerProfileComponent implements OnInit {
     return this.filteredLoans.reduce((sum, l) => sum + l.principalAmount, 0);
   }
 
-  get filteredInterestAndChargesTotal(): number {
-    return this.filteredLoans.reduce((sum, l) => sum + l.totalInterest + l.totalExtensionCharges, 0);
-  }
-
   get filteredTotalPaidTotal(): number {
     return this.filteredLoans.reduce((sum, l) => sum + l.totalPaid, 0);
   }
 
   get filteredBalanceTotal(): number {
     return this.filteredLoans.reduce((sum, l) => sum + l.balance, 0);
+  }
+
+  /** this.payments is already newest-first (see GetCustomerPaymentHistoryUseCase), so the first match for a loan is its most recent payment. */
+  getLastPayment(loan: Loan): CustomerPayment | undefined {
+    return this.payments.find((p) => p.loanId === loan.loanId);
   }
 
   getStatusLabel(status: LoanStatus): string {

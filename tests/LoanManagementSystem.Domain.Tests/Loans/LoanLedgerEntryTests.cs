@@ -34,4 +34,29 @@ public class LoanLedgerEntryTests
 
         Assert.Null(entry.ReferenceId);
     }
+
+    [Fact]
+    public void SignedAmount_IsDebitMinusCredit()
+    {
+        var debitEntry = LoanLedgerEntry.Record(SomeLoan, LoanLedgerTransactionType.LoanReleased, Money.Of(1000), Money.Zero, Money.Of(1000), "Loan release", new DateOnly(2026, 8, 1));
+        var creditEntry = LoanLedgerEntry.Record(SomeLoan, LoanLedgerTransactionType.Payment, Money.Zero, Money.Of(300), Money.Of(700), "Payment received", new DateOnly(2026, 8, 2));
+
+        Assert.Equal(1000m, debitEntry.SignedAmount);
+        Assert.Equal(-300m, creditEntry.SignedAmount);
+    }
+
+    [Fact]
+    public void ReviseDebit_UpdatesDebitAndTransactionDate_LeavesEverythingElse()
+    {
+        var entry = LoanLedgerEntry.Record(
+            SomeLoan, LoanLedgerTransactionType.LoanReleased, Money.Of(1000), Money.Zero, Money.Of(1000),
+            "Loan released", new DateOnly(2026, 3, 1));
+
+        entry.ReviseDebit(Money.Of(1500), new DateOnly(2026, 1, 1));
+
+        Assert.Equal(1500m, entry.Debit.Amount);
+        Assert.Equal(new DateOnly(2026, 1, 1), entry.TransactionDate);
+        Assert.Equal(0m, entry.Credit.Amount);
+        Assert.Equal(LoanLedgerTransactionType.LoanReleased, entry.TransactionType);
+    }
 }

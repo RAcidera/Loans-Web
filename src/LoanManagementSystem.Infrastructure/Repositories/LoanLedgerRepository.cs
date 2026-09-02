@@ -25,6 +25,11 @@ public class LoanLedgerRepository : ILoanLedgerRepository
     public Task<LoanLedgerEntry?> GetByPaymentReferenceAsync(LoanId loanId, PaymentId paymentId, CancellationToken ct = default) =>
         _db.LoanLedgerEntries.FirstOrDefaultAsync(e => e.LoanId == loanId && e.ReferenceId == paymentId.ToString(), ct);
 
+    // Tracked: LoanOriginationEditedEventHandler mutates this entry via
+    // ReviseDebit and needs SaveChanges to persist it.
+    public Task<LoanLedgerEntry?> GetByLoanIdAndTypeAsync(LoanId loanId, LoanLedgerTransactionType type, CancellationToken ct = default) =>
+        _db.LoanLedgerEntries.FirstOrDefaultAsync(e => e.LoanId == loanId && e.TransactionType == type, ct);
+
     // Tracked: PaymentDeletedEventHandler/LoanExtensionDeletedEventHandler
     // remove this exact row via Remove(), same reasoning as GetByPaymentReferenceAsync.
     public Task<LoanLedgerEntry?> GetByReferenceIdAsync(LoanId loanId, string referenceId, CancellationToken ct = default) =>

@@ -354,6 +354,66 @@ public class LoanTests
             loan.EditLoan(startDate: null, dueDate: null, interestRate: null, interestAmount: null, remarks: "too late", editedBy: "admin"));
     }
 
+    [Fact]
+    public void EditLoan_ChangesPrincipal_RaisesLoanOriginationEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0.03m), new DateOnly(2026, 1, 1));
+
+        loan.EditLoan(startDate: null, dueDate: null, interestRate: null, interestAmount: null, remarks: null, editedBy: "admin", principal: Money.Of(1500));
+
+        var raised = Assert.Single(loan.DomainEvents.OfType<LoanOriginationEditedDomainEvent>());
+        Assert.Equal(1500m, raised.NewPrincipal.Amount);
+    }
+
+    [Fact]
+    public void EditLoan_ChangesStartDate_RaisesLoanOriginationEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0.03m), new DateOnly(2026, 3, 1));
+
+        loan.EditLoan(startDate: new DateOnly(2026, 1, 1), dueDate: null, interestRate: null, interestAmount: null, remarks: null, editedBy: "admin");
+
+        var raised = Assert.Single(loan.DomainEvents.OfType<LoanOriginationEditedDomainEvent>());
+        Assert.Equal(new DateOnly(2026, 1, 1), raised.NewStartDate);
+    }
+
+    /// <summary>
+    /// Regression test: an interest-only correction (no principal/StartDate
+    /// change) must still raise LoanOriginationEditedDomainEvent, otherwise
+    /// LoanOriginationEditedEventHandler never gets a chance to sync the
+    /// loan_ledger InterestAdded row's stale Debit to the corrected amount.
+    /// </summary>
+    [Fact]
+    public void EditLoan_ChangesInterestAmountOnly_StillRaisesLoanOriginationEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0.03m), new DateOnly(2026, 1, 1));
+
+        loan.EditLoan(startDate: null, dueDate: null, interestRate: null, interestAmount: Money.Of(80), remarks: null, editedBy: "admin");
+
+        var raised = Assert.Single(loan.DomainEvents.OfType<LoanOriginationEditedDomainEvent>());
+        Assert.Equal(1000m, raised.NewPrincipal.Amount); // unchanged, carried as-is
+        Assert.Equal(loan.StartDate, raised.NewStartDate); // unchanged, carried as-is
+    }
+
+    [Fact]
+    public void EditLoan_ChangesInterestRateOnly_StillRaisesLoanOriginationEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0.03m), new DateOnly(2026, 1, 1));
+
+        loan.EditLoan(startDate: null, dueDate: null, interestRate: InterestRate.Of(0.05m), interestAmount: null, remarks: null, editedBy: "admin");
+
+        Assert.Single(loan.DomainEvents.OfType<LoanOriginationEditedDomainEvent>());
+    }
+
+    [Fact]
+    public void EditLoan_NoOriginationOrInterestChange_DoesNotRaiseLoanOriginationEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0.03m), new DateOnly(2026, 1, 1));
+
+        loan.EditLoan(startDate: null, dueDate: null, interestRate: null, interestAmount: null, remarks: "just a note update", editedBy: "admin");
+
+        Assert.Empty(loan.DomainEvents.OfType<LoanOriginationEditedDomainEvent>());
+    }
+
     // --- EditPayment / DeletePayment ---
 
     [Fact]
@@ -466,6 +526,50 @@ public class LoanTests
 
         Assert.Throws<DomainException>(() =>
             loan.EditExtension(extension.Id, 20, Money.Of(20), "y", new DateOnly(2026, 1, 16)));
+    }
+
+    /// <summary>
+    /// Regression test: editing an extension's fee (or date) must raise
+    /// LoanExtensionEditedDomainEvent so LoanExtensionEditedEventHandler can
+    /// sync the mirroring loan_ledger row's stale Debit/TransactionDate —
+    /// otherwise every payment recorded after that extension keeps showing
+    /// a running balance off by (new charge - old charge) forever.
+    /// </summary>
+    [Fact]
+    public void EditExtension_ChangesChargeAmount_RaisesLoanExtensionEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0), new DateOnly(2026, 1, 1), 30);
+        var extension = loan.Extend(10, Money.Of(20), "initial", new DateOnly(2026, 1, 20));
+
+        loan.EditExtension(extension.Id, 10, Money.Of(35), "corrected fee", new DateOnly(2026, 1, 20));
+
+        var raised = Assert.Single(loan.DomainEvents.OfType<LoanExtensionEditedDomainEvent>());
+        Assert.Equal(extension.Id, raised.ExtensionId);
+        Assert.Equal(35m, raised.NewAdditionalChargesAmount.Amount);
+        Assert.Equal(new DateOnly(2026, 1, 20), raised.NewExtensionDate);
+    }
+
+    [Fact]
+    public void EditExtension_ChangesDateOnly_RaisesLoanExtensionEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0), new DateOnly(2026, 1, 1), 30);
+        var extension = loan.Extend(10, Money.Of(20), "initial", new DateOnly(2026, 1, 20));
+
+        loan.EditExtension(extension.Id, 10, Money.Of(20), "corrected date", new DateOnly(2026, 1, 18));
+
+        var raised = Assert.Single(loan.DomainEvents.OfType<LoanExtensionEditedDomainEvent>());
+        Assert.Equal(new DateOnly(2026, 1, 18), raised.NewExtensionDate);
+    }
+
+    [Fact]
+    public void EditExtension_OnlyDaysOrRemarksChange_DoesNotRaiseLoanExtensionEditedDomainEvent()
+    {
+        var loan = Loan.Originate(SomeCustomer, Money.Of(1000), InterestRate.Of(0), new DateOnly(2026, 1, 1), 30);
+        var extension = loan.Extend(10, Money.Of(20), "initial", new DateOnly(2026, 1, 20));
+
+        loan.EditExtension(extension.Id, 15, Money.Of(20), "just a remarks tweak", new DateOnly(2026, 1, 20));
+
+        Assert.Empty(loan.DomainEvents.OfType<LoanExtensionEditedDomainEvent>());
     }
 
     // --- Documents (Loan Details "Documents" tab) ---
