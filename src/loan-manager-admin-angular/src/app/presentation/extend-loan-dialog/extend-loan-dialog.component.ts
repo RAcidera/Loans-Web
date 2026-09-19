@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { LoanExtension } from '../../domain/entities/loan-extension.entity';
 import { ExtendLoanUseCase } from '../../application/use-cases/extend-loan.use-case';
 import { UpdateExtensionUseCase } from '../../application/use-cases/update-extension.use-case';
+import { todayLocalDateString } from '../shared/date-utils';
 
 export interface ExtendLoanDialogData {
   loanId: string;
@@ -36,6 +37,7 @@ export class ExtendLoanDialogComponent {
   private readonly fb = inject(FormBuilder);
 
   form = this.fb.group({
+    extensionDate: [this.editing?.extensionDate ?? todayLocalDateString(), Validators.required],
     extensionDays: [this.editing?.extensionDays ?? 30, [Validators.required, Validators.min(1)]],
     additionalChargesAmount: [this.editing?.additionalChargesAmount ?? 0, [Validators.required, Validators.min(0)]],
     remarks: [this.editing?.remarks ?? '', Validators.required],
@@ -50,7 +52,7 @@ export class ExtendLoanDialogComponent {
   submit(): void {
     if (this.form.invalid) return;
     this.submitting = true;
-    const { extensionDays, additionalChargesAmount, remarks } = this.form.getRawValue();
+    const { extensionDate, extensionDays, additionalChargesAmount, remarks } = this.form.getRawValue();
 
     // Kept as two branches (not a ternary feeding one .subscribe()) because
     // updateExtension/extendLoan return different Observable<T> types
@@ -58,11 +60,11 @@ export class ExtendLoanDialogComponent {
     // don't combine cleanly.
     if (this.editing) {
       this.updateExtension
-        .execute(this.data.loanId, this.editing.extensionId, extensionDays!, remarks!, additionalChargesAmount!)
+        .execute(this.data.loanId, this.editing.extensionId, extensionDays!, remarks!, additionalChargesAmount!, extensionDate!)
         .subscribe(() => this.dialogRef.close({ extended: true }));
     } else {
       this.extendLoan
-        .execute(this.data.loanId, extensionDays!, remarks!, additionalChargesAmount!)
+        .execute(this.data.loanId, extensionDays!, remarks!, additionalChargesAmount!, extensionDate!)
         .subscribe(() => this.dialogRef.close({ extended: true }));
     }
   }

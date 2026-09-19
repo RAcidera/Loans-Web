@@ -13,7 +13,9 @@ namespace LoanManagementSystem.Application.EventHandlers;
 /// feature existed have no SourcePaymentId to match against, so the
 /// lookups are allowed to come back empty (nothing to revise, nothing to
 /// break) rather than throwing — this handler must not turn an otherwise
-/// valid payment edit into a failed request.
+/// valid payment edit into a failed request. The loan_ledger row's Remarks
+/// is also refreshed to the payment's current Notes, so an edited note
+/// stays visible on Statement of Account V2.
 /// </summary>
 public sealed class PaymentEditedEventHandler : INotificationHandler<PaymentEditedDomainEvent>
 {
@@ -34,7 +36,9 @@ public sealed class PaymentEditedEventHandler : INotificationHandler<PaymentEdit
         cashEntry?.Revise(notification.NewAmountPaid, notification.NewPaymentDate);
 
         var loanEntry = await _loanLedgerRepository.GetByPaymentReferenceAsync(notification.LoanId, notification.PaymentId, ct);
-        loanEntry?.ReviseForPaymentEdit(notification.NewAmountPaid, notification.ResultingBalance, notification.NewPaymentDate);
+        loanEntry?.ReviseForPaymentEdit(
+            notification.NewAmountPaid, notification.ResultingBalance, notification.NewPaymentDate,
+            string.IsNullOrWhiteSpace(notification.NewNotes) ? "Payment received" : notification.NewNotes);
 
         if (cashEntry is not null || loanEntry is not null)
             await _unitOfWork.SaveChangesAsync(ct);

@@ -205,19 +205,19 @@ export class HttpLoanRepository extends LoanRepository {
    * sub-resource returning that sub-resource, not its parent, is the more
    * conventional REST response).
    */
-  extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0): Observable<Loan> {
+  extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0, extensionDate?: string): Observable<Loan> {
     return this.http
-      .post(`${this.baseUrl}/loans/${loanId}/extensions`, { extensionDays, remarks, additionalChargesAmount })
+      .post(`${this.baseUrl}/loans/${loanId}/extensions`, { extensionDays, remarks, additionalChargesAmount, extensionDate })
       .pipe(switchMap(() => this.getLoanById(loanId) as Observable<Loan>));
   }
 
   updateExtension(
     loanId: string, extensionId: string, extensionDays: number,
-    remarks: string, additionalChargesAmount = 0,
+    remarks: string, additionalChargesAmount = 0, extensionDate?: string,
   ): Observable<LoanExtension> {
     return this.http.put<LoanExtension>(
       `${this.baseUrl}/loans/${loanId}/extensions/${extensionId}`,
-      { extensionDays, remarks, additionalChargesAmount },
+      { extensionDays, remarks, additionalChargesAmount, extensionDate },
     );
   }
 
@@ -305,5 +305,9 @@ export class HttpLoanRepository extends LoanRepository {
 
   downloadLoanSoa(loanId: string): Observable<Blob> {
     return this.http.get(`${this.baseUrl}/loans/${loanId}/soa`, { responseType: 'blob' });
+  }
+
+  downloadLoanSoaV2(loanId: string): Observable<Blob> {
+    return this.http.get(`${this.baseUrl}/loans/${loanId}/soa-v2`, { responseType: 'blob' });
   }
 }

@@ -38,9 +38,14 @@
         <button mat-stroked-button class="btn--success" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
           <mat-icon>payments</mat-icon> New Payment
         </button>
-        <button mat-stroked-button color="primary" (click)="generateSoa()" [disabled]="generatingSoa" matTooltip="Download Statement of Account PDF">
-          <mat-icon>picture_as_pdf</mat-icon> {{ generatingSoa ? 'Generating…' : 'Generate SOA' }}
+        <button mat-stroked-button color="primary" [matMenuTriggerFor]="soaMenu" [disabled]="generatingSoa || generatingSoaV2" matTooltip="Download Statement of Account PDF">
+          <mat-icon>picture_as_pdf</mat-icon>
+          {{ generatingSoa || generatingSoaV2 ? 'Generating…' : 'Generate SOA' }}
         </button>
+        <mat-menu #soaMenu="matMenu">
+          <button mat-menu-item (click)="generateSoa()">Current SOA</button>
+          <button mat-menu-item (click)="generateSoaV2()">SOA V2 - Account Activity</button>
+        </mat-menu>
         <button mat-stroked-button color="primary" [matMenuTriggerFor]="classificationMenu">
           <mat-icon>flag</mat-icon> Change Classification
         </button>

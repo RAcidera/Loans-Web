@@ -135,7 +135,7 @@ public class Loan : AggregateRoot<LoanId>
         Balance = TotalAmountDue.Subtract(TotalPaid);
         Status = LoanStatus.Extended;
 
-        RaiseDomainEvent(new LoanExtendedDomainEvent(Id, extension.Id, extensionDate, extensionDays, additionalChargesAmount, Balance));
+        RaiseDomainEvent(new LoanExtendedDomainEvent(Id, extension.Id, extensionDate, extensionDays, additionalChargesAmount, Balance, remarks));
         return extension;
     }
 
@@ -244,7 +244,7 @@ public class Loan : AggregateRoot<LoanId>
         Balance = TotalAmountDue.Subtract(TotalPaid);
         RefreshPaidStatusAfterPaymentChange();
 
-        RaiseDomainEvent(new PaymentEditedDomainEvent(Id, payment.Id, amountPaid, paymentDate, Balance));
+        RaiseDomainEvent(new PaymentEditedDomainEvent(Id, payment.Id, amountPaid, paymentDate, Balance, notes));
         return payment;
     }
 
@@ -301,7 +301,7 @@ public class Loan : AggregateRoot<LoanId>
         Balance = TotalAmountDue.Subtract(TotalPaid);
 
         if (chargesOrDateChanged)
-            RaiseDomainEvent(new LoanExtensionEditedDomainEvent(Id, extension.Id, additionalChargesAmount, extensionDate));
+            RaiseDomainEvent(new LoanExtensionEditedDomainEvent(Id, extension.Id, additionalChargesAmount, extensionDate, remarks));
 
         return extension;
     }
@@ -341,7 +341,7 @@ public class Loan : AggregateRoot<LoanId>
         if (Balance.Amount == 0)
             Status = LoanStatus.Paid;
 
-        RaiseDomainEvent(new PaymentRecordedDomainEvent(Id, payment.Id, amountPaid, paymentDate, Balance));
+        RaiseDomainEvent(new PaymentRecordedDomainEvent(Id, payment.Id, amountPaid, paymentDate, Balance, notes));
         return payment;
     }
 

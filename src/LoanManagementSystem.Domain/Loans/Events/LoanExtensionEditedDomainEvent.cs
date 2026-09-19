@@ -16,9 +16,13 @@ namespace LoanManagementSystem.Domain.Loans.Events;
 /// (new charge - old charge) even though the loan's own Balance is correct.
 /// Extensions never had a cash_ledger entry (see LoanExtendedDomainEvent),
 /// so unlike PaymentEditedDomainEvent/LoanOriginationEditedDomainEvent there
-/// is no cash-ledger side to revise here.
+/// is no cash-ledger side to revise here. NewRemarks is only raised
+/// alongside a charge/date change (see EditExtension) but always carries
+/// the extension's current remarks text, so the ledger row's Remarks stays
+/// in sync with what Statement of Account V2 displays whenever the row is
+/// touched for another reason.
 /// </summary>
-public sealed record LoanExtensionEditedDomainEvent(LoanId LoanId, LoanExtensionId ExtensionId, Money NewAdditionalChargesAmount, DateOnly NewExtensionDate) : IDomainEvent
+public sealed record LoanExtensionEditedDomainEvent(LoanId LoanId, LoanExtensionId ExtensionId, Money NewAdditionalChargesAmount, DateOnly NewExtensionDate, string NewRemarks) : IDomainEvent
 {
     public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
 }

@@ -1641,6 +1641,22 @@
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.LoansController",
+    "Method": "GenerateSoaV2",
+    "RelativePath": "api/loans/{id}/soa-v2",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "id",
+        "Type": "System.String",
+        "IsRequired": true
+      }
+    ],
+    "ReturnTypes": []
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.LoansController",
     "Method": "WriteOff",
     "RelativePath": "api/loans/{id}/write-off",
     "HttpMethod": "POST",

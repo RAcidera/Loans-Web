@@ -1129,7 +1129,8 @@
         "dependencies": {
           "LoanManagementSystem.Domain": "1.0.0",
           "MediatR": "12.4.1",
-          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2"
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "8.0.2",
+          "Microsoft.Extensions.Logging.Abstractions": "8.0.2"
         },
         "runtime": {
           "LoanManagementSystem.Application.dll": {

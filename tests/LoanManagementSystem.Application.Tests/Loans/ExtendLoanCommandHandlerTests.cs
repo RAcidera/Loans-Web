@@ -38,6 +38,32 @@ public class ExtendLoanCommandHandlerTests
     }
 
     [Fact]
+    public async Task Handle_NoExtensionDateGiven_DefaultsToToday()
+    {
+        var loan = Loan.Originate(CustomerId.New(), Money.Of(3500), InterestRate.Default, new DateOnly(2026, 1, 1), 30);
+        _loanRepository.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>())).ReturnsAsync(loan);
+        var today = _appDateTime.Object.Today;
+
+        var command = new ExtendLoanCommand(loan.Id.ToString(), 30, "business slow", 105);
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Equal(today.ToString("yyyy-MM-dd"), result.ExtensionDate);
+    }
+
+    /// <summary>Regression coverage for overriding the extension date at creation time — previously ExtendLoanCommand always used today's date with no way to backdate/postdate an extension.</summary>
+    [Fact]
+    public async Task Handle_ExtensionDateGiven_UsesGivenDateInsteadOfToday()
+    {
+        var loan = Loan.Originate(CustomerId.New(), Money.Of(3500), InterestRate.Default, new DateOnly(2026, 1, 1), 30);
+        _loanRepository.Setup(r => r.GetByIdAsync(loan.Id, It.IsAny<CancellationToken>())).ReturnsAsync(loan);
+
+        var command = new ExtendLoanCommand(loan.Id.ToString(), 30, "business slow", 105, ExtensionDate: "2026-02-15");
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.Equal("2026-02-15", result.ExtensionDate);
+    }
+
+    [Fact]
     public async Task Handle_UnknownLoanId_ThrowsNotFound()
     {
         _loanRepository.Setup(r => r.GetByIdAsync(It.IsAny<LoanId>(), It.IsAny<CancellationToken>()))

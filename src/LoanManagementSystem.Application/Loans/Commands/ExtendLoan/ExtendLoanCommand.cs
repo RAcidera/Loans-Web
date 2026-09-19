@@ -13,7 +13,8 @@ public sealed record ExtendLoanCommand(
     string LoanId,
     int ExtensionDays,
     string Remarks,
-    decimal AdditionalChargesAmount = 0
+    decimal AdditionalChargesAmount = 0,
+    string? ExtensionDate = null
 ) : IRequest<LoanExtensionDto>;
 
 public sealed class ExtendLoanCommandHandler : IRequestHandler<ExtendLoanCommand, LoanExtensionDto>
@@ -39,7 +40,7 @@ public sealed class ExtendLoanCommandHandler : IRequestHandler<ExtendLoanCommand
             request.ExtensionDays,
             Money.Of(request.AdditionalChargesAmount),
             request.Remarks,
-            _appDateTime.Today);
+            request.ExtensionDate is not null ? DateOnly.Parse(request.ExtensionDate) : _appDateTime.Today);
 
         await _unitOfWork.SaveChangesAsync(ct);
 

@@ -7,7 +7,7 @@ import { LoanRepository } from '../../domain/repositories/loan.repository';
 export class ExtendLoanUseCase {
   constructor(private readonly loanRepository: LoanRepository) {}
 
-  execute(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0): Observable<Loan> {
-    return this.loanRepository.extendLoan(loanId, extensionDays, remarks, additionalChargesAmount);
+  execute(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0, extensionDate?: string): Observable<Loan> {
+    return this.loanRepository.extendLoan(loanId, extensionDays, remarks, additionalChargesAmount, extensionDate);
   }
 }

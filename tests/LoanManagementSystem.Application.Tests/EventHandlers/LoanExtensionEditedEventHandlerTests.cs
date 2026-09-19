@@ -39,12 +39,31 @@ public class LoanExtensionEditedEventHandlerTests
         _loanLedgerRepository.Setup(r => r.GetByReferenceIdAsync(loanId, extensionId.ToString(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(entry);
 
-        var notification = new LoanExtensionEditedDomainEvent(loanId, extensionId, Money.Of(35), new DateOnly(2026, 1, 18));
+        var notification = new LoanExtensionEditedDomainEvent(loanId, extensionId, Money.Of(35), new DateOnly(2026, 1, 18), "corrected fee");
         await _handler.Handle(notification, CancellationToken.None);
 
         Assert.Equal(35m, entry.Debit.Amount);
         Assert.Equal(new DateOnly(2026, 1, 18), entry.TransactionDate);
+        Assert.Equal("corrected fee", entry.Remarks);
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [Fact]
+    public async Task Handle_BlankNewRemarks_FallsBackToGenericLabel()
+    {
+        var loanId = LoanId.New();
+        var extensionId = LoanExtensionId.New();
+        var entry = LoanLedgerEntry.Record(
+            loanId, LoanLedgerTransactionType.Extension, Money.Of(20), Money.Zero, Money.Of(1020),
+            "initial", new DateOnly(2026, 1, 20), referenceId: extensionId.ToString());
+
+        _loanLedgerRepository.Setup(r => r.GetByReferenceIdAsync(loanId, extensionId.ToString(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(entry);
+
+        var notification = new LoanExtensionEditedDomainEvent(loanId, extensionId, Money.Of(35), new DateOnly(2026, 1, 18), "");
+        await _handler.Handle(notification, CancellationToken.None);
+
+        Assert.Equal("Extension charge", entry.Remarks);
     }
 
     [Fact]
@@ -55,7 +74,7 @@ public class LoanExtensionEditedEventHandlerTests
         _loanLedgerRepository.Setup(r => r.GetByReferenceIdAsync(loanId, extensionId.ToString(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((LoanLedgerEntry?)null);
 
-        var notification = new LoanExtensionEditedDomainEvent(loanId, extensionId, Money.Of(35), new DateOnly(2026, 1, 18));
+        var notification = new LoanExtensionEditedDomainEvent(loanId, extensionId, Money.Of(35), new DateOnly(2026, 1, 18), "corrected fee");
         await _handler.Handle(notification, CancellationToken.None);
 
         _unitOfWork.Verify(u => u.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Never);

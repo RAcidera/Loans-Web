@@ -654,14 +654,14 @@ export class MockLoanRepository extends LoanRepository {
     return of(this.extensions[loanId] ?? []).pipe(delay(150));
   }
 
-  extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0): Observable<Loan> {
+  extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount = 0, extensionDate?: string): Observable<Loan> {
     const loan = this.loans.find((l) => l.loanId === loanId);
     if (!loan) throw new Error(`Loan ${loanId} not found`);
 
     const extension: LoanExtension = {
       extensionId: `EXT-${Math.floor(Math.random() * 9000 + 1000)}`,
       loanId,
-      extensionDate: new Date().toISOString().slice(0, 10),
+      extensionDate: extensionDate ?? new Date().toISOString().slice(0, 10),
       extensionDays,
       additionalChargesAmount,
       remarks,
@@ -679,7 +679,7 @@ export class MockLoanRepository extends LoanRepository {
 
   updateExtension(
     loanId: string, extensionId: string, extensionDays: number,
-    remarks: string, additionalChargesAmount = 0,
+    remarks: string, additionalChargesAmount = 0, extensionDate?: string,
   ): Observable<LoanExtension> {
     const loan = this.loans.find((l) => l.loanId === loanId);
     if (!loan) throw new Error(`Loan ${loanId} not found`);
@@ -695,6 +695,7 @@ export class MockLoanRepository extends LoanRepository {
     extension.extensionDays = extensionDays;
     extension.additionalChargesAmount = additionalChargesAmount;
     extension.remarks = remarks;
+    if (extensionDate) extension.extensionDate = extensionDate;
 
     return of(extension).pipe(delay(150));
   }
@@ -917,6 +918,31 @@ export class MockLoanRepository extends LoanRepository {
       `Extension Charges: PHP ${loan.totalExtensionCharges.toLocaleString()}`,
       `Total Amount Due: PHP ${loan.totalAmountDue.toLocaleString()}`,
       `Total Payments: PHP ${loan.totalPaid.toLocaleString()}`,
+      `Outstanding Balance: PHP ${loan.balance.toLocaleString()}`,
+      `Status: ${loan.status}   Classification: ${loan.classification}`,
+    ];
+
+    return of(buildSimplePdfBlob(lines)).pipe(delay(150));
+  }
+
+  downloadLoanSoaV2(loanId: string): Observable<Blob> {
+    const loan = this.loans.find((l) => l.loanId === loanId);
+    if (!loan) throw new Error(`Loan ${loanId} not found`);
+
+    const ledger = [...this.buildLedger(loanId)].sort((a, b) => a.transactionDate.localeCompare(b.transactionDate) || a.createdAt.localeCompare(b.createdAt));
+    const lines = [
+      'Statement of Account V2',
+      `Loan ${loan.loanNumber}`,
+      '',
+      `Customer: ${loan.customerName}`,
+      `Loan Date: ${loan.startDate}   Due Date: ${loan.dueDate}`,
+      '',
+      'ACCOUNT ACTIVITY',
+      ...ledger.map(
+        (e) =>
+          `${e.transactionDate}  ${e.transactionType}  ${e.remarks ?? ''}  Debit: ${e.debit || '-'}  Credit: ${e.credit || '-'}  Balance: ${e.runningBalance}`,
+      ),
+      '',
       `Outstanding Balance: PHP ${loan.balance.toLocaleString()}`,
       `Status: ${loan.status}   Classification: ${loan.classification}`,
     ];

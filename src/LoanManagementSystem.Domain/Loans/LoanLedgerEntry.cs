@@ -62,16 +62,19 @@ public class LoanLedgerEntry : AggregateRoot<LoanLedgerEntryId>
         new(LoanLedgerEntryId.New(), loanId, transactionDate, type, referenceId, debit, credit, runningBalance, remarks);
 
     /// <summary>
-    /// Revises this row's Credit/TransactionDate/RunningBalance in place
-    /// when the Payment it mirrors (ReferenceId == PaymentId) is edited —
-    /// the same narrow exception to "ledgers are append-only" that
+    /// Revises this row's Credit/TransactionDate/RunningBalance/Remarks in
+    /// place when the Payment it mirrors (ReferenceId == PaymentId) is
+    /// edited — the same narrow exception to "ledgers are append-only" that
     /// CashLedgerEntry.ReviseForPaymentEdit documents; see that method.
+    /// Remarks is included so an edited payment's notes stay in sync with
+    /// what Statement of Account V2 displays for this row.
     /// </summary>
-    public void ReviseForPaymentEdit(Money credit, Money runningBalance, DateOnly transactionDate)
+    public void ReviseForPaymentEdit(Money credit, Money runningBalance, DateOnly transactionDate, string remarks)
     {
         Credit = credit;
         RunningBalance = runningBalance;
         TransactionDate = transactionDate;
+        Remarks = remarks;
     }
 
     /// <summary>
@@ -90,6 +93,21 @@ public class LoanLedgerEntry : AggregateRoot<LoanLedgerEntryId>
     {
         Debit = debit;
         TransactionDate = transactionDate;
+    }
+
+    /// <summary>
+    /// Revises this Extension row's Debit/TransactionDate/Remarks in place
+    /// when the LoanExtension it mirrors is edited — a sibling of
+    /// ReviseDebit kept as its own method (rather than adding a Remarks
+    /// parameter to ReviseDebit) because ReviseDebit is also shared by
+    /// LoanOriginationEditedEventHandler for the LoanReleased/InterestAdded
+    /// rows, which have no borrower-facing remarks to keep in sync.
+    /// </summary>
+    public void ReviseExtension(Money debit, DateOnly transactionDate, string remarks)
+    {
+        Debit = debit;
+        TransactionDate = transactionDate;
+        Remarks = remarks;
     }
 
     /// <summary>

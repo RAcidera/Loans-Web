@@ -14,8 +14,13 @@ namespace LoanManagementSystem.Domain.Loans.Events;
 /// handler to write this payment's LoanLedgerEntry row — ResultingBalance
 /// is carried explicitly so that row's RunningBalance reflects the Loan's
 /// Balance right after this payment, without re-fetching the aggregate.
+/// Notes is the borrower-facing text the teller typed for this payment
+/// (e.g. "Interest only", "Partial payment") — carried here so the handler
+/// can write it into the ledger row's own Remarks instead of a generic
+/// "Payment received" placeholder, since Statement of Account V2 reads
+/// Remarks directly off the ledger.
 /// </summary>
-public sealed record PaymentRecordedDomainEvent(LoanId LoanId, PaymentId PaymentId, Money AmountPaid, DateOnly PaymentDate, Money ResultingBalance) : IDomainEvent
+public sealed record PaymentRecordedDomainEvent(LoanId LoanId, PaymentId PaymentId, Money AmountPaid, DateOnly PaymentDate, Money ResultingBalance, string Notes) : IDomainEvent
 {
     public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
 }

@@ -14,6 +14,7 @@ using LoanManagementSystem.Application.Loans.Commands.UploadLoanDocument;
 using LoanManagementSystem.Application.Loans.Commands.WriteOffLoan;
 using LoanManagementSystem.Application.Loans.Queries.ExportLoansXlsx;
 using LoanManagementSystem.Application.Loans.Queries.GenerateLoanSoa;
+using LoanManagementSystem.Application.Loans.Queries.GenerateLoanSoaV2;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanAuditLog;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanDetail;
 using LoanManagementSystem.Application.Loans.Queries.GetLoanDocumentContent;
@@ -162,7 +163,7 @@ public class LoansController : ControllerBase
     [Authorize(Roles = "Admin")]
     public async Task<ActionResult<LoanExtensionDto>> Extend(string id, ExtendLoanRequest request, CancellationToken ct)
     {
-        var command = new ExtendLoanCommand(id, request.ExtensionDays, request.Remarks ?? string.Empty, request.AdditionalChargesAmount);
+        var command = new ExtendLoanCommand(id, request.ExtensionDays, request.Remarks ?? string.Empty, request.AdditionalChargesAmount, request.ExtensionDate);
         return Ok(await _mediator.Send(command, ct));
     }
 
@@ -221,6 +222,14 @@ public class LoansController : ControllerBase
         return File(file.Content, file.ContentType, file.OriginalFileName);
     }
 
+    /// <summary>GET /api/loans/{id}/soa-v2 — Statement of Account V2, a single chronological Account Activity ledger sourced directly from loan_ledger. Coexists with GenerateSoa; does not replace it.</summary>
+    [HttpGet("{id}/soa-v2")]
+    public async Task<IActionResult> GenerateSoaV2(string id, CancellationToken ct)
+    {
+        var file = await _mediator.Send(new GenerateLoanSoaV2Query(id), ct);
+        return File(file.Content, file.ContentType, file.OriginalFileName);
+    }
+
     /// <summary>GET /api/loans/{id}/documents — Loan Details "Documents" tab, metadata list (never the file bytes — see GetDocument for that).</summary>
     [HttpGet("{id}/documents")]
     public async Task<ActionResult<List<LoanDocumentDto>>> GetDocuments(string id, CancellationToken ct) =>
@@ -261,7 +270,7 @@ public sealed record RecordPaymentRequest(decimal AmountPaid, string PaymentMeth
 
 public sealed record UpdatePaymentRequest(decimal AmountPaid, string PaymentMethod, string? Notes, string? ReferenceNumber = null, string? PaymentDate = null);
 
-public sealed record ExtendLoanRequest(int ExtensionDays, string? Remarks, decimal AdditionalChargesAmount = 0);
+public sealed record ExtendLoanRequest(int ExtensionDays, string? Remarks, decimal AdditionalChargesAmount = 0, string? ExtensionDate = null);
 
 public sealed record UpdateExtensionRequest(int ExtensionDays, string? Remarks, decimal AdditionalChargesAmount = 0, string? ExtensionDate = null);
 

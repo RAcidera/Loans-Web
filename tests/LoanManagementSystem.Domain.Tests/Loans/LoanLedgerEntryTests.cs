@@ -59,4 +59,35 @@ public class LoanLedgerEntryTests
         Assert.Equal(0m, entry.Credit.Amount);
         Assert.Equal(LoanLedgerTransactionType.LoanReleased, entry.TransactionType);
     }
+
+    [Fact]
+    public void ReviseForPaymentEdit_UpdatesCreditBalanceDateAndRemarks()
+    {
+        var entry = LoanLedgerEntry.Record(
+            SomeLoan, LoanLedgerTransactionType.Payment, Money.Zero, Money.Of(500), Money.Of(9500),
+            "Payment received", new DateOnly(2026, 2, 1), referenceId: "some-payment-id");
+
+        entry.ReviseForPaymentEdit(Money.Of(600), Money.Of(9400), new DateOnly(2026, 2, 2), "Interest only");
+
+        Assert.Equal(600m, entry.Credit.Amount);
+        Assert.Equal(9400m, entry.RunningBalance.Amount);
+        Assert.Equal(new DateOnly(2026, 2, 2), entry.TransactionDate);
+        Assert.Equal("Interest only", entry.Remarks);
+    }
+
+    [Fact]
+    public void ReviseExtension_UpdatesDebitDateAndRemarks_LeavesEverythingElse()
+    {
+        var entry = LoanLedgerEntry.Record(
+            SomeLoan, LoanLedgerTransactionType.Extension, Money.Of(20), Money.Zero, Money.Of(1020),
+            "Extension +10 days", new DateOnly(2026, 1, 20), referenceId: "some-extension-id");
+
+        entry.ReviseExtension(Money.Of(35), new DateOnly(2026, 1, 18), "Additional interest Aug 2-Sep 2");
+
+        Assert.Equal(35m, entry.Debit.Amount);
+        Assert.Equal(new DateOnly(2026, 1, 18), entry.TransactionDate);
+        Assert.Equal("Additional interest Aug 2-Sep 2", entry.Remarks);
+        Assert.Equal(0m, entry.Credit.Amount);
+        Assert.Equal(LoanLedgerTransactionType.Extension, entry.TransactionType);
+    }
 }

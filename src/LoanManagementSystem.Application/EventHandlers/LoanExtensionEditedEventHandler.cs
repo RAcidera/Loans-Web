@@ -10,7 +10,9 @@ namespace LoanManagementSystem.Application.EventHandlers;
 /// comment for why this is safe now. Extensions recorded before ReferenceId
 /// tracking existed have no row to find here, so the lookup is allowed to
 /// come back empty rather than throwing — this handler must not turn an
-/// otherwise valid extension edit into a failed request.
+/// otherwise valid extension edit into a failed request. The row's Remarks
+/// is also refreshed to the extension's current remarks text, so an
+/// edited note stays visible on Statement of Account V2.
 /// </summary>
 public sealed class LoanExtensionEditedEventHandler : INotificationHandler<LoanExtensionEditedDomainEvent>
 {
@@ -28,7 +30,9 @@ public sealed class LoanExtensionEditedEventHandler : INotificationHandler<LoanE
         var entry = await _loanLedgerRepository.GetByReferenceIdAsync(notification.LoanId, notification.ExtensionId.ToString(), ct);
         if (entry is null) return;
 
-        entry.ReviseDebit(notification.NewAdditionalChargesAmount, notification.NewExtensionDate);
+        entry.ReviseExtension(
+            notification.NewAdditionalChargesAmount, notification.NewExtensionDate,
+            string.IsNullOrWhiteSpace(notification.NewRemarks) ? "Extension charge" : notification.NewRemarks);
         await _unitOfWork.SaveChangesAsync(ct);
     }
 }

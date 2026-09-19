@@ -24,6 +24,7 @@ import { ChangeLoanClassificationUseCase } from '../../application/use-cases/cha
 import { DeletePaymentUseCase } from '../../application/use-cases/delete-payment.use-case';
 import { DeleteExtensionUseCase } from '../../application/use-cases/delete-extension.use-case';
 import { DownloadLoanSoaUseCase } from '../../application/use-cases/download-loan-soa.use-case';
+import { DownloadLoanSoaV2UseCase } from '../../application/use-cases/download-loan-soa-v2.use-case';
 import { AddPaymentDialogComponent } from '../add-payment-dialog/add-payment-dialog.component';
 import { ExtendLoanDialogComponent } from '../extend-loan-dialog/extend-loan-dialog.component';
 import { EditLoanDialogComponent } from '../edit-loan-dialog/edit-loan-dialog.component';
@@ -126,6 +127,7 @@ export class LoanDetailsComponent implements OnInit {
   loading = true;
   notFound = false;
   generatingSoa = false;
+  generatingSoaV2 = false;
 
   paymentsPageItems: Payment[] = [];
   paymentsPageTotalCount = 0;
@@ -157,6 +159,7 @@ export class LoanDetailsComponent implements OnInit {
     private readonly deletePayment: DeletePaymentUseCase,
     private readonly deleteExtension: DeleteExtensionUseCase,
     private readonly downloadLoanSoa: DownloadLoanSoaUseCase,
+    private readonly downloadLoanSoaV2: DownloadLoanSoaV2UseCase,
     private readonly confirmDialog: ConfirmDialogService,
     readonly authService: AuthService,
   ) {}
@@ -324,6 +327,26 @@ export class LoanDetailsComponent implements OnInit {
       },
       error: () => {
         this.generatingSoa = false;
+      },
+    });
+  }
+
+  generateSoaV2(): void {
+    if (!this.loan || this.generatingSoaV2) return;
+    this.generatingSoaV2 = true;
+    const loanNumber = this.loan.loanNumber;
+    this.downloadLoanSoaV2.execute(this.loan.loanId).subscribe({
+      next: (blob) => {
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `SOA-V2-${loanNumber}.pdf`;
+        link.click();
+        setTimeout(() => URL.revokeObjectURL(url), 30_000);
+        this.generatingSoaV2 = false;
+      },
+      error: () => {
+        this.generatingSoaV2 = false;
       },
     });
   }

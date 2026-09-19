@@ -112,11 +112,11 @@ export abstract class LoanRepository {
 
   abstract getExtensions(loanId: string): Observable<LoanExtension[]>;
   /** Extends a loan's due date and recalculates its balance, per SRS 3.3. */
-  abstract extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount?: number): Observable<Loan>;
+  abstract extendLoan(loanId: string, extensionDays: number, remarks: string, additionalChargesAmount?: number, extensionDate?: string): Observable<Loan>;
   /** Edits an extension, rolling its old contribution out of DueDate/TotalExtensionCharges first. */
   abstract updateExtension(
     loanId: string, extensionId: string, extensionDays: number,
-    remarks: string, additionalChargesAmount?: number,
+    remarks: string, additionalChargesAmount?: number, extensionDate?: string,
   ): Observable<LoanExtension>;
   /** Removes an extension, reverting DueDate/TotalInterest/TotalExtensionCharges — returns the updated Loan since the extension is gone. */
   abstract deleteExtension(loanId: string, extensionId: string): Observable<Loan>;
@@ -171,4 +171,7 @@ export abstract class LoanRepository {
 
   /** Spec's Statement of Account PDF — the Loan Details "Generate SOA" button. */
   abstract downloadLoanSoa(loanId: string): Observable<Blob>;
+
+  /** Statement of Account V2 — one chronological Account Activity ledger, sourced from loan_ledger; coexists with downloadLoanSoa. */
+  abstract downloadLoanSoaV2(loanId: string): Observable<Blob>;
 }

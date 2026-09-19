@@ -10,6 +10,9 @@ namespace LoanManagementSystem.Application.EventHandlers;
 /// Reacts to a loan extension by writing its LoanLedgerEntry row — no cash
 /// moves (see LoanExtendedDomainEvent), but the SRS's own ledger example
 /// shows an "Extension" line, recorded here as one Debit of AdditionalChargesAmount.
+/// The row's Remarks mirrors the extension's own borrower-facing Remarks
+/// (falling back to a generic "Extension +N days" only when left blank),
+/// since Statement of Account V2 reads Remarks straight off the ledger.
 /// </summary>
 public sealed class LoanExtendedEventHandler : INotificationHandler<LoanExtendedDomainEvent>
 {
@@ -27,7 +30,8 @@ public sealed class LoanExtendedEventHandler : INotificationHandler<LoanExtended
         _loanLedgerRepository.Add(LoanLedgerEntry.Record(
             notification.LoanId, LoanLedgerTransactionType.Extension,
             debit: notification.AdditionalChargesAmount, credit: Money.Zero, runningBalance: notification.ResultingBalance,
-            remarks: $"Extension +{notification.ExtensionDays} days", transactionDate: notification.ExtensionDate,
+            remarks: string.IsNullOrWhiteSpace(notification.Remarks) ? $"Extension +{notification.ExtensionDays} days" : notification.Remarks,
+            transactionDate: notification.ExtensionDate,
             referenceId: notification.ExtensionId.ToString()));
 
         await _unitOfWork.SaveChangesAsync(ct);

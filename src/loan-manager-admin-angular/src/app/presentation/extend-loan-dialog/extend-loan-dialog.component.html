@@ -3,6 +3,11 @@
 
 <form [formGroup]="form" (ngSubmit)="submit()" class="dialog-form">
   <mat-form-field appearance="outline">
+    <mat-label>Extension date</mat-label>
+    <input matInput type="date" formControlName="extensionDate" />
+  </mat-form-field>
+
+  <mat-form-field appearance="outline">
     <mat-label>Extension (days)</mat-label>
     <input matInput type="number" formControlName="extensionDays" />
   </mat-form-field>

@@ -14,9 +14,11 @@ namespace LoanManagementSystem.Domain.Loans.Events;
 /// specific, still-existing Payment record, and mistyped payment dates
 /// from field staff are common enough that a straightforward correction —
 /// not a pair of reversing entries a non-technical user would need to
-/// interpret — is the right tradeoff here.
+/// interpret — is the right tradeoff here. NewNotes is likewise mirrored
+/// onto the ledger row's Remarks, so an edited payment's remarks stay in
+/// sync with what Statement of Account V2 displays for it.
 /// </summary>
-public sealed record PaymentEditedDomainEvent(LoanId LoanId, PaymentId PaymentId, Money NewAmountPaid, DateOnly NewPaymentDate, Money ResultingBalance) : IDomainEvent
+public sealed record PaymentEditedDomainEvent(LoanId LoanId, PaymentId PaymentId, Money NewAmountPaid, DateOnly NewPaymentDate, Money ResultingBalance, string NewNotes) : IDomainEvent
 {
     public DateTime OccurredOnUtc { get; } = DateTime.UtcNow;
 }

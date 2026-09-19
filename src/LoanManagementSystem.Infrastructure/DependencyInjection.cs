@@ -43,6 +43,7 @@ public static class DependencyInjection
         services.AddSingleton<IPasswordHasher, Pbkdf2PasswordHasher>();
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
         services.AddScoped<IStatementOfAccountPdfGenerator, QuestPdfStatementOfAccountGenerator>();
+        services.AddScoped<IStatementOfAccountV2PdfGenerator, QuestPdfStatementOfAccountV2Generator>();
         services.AddScoped<ILoansXlsxExportGenerator, ClosedXmlLoansExportGenerator>();
         services.AddScoped<IPaymentsXlsxExportGenerator, ClosedXmlPaymentsExportGenerator>();
         services.AddScoped<ICustomersXlsxExportGenerator, ClosedXmlCustomersExportGenerator>();

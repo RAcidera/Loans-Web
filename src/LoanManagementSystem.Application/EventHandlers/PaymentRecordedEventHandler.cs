@@ -18,7 +18,10 @@ namespace LoanManagementSystem.Application.EventHandlers;
 /// never by one repository calling another directly. Also writes this
 /// payment's LoanLedgerEntry row (Credit side) — ReferenceId is the
 /// PaymentId so the Payments tab can look up this row's RunningBalance
-/// directly instead of assuming ledger order matches table order.
+/// directly instead of assuming ledger order matches table order. The
+/// row's Remarks mirrors the payment's own Notes (falling back to a
+/// generic "Payment received" only when Notes is blank), since Statement
+/// of Account V2 reads Remarks straight off the ledger.
 /// Re-fetches the loan for its LoanNumber (see LoanCreatedEventHandler's
 /// comment — a value captured at event-raise time can't be trusted for a
 /// loan that hasn't been saved yet, e.g. DbSeeder recording a payment
@@ -57,7 +60,8 @@ public sealed class PaymentRecordedEventHandler : INotificationHandler<PaymentRe
         _loanLedgerRepository.Add(LoanLedgerEntry.Record(
             notification.LoanId, LoanLedgerTransactionType.Payment,
             debit: Money.Zero, credit: notification.AmountPaid, runningBalance: notification.ResultingBalance,
-            remarks: "Payment received", transactionDate: notification.PaymentDate,
+            remarks: string.IsNullOrWhiteSpace(notification.Notes) ? "Payment received" : notification.Notes,
+            transactionDate: notification.PaymentDate,
             referenceId: notification.PaymentId.ToString()));
 
         await _unitOfWork.SaveChangesAsync(ct);

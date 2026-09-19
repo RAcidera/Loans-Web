@@ -9,8 +9,8 @@ export class UpdateExtensionUseCase {
 
   execute(
     loanId: string, extensionId: string, extensionDays: number,
-    remarks: string, additionalChargesAmount = 0,
+    remarks: string, additionalChargesAmount = 0, extensionDate?: string,
   ): Observable<LoanExtension> {
-    return this.loanRepository.updateExtension(loanId, extensionId, extensionDays, remarks, additionalChargesAmount);
+    return this.loanRepository.updateExtension(loanId, extensionId, extensionDays, remarks, additionalChargesAmount, extensionDate);
   }
 }
