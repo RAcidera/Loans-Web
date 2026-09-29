@@ -166,6 +166,8 @@ export class CustomerProfileComponent implements OnInit {
   private customerId!: string;
 
   loanFilters = this.fb.group({
+    /** On by default: hides closed loans (Paid / Written Off) so the grid shows only loans still being collected. */
+    activeOnly: [true],
     status: [null as LoanStatus | null],
     classification: [null as LoanClassification | null],
   });
@@ -303,9 +305,10 @@ export class CustomerProfileComponent implements OnInit {
 
   applyLoanFilters(): void {
     const term = this.searchTerm.trim().toLowerCase();
-    const { status, classification } = this.loanFilters.value;
+    const { activeOnly, status, classification } = this.loanFilters.value;
     this.filteredLoans = this.loans.filter((loan) => {
       if (term && !loan.loanNumber.toLowerCase().includes(term)) return false;
+      if (activeOnly && (loan.status === 'paid' || loan.status === 'writtenoff')) return false;
       if (status && loan.status !== status) return false;
       if (classification && loan.classification !== classification) return false;
       return true;
@@ -392,7 +395,7 @@ export class CustomerProfileComponent implements OnInit {
 
   openAddPayment(loan: Loan): void {
     this.dialog
-      .open(AddPaymentDialogComponent, { width: '420px', maxWidth: '95vw', data: { loanId: loan.loanId, balance: loan.balance, dailyPayment: loan.dailyPayment } })
+      .open(AddPaymentDialogComponent, { width: '420px', maxWidth: '95vw', data: { loanId: loan.loanId, balance: loan.balance, dailyPayment: loan.dailyPayment, lastPaymentAmount: this.getLastPayment(loan)?.amountPaid } })
       .afterClosed()
       .subscribe((result) => {
         if (result?.recorded) this.load();

@@ -380,8 +380,11 @@ export class LoanDetailsComponent implements OnInit {
 
   openAddPayment(): void {
     if (!this.loan) return;
+    const lastPayment = [...this.payments].sort(
+      (a, b) => b.paymentDate.localeCompare(a.paymentDate) || b.createdAt.localeCompare(a.createdAt),
+    )[0];
     this.dialog
-      .open(AddPaymentDialogComponent, { width: '420px', maxWidth: '95vw', data: { loanId: this.loan.loanId, balance: this.loan.balance, dailyPayment: this.loan.dailyPayment } })
+      .open(AddPaymentDialogComponent, { width: '420px', maxWidth: '95vw', data: { loanId: this.loan.loanId, balance: this.loan.balance, dailyPayment: this.loan.dailyPayment, lastPaymentAmount: lastPayment?.amountPaid } })
       .afterClosed()
       .subscribe((result) => {
         if (result?.recorded) this.load();

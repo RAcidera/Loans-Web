@@ -95,6 +95,11 @@
                 <option value="watchlist">Watch List</option>
                 <option value="badloan">Bad Loan</option>
               </select>
+
+              <label class="check-filter">
+                <input type="checkbox" formControlName="activeOnly" (change)="applyLoanFilters()" />
+                Active Only
+              </label>
             </div>
 
             <button mat-stroked-button color="primary" (click)="viewAllLoans()">View all loans</button>

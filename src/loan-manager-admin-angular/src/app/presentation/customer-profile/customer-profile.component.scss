@@ -305,6 +305,32 @@
   font-size: 13.5px;
 }
 
+// Checkbox styled as a filter control, same height/border as .select.
+.check-filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 38px;
+  border: 1px solid var(--lm-border);
+  border-radius: var(--lm-radius-control);
+  padding: 0 12px;
+  background: var(--lm-surface);
+  color: var(--lm-text);
+  font-family: var(--lm-font-body);
+  font-size: 13.5px;
+  white-space: nowrap;
+  cursor: pointer;
+  user-select: none;
+
+  input {
+    width: 16px;
+    height: 16px;
+    margin: 0;
+    accent-color: var(--lm-primary);
+    cursor: pointer;
+  }
+}
+
 .table-scroll {
   overflow-x: auto;
 }

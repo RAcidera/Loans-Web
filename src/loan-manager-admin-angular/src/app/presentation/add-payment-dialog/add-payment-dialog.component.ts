@@ -17,6 +17,8 @@ export interface AddPaymentDialogData {
   balance: number;
   /** The loan's suggested default payment amount — used to prefill Amount paid for a new payment; ignored when editing an existing one. */
   dailyPayment?: number;
+  /** The loan's most recent payment amount — takes priority over dailyPayment when prefilling a new payment. */
+  lastPaymentAmount?: number;
   /** When set, the dialog edits this existing payment instead of recording a new one. */
   editing?: Payment;
 }
@@ -52,11 +54,13 @@ export class AddPaymentDialogComponent {
   // balance (which would make the existing amount itself invalid).
   private readonly maxAmount = this.data.balance + (this.editing?.amountPaid ?? 0);
 
-  // New payment: defaults to the loan's Daily Payment (its collection-schedule
-  // installment) rather than the full outstanding balance, capped so the
-  // default itself is never already invalid on a near-fully-paid loan.
-  private readonly defaultAmount = this.data.dailyPayment
-    ? Math.min(this.data.dailyPayment, this.data.balance)
+  // New payment: defaults to the loan's last payment amount (borrowers tend to
+  // repeat it), falling back to its Daily Payment (the collection-schedule
+  // installment), then to the full balance — capped so the default itself is
+  // never already invalid on a near-fully-paid loan.
+  private readonly suggestedAmount = this.data.lastPaymentAmount || this.data.dailyPayment;
+  private readonly defaultAmount = this.suggestedAmount
+    ? Math.min(this.suggestedAmount, this.data.balance)
     : this.data.balance;
 
   form = this.fb.group({
