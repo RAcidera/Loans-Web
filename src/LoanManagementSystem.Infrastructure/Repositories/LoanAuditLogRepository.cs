@@ -17,5 +17,8 @@ public class LoanAuditLogRepository : ILoanAuditLogRepository
     public Task<List<LoanAuditLogEntry>> GetByLoanIdAsync(LoanId loanId, CancellationToken ct = default) =>
         _db.LoanAuditLogEntries.AsNoTracking().Where(e => e.LoanId == loanId).ToListAsync(ct);
 
+    public Task<List<LoanAuditLogEntry>> GetByActionAsync(LoanAuditAction action, CancellationToken ct = default) =>
+        _db.LoanAuditLogEntries.AsNoTracking().Where(e => e.Action == action).ToListAsync(ct);
+
     public void Add(LoanAuditLogEntry entry) => _db.LoanAuditLogEntries.Add(entry);
 }

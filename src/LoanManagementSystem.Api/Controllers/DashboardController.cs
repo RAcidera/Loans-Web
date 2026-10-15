@@ -1,6 +1,7 @@
 using LoanManagementSystem.Application.Common.DTOs;
 using LoanManagementSystem.Application.Loans.Queries.GetDashboardReceivables;
 using LoanManagementSystem.Application.Loans.Queries.GetDashboardSummary;
+using LoanManagementSystem.Application.Loans.Queries.GetMonthlyCapitalGrowth;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -29,4 +30,9 @@ public class DashboardController : ControllerBase
     [HttpGet("summary")]
     public async Task<ActionResult<DashboardSummaryDto>> GetSummary(CancellationToken ct) =>
         Ok(await _mediator.Send(new GetDashboardSummaryQuery(), ct));
+
+    /// <summary>GET /api/dashboard/monthly-capital-growth?months=12 — read-only Monthly Capital Growth series (months ∈ 6/12/24), summary, reconciliation, and data-quality warnings.</summary>
+    [HttpGet("monthly-capital-growth")]
+    public async Task<ActionResult<MonthlyCapitalGrowthDto>> GetMonthlyCapitalGrowth([FromQuery] int months = 12, CancellationToken ct = default) =>
+        Ok(await _mediator.Send(new GetMonthlyCapitalGrowthQuery(months), ct));
 }

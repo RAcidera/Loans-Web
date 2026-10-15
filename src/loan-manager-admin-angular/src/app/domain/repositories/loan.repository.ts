@@ -1,4 +1,5 @@
 import { Observable } from 'rxjs';
+import { CapitalGrowthRange, MonthlyCapitalGrowth } from '../entities/capital-growth.entity';
 import { Customer, CustomerStatus } from '../entities/customer.entity';
 import { CustomerDocument } from '../entities/customer-document.entity';
 import { CustomerPayment } from '../entities/customer-payment.entity';
@@ -91,6 +92,8 @@ export abstract class LoanRepository {
   abstract getDashboardReceivables(): Observable<DashboardReceivables>;
   /** Everything on the Dashboard beyond receivables/cash/recent-payments — trend badges, Collections/Receivables-Breakdown charts, Recent Loans. */
   abstract getDashboardSummary(): Observable<DashboardSummary>;
+  /** Dashboard "Monthly Capital Growth" panel — read-only reconstruction of Total Business Position per business-local month. */
+  abstract getMonthlyCapitalGrowth(months: CapitalGrowthRange): Observable<MonthlyCapitalGrowth>;
   /** Same formulas as getDashboardReceivables(), scoped to one customer — Customer Profile's "Financial Summary" card. */
   abstract getCustomerReceivables(customerId: string): Observable<DashboardReceivables>;
   /**

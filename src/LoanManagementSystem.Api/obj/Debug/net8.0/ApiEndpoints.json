@@ -702,6 +702,32 @@
   },
   {
     "ContainingType": "LoanManagementSystem.Api.Controllers.DashboardController",
+    "Method": "GetMonthlyCapitalGrowth",
+    "RelativePath": "api/dashboard/monthly-capital-growth",
+    "HttpMethod": "GET",
+    "IsController": true,
+    "Order": 0,
+    "Parameters": [
+      {
+        "Name": "months",
+        "Type": "System.Int32",
+        "IsRequired": false
+      }
+    ],
+    "ReturnTypes": [
+      {
+        "Type": "LoanManagementSystem.Application.Common.DTOs.MonthlyCapitalGrowthDto",
+        "MediaTypes": [
+          "text/plain",
+          "application/json",
+          "text/json"
+        ],
+        "StatusCode": 200
+      }
+    ]
+  },
+  {
+    "ContainingType": "LoanManagementSystem.Api.Controllers.DashboardController",
     "Method": "GetReceivables",
     "RelativePath": "api/dashboard/receivables",
     "HttpMethod": "GET",

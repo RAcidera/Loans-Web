@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
 import { MatTableModule, MatTableDataSource } from '@angular/material/table';
 import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
@@ -104,6 +105,7 @@ export class CashFundsComponent implements OnInit, OnDestroy {
   private readonly searchSubscription: Subscription;
 
   private readonly fb = inject(FormBuilder);
+  private readonly route = inject(ActivatedRoute);
   filters = this.fb.group({
     transactionType: [null as CashTransactionType | null],
     dateFrom: [null as Date | null],
@@ -129,8 +131,31 @@ export class CashFundsComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit(): void {
+    this.applyQueryParamFilters();
     this.loadSummary();
     this.loadPage();
+  }
+
+  /**
+   * Optional deep-link filters (?dateFrom=yyyy-MM-dd&dateTo=yyyy-MM-dd&transactionType=...)
+   * — the Dashboard's Monthly Capital Growth panel links here for a month's
+   * transactions. Dates are built as local-midnight Dates from their parts
+   * (never `new Date('yyyy-MM-dd')`, which parses as UTC and can shift a day),
+   * so toDateString() round-trips them unchanged. No params → unchanged behavior.
+   */
+  private applyQueryParamFilters(): void {
+    const params = this.route.snapshot.queryParamMap;
+    const parseDate = (value: string | null): Date | null => {
+      const match = value?.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+      return match ? new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3])) : null;
+    };
+    const type = params.get('transactionType') as CashTransactionType | null;
+
+    this.filters.patchValue({
+      dateFrom: parseDate(params.get('dateFrom')),
+      dateTo: parseDate(params.get('dateTo')),
+      transactionType: type && type in TYPE_LABEL ? type : null,
+    });
   }
 
   ngOnDestroy(): void {

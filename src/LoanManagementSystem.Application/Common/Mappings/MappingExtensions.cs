@@ -1,4 +1,5 @@
 using LoanManagementSystem.Application.Common.DTOs;
+using LoanManagementSystem.Application.Common.Financial;
 using LoanManagementSystem.Domain.CashLedger;
 using LoanManagementSystem.Domain.Customers;
 using LoanManagementSystem.Domain.Diary;
@@ -403,4 +404,38 @@ public static class MappingExtensions
         "cancelled" => PromiseAuditAction.Cancelled,
         _ => throw new ArgumentOutOfRangeException(nameof(value), value, "Unknown promise audit action."),
     };
+
+    public static CapitalGrowthMonthDto ToDto(this CapitalGrowthMonth month) => new(
+        MonthKey: month.MonthKey,
+        StartDate: month.Start.ToString("yyyy-MM-dd"),
+        EndCutoffDate: month.EndCutoff.ToString("yyyy-MM-dd"),
+        IsPartialMonth: month.IsPartialMonth,
+        Status: month.Status.ToString().ToLowerInvariant(),
+        BeginningCash: month.BeginningCash,
+        EndingCash: month.EndingCash,
+        BeginningGrossReceivables: month.BeginningGrossReceivables,
+        EndingGrossReceivables: month.EndingGrossReceivables,
+        BeginningPosition: month.BeginningPosition,
+        EndingPosition: month.EndingPosition,
+        OwnerWithdrawals: month.OwnerWithdrawals,
+        OwnerDeposits: month.OwnerDeposits,
+        PositionChange: month.PositionChange,
+        AdjustedGrowth: month.AdjustedGrowth,
+        GrowthPercent: month.GrowthPercent
+    );
+
+    public static CapitalGrowthSummaryDto ToDto(this CapitalGrowthSummary summary) => new(
+        TotalGrowth: summary.TotalGrowth,
+        MonthsInTotal: summary.MonthsInTotal,
+        AverageCompletedMonthGrowth: summary.AverageCompletedMonthGrowth,
+        CompletedMonthCount: summary.CompletedMonthCount,
+        AverageGrowthIncludingCurrentMonth: summary.AverageGrowthIncludingCurrentMonth,
+        BestMonthKey: summary.BestCompletedMonth?.MonthKey,
+        BestMonthGrowth: summary.BestCompletedMonth?.AdjustedGrowth,
+        PreviousPeriodGrowth: summary.PreviousPeriodGrowth,
+        ChangeVsPreviousPeriodPercent: summary.ChangeVsPreviousPeriodPercent
+    );
+
+    public static CapitalGrowthWarningDto ToDto(this CapitalGrowthWarning warning) =>
+        new(warning.Code, warning.Message, warning.LoanNumbers.ToList());
 }

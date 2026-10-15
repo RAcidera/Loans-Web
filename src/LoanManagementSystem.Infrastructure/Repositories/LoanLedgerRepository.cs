@@ -40,6 +40,9 @@ public class LoanLedgerRepository : ILoanLedgerRepository
     public Task<List<LoanLedgerEntry>> GetAfterAsync(LoanId loanId, DateTime createdAtUtc, CancellationToken ct = default) =>
         _db.LoanLedgerEntries.Where(e => e.LoanId == loanId && e.CreatedAtUtc > createdAtUtc).ToListAsync(ct);
 
+    public Task<List<LoanLedgerEntry>> GetAllAsync(CancellationToken ct = default) =>
+        _db.LoanLedgerEntries.AsNoTracking().ToListAsync(ct);
+
     public void Add(LoanLedgerEntry entry) => _db.LoanLedgerEntries.Add(entry);
 
     public void Remove(LoanLedgerEntry entry) => _db.LoanLedgerEntries.Remove(entry);

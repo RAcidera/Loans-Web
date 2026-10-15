@@ -15,6 +15,7 @@ import { GetRecentPaymentsUseCase } from '../../application/use-cases/get-recent
 import { GetDashboardSummaryUseCase } from '../../application/use-cases/get-dashboard-summary.use-case';
 import { ChartTooltipDirective } from '../shared/chart-tooltip.directive';
 import { AppDatePipe } from '../shared/app-date.pipe';
+import { CapitalGrowthPanelComponent } from './capital-growth-panel/capital-growth-panel.component';
 
 const STATUS_LABEL: Record<LoanStatus, string> = {
   active: 'Active',
@@ -94,7 +95,7 @@ function fmtCompactMoney(n: number): string {
 @Component({
   selector: 'lm-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, ChartTooltipDirective, AppDatePipe],
+  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, ChartTooltipDirective, AppDatePipe, CapitalGrowthPanelComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })

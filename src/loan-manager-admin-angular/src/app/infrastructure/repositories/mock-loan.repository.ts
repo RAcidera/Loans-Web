@@ -8,6 +8,7 @@ import { CustomerPayment } from '../../domain/entities/customer-payment.entity';
 import { CustomerTotals } from '../../domain/entities/customer-totals.entity';
 import { DashboardReceivables } from '../../domain/entities/dashboard-receivables.entity';
 import { DailyCollection, DashboardSummary, MonthlyCollection } from '../../domain/entities/dashboard-summary.entity';
+import { CapitalGrowthRange, MonthlyCapitalGrowth } from '../../domain/entities/capital-growth.entity';
 import { Loan, LoanClassification, LoanPageFilters, LoanStatus } from '../../domain/entities/loan.entity';
 import { LoanAuditLogEntry } from '../../domain/entities/loan-audit-log-entry.entity';
 import { LoanDocument } from '../../domain/entities/loan-document.entity';
@@ -380,6 +381,38 @@ export class MockLoanRepository extends LoanRepository {
       loansDueThisWeekCount: this.loans.filter(
         (l) => l.status !== 'paid' && l.status !== 'writtenoff' && l.dueDate >= today && l.dueDate <= weekFromNow,
       ).length,
+    }).pipe(delay(150));
+  }
+
+  /**
+   * The mock has no cash ledger or loan ledger to reconstruct history from,
+   * so it reports every month as "nohistory" rather than inventing figures —
+   * the panel's own empty state is what renders.
+   */
+  getMonthlyCapitalGrowth(months: CapitalGrowthRange): Observable<MonthlyCapitalGrowth> {
+    const today = new Date();
+    const asOfDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    const series = Array.from({ length: months }, (_, i) => {
+      const d = new Date(today.getFullYear(), today.getMonth() - (months - 1 - i), 1);
+      const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+      const isPartialMonth = i === months - 1;
+      return {
+        monthKey, startDate: `${monthKey}-01`, endCutoffDate: isPartialMonth ? asOfDate : `${monthKey}-28`, isPartialMonth,
+        status: 'nohistory' as const,
+        beginningCash: null, endingCash: null, beginningGrossReceivables: null, endingGrossReceivables: null,
+        beginningPosition: null, endingPosition: null, ownerWithdrawals: null, ownerDeposits: null,
+        positionChange: null, adjustedGrowth: null, growthPercent: null,
+      };
+    });
+    return of({
+      timeZone: 'Asia/Manila', asOfUtc: today.toISOString(), asOfDate, currency: 'PHP', months, historyBasis: 'restated', historyStartDate: null,
+      series,
+      summary: {
+        totalGrowth: null, monthsInTotal: 0, averageCompletedMonthGrowth: null, completedMonthCount: 0, averageGrowthIncludingCurrentMonth: null,
+        bestMonthKey: null, bestMonthGrowth: null, previousPeriodGrowth: null, changeVsPreviousPeriodPercent: null,
+      },
+      reconciliation: { dashboardPosition: 0, currentEndingPosition: null, difference: null, matches: false, snapshots: [] },
+      warnings: [],
     }).pipe(delay(150));
   }
 

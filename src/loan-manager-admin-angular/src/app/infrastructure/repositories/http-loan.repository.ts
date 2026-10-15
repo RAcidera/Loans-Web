@@ -10,6 +10,7 @@ import { CustomerPayment } from '../../domain/entities/customer-payment.entity';
 import { CustomerTotals } from '../../domain/entities/customer-totals.entity';
 import { DashboardReceivables } from '../../domain/entities/dashboard-receivables.entity';
 import { DashboardSummary } from '../../domain/entities/dashboard-summary.entity';
+import { CapitalGrowthRange, MonthlyCapitalGrowth } from '../../domain/entities/capital-growth.entity';
 import { Loan, LoanClassification, LoanPageFilters } from '../../domain/entities/loan.entity';
 import { LoanAuditLogEntry } from '../../domain/entities/loan-audit-log-entry.entity';
 import { LoanDocument } from '../../domain/entities/loan-document.entity';
@@ -171,6 +172,10 @@ export class HttpLoanRepository extends LoanRepository {
 
   getDashboardSummary(): Observable<DashboardSummary> {
     return this.http.get<DashboardSummary>(`${this.baseUrl}/dashboard/summary`);
+  }
+
+  getMonthlyCapitalGrowth(months: CapitalGrowthRange): Observable<MonthlyCapitalGrowth> {
+    return this.http.get<MonthlyCapitalGrowth>(`${this.baseUrl}/dashboard/monthly-capital-growth`, { params: { months } });
   }
 
   getCustomerReceivables(customerId: string): Observable<DashboardReceivables> {

@@ -21,6 +21,13 @@ public class DiaryRepository : IDiaryRepository
     public Task<DiaryEntry?> GetByIdAsync(DiaryEntryId id, CancellationToken ct = default) =>
         _db.Set<DiaryEntry>().Include(e => e.Snapshot).FirstOrDefaultAsync(e => e.Id == id, ct);
 
+    public Task<List<DiaryFinancialSnapshot>> GetSnapshotsCapturedBetweenAsync(DateTime fromUtc, DateTime toUtc, CancellationToken ct = default) =>
+        _db.Set<DiaryFinancialSnapshot>()
+            .AsNoTracking()
+            .Where(s => s.SnapshotDateTimeUtc >= fromUtc && s.SnapshotDateTimeUtc < toUtc)
+            .OrderBy(s => s.SnapshotDateTimeUtc)
+            .ToListAsync(ct);
+
     public Task<List<DiaryEntry>> SearchAsync(DiarySearchFilters filters, CancellationToken ct = default) =>
         ApplyFilters(_db.Set<DiaryEntry>().AsNoTracking().Include(e => e.Snapshot).AsQueryable(), filters)
             .OrderByDescending(e => e.EntryDate)

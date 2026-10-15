@@ -1,0 +1,243 @@
+<mat-card class="cg-card">
+  <div class="cg-header">
+    <div>
+      <h2>
+        Monthly Capital Growth
+        <button
+          type="button"
+          class="cg-info"
+          [matTooltip]="explanation"
+          matTooltipClass="cg-info-tooltip"
+          aria-label="What is adjusted capital growth?"
+        ><mat-icon>info_outline</mat-icon></button>
+      </h2>
+      <p>Business position and adjusted capital growth</p>
+    </div>
+    <div class="range-toggle" role="group" aria-label="Range">
+      <button
+        *ngFor="let r of ranges"
+        type="button"
+        class="range-toggle__btn"
+        [class.range-toggle__btn--active]="range === r"
+        [attr.aria-pressed]="range === r"
+        [disabled]="loading"
+        (click)="setRange(r)"
+      >Last {{ r }} Months</button>
+    </div>
+  </div>
+
+  <!-- Loading -->
+  <div class="cg-skeleton" *ngIf="loading" aria-busy="true" aria-label="Loading capital growth">
+    <div class="cg-skeleton__chart"></div>
+    <div class="cg-skeleton__side"></div>
+  </div>
+
+  <!-- Error -->
+  <div class="cg-error" *ngIf="!loading && error">
+    <p class="error">{{ error }}</p>
+    <button type="button" class="cg-link" (click)="retry()">Try again</button>
+  </div>
+
+  <ng-container *ngIf="!loading && !error && data as d">
+    <!-- No history at all -->
+    <p class="empty-hint" *ngIf="!hasAnyHistory">
+      Not enough history yet. Capital growth appears once the Cash Ledger has recorded transactions.
+    </p>
+
+    <div class="cg-layout" *ngIf="hasAnyHistory">
+      <!-- Chart -->
+      <div class="cg-chart">
+        <div class="chart-legend">
+          <span class="chart-legend__item"><i class="chart-legend__dot chart-legend__dot--growth"></i>Adjusted Capital Growth (₱)</span>
+          <span class="chart-legend__item"><i class="chart-legend__dot chart-legend__dot--position"></i>Total Business Position (₱)</span>
+          <span class="chart-legend__item"><i class="chart-legend__swatch chart-legend__swatch--mtd"></i>Month to Date</span>
+          <span class="chart-legend__item"><i class="chart-legend__swatch chart-legend__swatch--none"></i>No history</span>
+        </div>
+
+        <div class="cg-chart__scroll">
+          <svg
+            [attr.viewBox]="viewBox"
+            class="cg-svg"
+            role="group"
+            aria-label="Monthly capital growth chart. Use left and right arrow keys to move between months."
+          >
+            <!-- Axis titles -->
+            <text [attr.x]="plot.left - 8" [attr.y]="plot.top - 7" text-anchor="end" class="cg-axis-title">Growth</text>
+            <text [attr.x]="plot.right + 8" [attr.y]="plot.top - 7" text-anchor="start" class="cg-axis-title">Position</text>
+
+            <!-- Growth gridlines + left axis -->
+            <g *ngFor="let t of growthTicks">
+              <line [attr.x1]="plot.left" [attr.x2]="plot.right" [attr.y1]="t.y" [attr.y2]="t.y" class="cg-grid" />
+              <text [attr.x]="plot.left - 8" [attr.y]="t.y + 3" text-anchor="end" class="cg-axis">{{ t.label }}</text>
+            </g>
+            <!-- Right axis (position) -->
+            <text *ngFor="let t of positionTicks" [attr.x]="plot.right + 8" [attr.y]="t.y + 3" text-anchor="start" class="cg-axis cg-axis--position">{{ t.label }}</text>
+
+            <!-- Slots: background states, bars, labels, hit targets -->
+            <g
+              *ngFor="let s of slots"
+              class="cg-slot"
+              [class.cg-slot--selected]="s.index === selectedIndex"
+              role="button"
+              [attr.data-slot]="s.index"
+              [attr.tabindex]="s.index === selectedIndex ? 0 : -1"
+              [attr.aria-label]="s.ariaLabel"
+              [attr.aria-pressed]="s.index === selectedIndex"
+              (click)="select(s.index)"
+              (keydown)="onSlotKeydown($event, s.index)"
+            >
+              <rect
+                [attr.x]="s.slotX + 1" [attr.y]="plot.top" [attr.width]="s.slotWidth - 2" [attr.height]="plot.bottom - plot.top"
+                class="cg-slot__bg"
+                [class.cg-slot__bg--none]="s.month.status === 'nohistory'"
+                [class.cg-slot__bg--mtd]="s.month.isPartialMonth"
+                [appChartTooltip]="s.tooltip"
+              />
+              <rect
+                *ngIf="s.bar"
+                [attr.x]="s.bar.x" [attr.y]="s.bar.y" [attr.width]="s.bar.width" [attr.height]="s.bar.height" rx="2"
+                class="cg-bar"
+                [ngClass]="'cg-bar--' + s.bar.tone"
+                [class.cg-bar--mtd]="s.month.isPartialMonth"
+                [class.cg-bar--partial-history]="s.month.status === 'partialhistory'"
+                [appChartTooltip]="s.tooltip"
+              />
+              <text *ngIf="s.month.status === 'nohistory'" [attr.x]="s.x" [attr.y]="(plot.top + plot.bottom) / 2" text-anchor="middle" class="cg-none-label">—</text>
+              <ng-container *ngIf="s.showLabel">
+                <text [attr.x]="s.x" [attr.y]="plot.bottom + 14" text-anchor="middle" class="cg-xlabel">{{ s.monthLabel }}</text>
+                <text [attr.x]="s.x" [attr.y]="plot.bottom + 26" text-anchor="middle" class="cg-xlabel cg-xlabel--year">{{ s.yearLabel }}</text>
+              </ng-container>
+            </g>
+
+            <!-- Zero baseline -->
+            <line [attr.x1]="plot.left" [attr.x2]="plot.right" [attr.y1]="zeroY" [attr.y2]="zeroY" class="cg-zero" />
+
+            <!-- Business Position line (right axis) -->
+            <polyline [attr.points]="linePoints" class="cg-line" />
+            <ng-container *ngFor="let s of slots">
+              <circle *ngIf="s.dot" [attr.cx]="s.dot.x" [attr.cy]="s.dot.y" r="4" class="cg-dot" [class.cg-dot--selected]="s.index === selectedIndex" />
+            </ng-container>
+
+            <!-- MTD marker -->
+            <text *ngIf="currentSlot" [attr.x]="currentSlot.x" [attr.y]="plot.top - 7" text-anchor="middle" class="cg-mtd">MTD</text>
+          </svg>
+        </div>
+      </div>
+
+      <!-- Side: summary cards + selected month -->
+      <div class="cg-side">
+        <div class="cg-summary">
+          <div class="cg-stat">
+            <div class="cg-stat__icon cg-stat__icon--good"><mat-icon>trending_up</mat-icon></div>
+            <div class="cg-stat__body">
+              <span class="cg-stat__label">Capital Growth<br />(Last {{ d.months }} Months)</span>
+              <span class="cg-stat__value mono" [ngClass]="'tone--' + tone(d.summary.totalGrowth)">{{ signedMoney(d.summary.totalGrowth) }}</span>
+              <span class="cg-stat__sub" *ngIf="d.summary.changeVsPreviousPeriodPercent !== null">
+                {{ percent(d.summary.changeVsPreviousPeriodPercent) }} vs previous {{ d.months }} months
+              </span>
+              <span class="cg-stat__sub" *ngIf="d.summary.totalGrowth !== null">
+                {{ d.summary.monthsInTotal }} of {{ d.months }} months have records, incl. month to date
+              </span>
+            </div>
+          </div>
+
+          <div class="cg-stat">
+            <div class="cg-stat__icon"><mat-icon>bar_chart</mat-icon></div>
+            <div class="cg-stat__body">
+              <span class="cg-stat__label">Average Monthly<br />Growth</span>
+              <span class="cg-stat__value mono" [ngClass]="'tone--' + tone(d.summary.averageCompletedMonthGrowth)">{{ signedMoney(d.summary.averageCompletedMonthGrowth) }}</span>
+              <span class="cg-stat__sub">
+                {{ d.summary.completedMonthCount }} of {{ d.months - 1 }} completed months have records
+              </span>
+              <span class="cg-stat__sub" *ngIf="d.summary.averageGrowthIncludingCurrentMonth !== null">
+                Incl. month to date: <span class="mono">{{ signedMoney(d.summary.averageGrowthIncludingCurrentMonth) }}</span>
+              </span>
+            </div>
+          </div>
+
+          <div class="cg-stat">
+            <div class="cg-stat__icon cg-stat__icon--warn"><mat-icon>star</mat-icon></div>
+            <div class="cg-stat__body">
+              <span class="cg-stat__label">Best Performing<br />Month</span>
+              <span class="cg-stat__value">{{ monthLabel(d.summary.bestMonthKey) }}</span>
+              <span class="cg-stat__amount mono" *ngIf="d.summary.bestMonthGrowth !== null" [ngClass]="'tone--' + tone(d.summary.bestMonthGrowth)">
+                {{ signedMoney(d.summary.bestMonthGrowth) }}
+              </span>
+              <span class="cg-stat__sub">Completed months only</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Selected month breakdown -->
+        <section class="cg-detail" *ngIf="selected as m" aria-live="polite">
+          <div class="cg-detail__head">
+            <mat-icon>event</mat-icon>
+            <span class="cg-detail__title">Selected Month: {{ monthLabel(m.monthKey) }}</span>
+            <span class="cg-pill" [ngClass]="'cg-pill--' + m.status">{{ statusLabel(m) }}</span>
+          </div>
+
+          <p class="cg-detail__empty" *ngIf="m.status === 'nohistory'">
+            No ledger records exist before {{ d.historyStartDate ? dateLabel(d.historyStartDate) : 'this point' }}, so this month's figures are unavailable.
+          </p>
+
+          <ng-container *ngIf="m.status !== 'nohistory'">
+            <div class="cg-detail__grid">
+              <dl>
+                <div><dt>Beginning Business Position</dt><dd class="mono">{{ money(m.beginningPosition) }}</dd></div>
+                <div>
+                  <dt>Ending Business Position<span *ngIf="m.isPartialMonth" class="cg-asof"> (as of {{ dateLabel(m.endCutoffDate) }})</span></dt>
+                  <dd class="mono">{{ money(m.endingPosition) }}</dd>
+                </div>
+                <div><dt>Change in Business Position</dt><dd class="mono" [ngClass]="'tone--' + tone(m.positionChange)">{{ signedMoney(m.positionChange) }}</dd></div>
+              </dl>
+              <dl>
+                <div>
+                  <dt matTooltip="Cash Ledger entries recorded as “Cash Withdrawal” (owner_withdrawal)">Owner Withdrawals <span class="cg-op">(added back)</span></dt>
+                  <dd class="mono">{{ money(m.ownerWithdrawals) }}</dd>
+                </div>
+                <div>
+                  <dt matTooltip="Cash Ledger entries recorded as “Cash Deposit” (owner_deposit)">Owner Deposits <span class="cg-op">(removed)</span></dt>
+                  <dd class="mono">{{ money(m.ownerDeposits) }}</dd>
+                </div>
+              </dl>
+            </div>
+
+            <div class="cg-result" [ngClass]="'cg-result--' + tone(m.adjustedGrowth)">
+              <span class="cg-result__label">Adjusted Capital Growth</span>
+              <span class="cg-result__value mono">{{ signedMoney(m.adjustedGrowth) }}</span>
+              <span class="cg-result__pct mono" [matTooltip]="m.growthPercent === null ? 'Growth % needs a positive beginning business position.' : 'Adjusted growth ÷ beginning business position'">
+                {{ percent(m.growthPercent) }}
+              </span>
+            </div>
+            <p class="cg-formula mono">
+              = {{ signedMoney(m.positionChange) }} change + {{ money(m.ownerWithdrawals) }} withdrawals − {{ money(m.ownerDeposits) }} deposits
+            </p>
+            <p class="cg-note" *ngIf="m.status === 'partialhistory'">
+              Records begin this month, so its beginning position is not a verified opening balance. Excluded from the summary cards.
+            </p>
+
+            <button type="button" class="cg-link" (click)="viewCashTransactions(m)">
+              View cash transactions for {{ monthLabel(m.monthKey) }} <mat-icon>arrow_forward</mat-icon>
+            </button>
+          </ng-container>
+        </section>
+      </div>
+    </div>
+
+    <!-- Data-quality notices -->
+    <div class="cg-warnings" *ngIf="reconciliationMessage || d.warnings.length">
+      <mat-icon>report_gmailerrorred</mat-icon>
+      <ul>
+        <li *ngIf="reconciliationMessage">{{ reconciliationMessage }}</li>
+        <li *ngFor="let w of d.warnings">
+          {{ w.message }}<span *ngIf="w.loanNumbers.length" class="mono"> ({{ w.loanNumbers.join(', ') }})</span>
+        </li>
+      </ul>
+    </div>
+
+    <p class="cg-footnote">
+      Past months are restated from current ledger records. Business time zone {{ d.timeZone }} · as of {{ dateLabel(d.asOfDate) }}.
+      Not profit, revenue, or cash flow.
+    </p>
+  </ng-container>
+</mat-card>

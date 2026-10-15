@@ -22,6 +22,9 @@ public interface ILoanLedgerRepository
     /// <summary>Every row for this loan strictly after the given one, in chronological (CreatedAtUtc) order — used to shift stamped RunningBalance values back into agreement with the loan's real Balance after an earlier row is removed.</summary>
     Task<List<LoanLedgerEntry>> GetAfterAsync(LoanId loanId, DateTime createdAtUtc, CancellationToken ct = default);
 
+    /// <summary>Every row across every loan, untracked — backs the Monthly Capital Growth reconstruction of historical Gross Receivables (one scan, not one query per month).</summary>
+    Task<List<LoanLedgerEntry>> GetAllAsync(CancellationToken ct = default);
+
     void Add(LoanLedgerEntry entry);
 
     void Remove(LoanLedgerEntry entry);

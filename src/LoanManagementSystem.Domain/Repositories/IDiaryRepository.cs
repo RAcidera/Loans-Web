@@ -12,6 +12,9 @@ public interface IDiaryRepository
     /// <summary>Every diary entry whose EntryDate OR ReminderDate falls within [from, to] — backs the Calendar's "Diary Entries"/"Follow-up Reminders" event sources (requirements §19), which can land on different days for the same entry.</summary>
     Task<List<DiaryEntry>> GetInRangeAsync(DateOnly from, DateOnly to, CancellationToken ct = default);
 
+    /// <summary>Financial Snapshots captured within [fromUtc, toUtc) — reference points the Monthly Capital Growth reconstruction is reconciled against (never adjusted to).</summary>
+    Task<List<DiaryFinancialSnapshot>> GetSnapshotsCapturedBetweenAsync(DateTime fromUtc, DateTime toUtc, CancellationToken ct = default);
+
     void Add(DiaryEntry entry);
 
     void Remove(DiaryEntry entry);
