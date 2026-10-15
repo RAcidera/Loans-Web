@@ -41,6 +41,10 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
           <span class="comparison__subtitle">
             Snapshot vs Today ({{ comparison.todayDate | appDate: 'MMM d, y' }})
           </span>
+          <span class="comparison__elapsed">
+            <mat-icon>schedule</mat-icon>
+            {{ elapsedText() }}
+          </span>
         </div>
         <button mat-stroked-button class="comparison__export-btn" (click)="exportCsv()">
           <mat-icon>download</mat-icon>
@@ -116,18 +120,27 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
               <span class="mono">{{ m.change === 0 ? '—' : formatChange(m) }}</span>
             </span>
           </div>
-          <div class="since-snapshot__cell" *ngIf="metric('overdueLoanCount') as m">
-            <span class="since-snapshot__label">Overdue Loans</span>
-            <span class="since-snapshot__value" [ngClass]="colorClass(m)">
-              <span class="mono">{{ m.snapshotValue }} &rarr; {{ m.currentValue }}</span>
-              <mat-icon *ngIf="m.change !== 0">{{ changeIcon(m.change) }}</mat-icon>
+          <div class="since-snapshot__cell">
+            <span class="since-snapshot__label">Owner Withdrawals</span>
+            <span class="since-snapshot__value neutral">
+              <span class="mono">{{ formatMoney(comparison.ownerWithdrawals) }}</span>
             </span>
           </div>
-          <div class="since-snapshot__cell" *ngIf="metric('badLoanCount') as m">
-            <span class="since-snapshot__label">Bad Loans</span>
-            <span class="since-snapshot__value" [ngClass]="colorClass(m)">
-              <span class="mono">{{ m.snapshotValue }} &rarr; {{ m.currentValue }}</span>
-              <mat-icon *ngIf="m.change !== 0">{{ changeIcon(m.change) }}</mat-icon>
+          <div class="since-snapshot__cell">
+            <span class="since-snapshot__label">Owner Deposits</span>
+            <span class="since-snapshot__value neutral">
+              <span class="mono">{{ formatMoney(comparison.ownerDeposits) }}</span>
+            </span>
+          </div>
+          <div class="since-snapshot__cell since-snapshot__cell--highlight">
+            <span class="since-snapshot__label since-snapshot__label--caps">Adjusted Capital Growth</span>
+            <span class="since-snapshot__value since-snapshot__value--large" [ngClass]="signClass(comparison.adjustedCapitalGrowth)">
+              <mat-icon *ngIf="comparison.adjustedCapitalGrowth !== 0">{{ changeIcon(comparison.adjustedCapitalGrowth) }}</mat-icon>
+              <span class="mono">{{ formatSignedMoney(comparison.adjustedCapitalGrowth) }}</span>
+            </span>
+            <span class="since-snapshot__subtext">
+              <span class="mono">{{ formatSignedPercent(comparison.adjustedCapitalGrowthPercent) }}</span>
+              of starting business position
             </span>
           </div>
         </div>
@@ -167,6 +180,20 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
         font-size: 13px;
         font-weight: 600;
         color: var(--lm-text);
+      }
+
+      .comparison__elapsed {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-size: 12px;
+        color: var(--lm-text-muted);
+
+        mat-icon {
+          font-size: 14px;
+          width: 14px;
+          height: 14px;
+        }
       }
 
       .comparison__export-btn {
@@ -290,7 +317,8 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
 
       .since-snapshot__grid {
         display: grid;
-        grid-template-columns: repeat(6, 1fr);
+        // Six regular cells plus a wider closing column for Adjusted Capital Growth, all on one row.
+        grid-template-columns: repeat(6, minmax(0, 1fr)) minmax(0, 1.6fr);
         gap: 12px 10px;
       }
 
@@ -321,15 +349,58 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
         }
       }
 
+      // Adjusted Capital Growth — the row's last, wider column, set apart as the headline figure.
+      .since-snapshot__cell--highlight {
+        padding-left: 12px;
+        border-left: 1px solid rgba(34, 160, 107, 0.3);
+      }
+
+      .since-snapshot__label--caps {
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .since-snapshot__value--large {
+        font-size: 18px;
+
+        mat-icon {
+          font-size: 18px;
+          width: 18px;
+          height: 18px;
+        }
+      }
+
+      .since-snapshot__subtext {
+        font-size: 11px;
+        color: var(--lm-text-muted);
+      }
+
       @media (max-width: 899px) {
         .since-snapshot__grid {
           grid-template-columns: repeat(3, 1fr);
+        }
+
+        .since-snapshot__cell--highlight {
+          grid-column: 1 / -1;
+          padding-left: 0;
+          padding-top: 10px;
+          border-left: none;
+          border-top: 1px solid rgba(34, 160, 107, 0.3);
         }
       }
 
       @media (max-width: 599px) {
         .since-snapshot__grid {
           grid-template-columns: repeat(2, 1fr);
+        }
+
+        .since-snapshot__cell--highlight {
+          grid-column: 1 / -1;
+          padding-left: 0;
+          padding-top: 10px;
+          border-left: none;
+          border-top: 1px solid rgba(34, 160, 107, 0.3);
         }
       }
     `,
@@ -351,6 +422,32 @@ export class FinancialComparisonComponent {
     return this.isCount(metric) ? `${value}` : this.formatMoney(value);
   }
 
+  /** Calendar time between snapshotDate and todayDate (both yyyy-MM-dd), e.g. "Captured 2 months, 5 days ago". */
+  elapsedText(): string {
+    if (!this.comparison) return '';
+    const [y1, m1, d1] = this.comparison.snapshotDate.split('-').map(Number);
+    const [y2, m2, d2] = this.comparison.todayDate.split('-').map(Number);
+
+    let months = (y2 - y1) * 12 + (m2 - m1);
+    if (d2 < d1) months--;
+    if (months < 0) return 'Captured today';
+
+    // Days left over after stepping forward whole months; Date.UTC normalizes day overflow (e.g. Jan 31 + 1 month).
+    const anchor = Date.UTC(y1, m1 - 1 + months, d1);
+    const days = Math.round((Date.UTC(y2, m2 - 1, d2) - anchor) / 86_400_000);
+
+    const years = Math.floor(months / 12);
+    const remMonths = months % 12;
+    const plural = (n: number, unit: string) => `${n} ${unit}${n === 1 ? '' : 's'}`;
+
+    const parts: string[] = [];
+    if (years > 0) parts.push(plural(years, 'year'));
+    if (remMonths > 0) parts.push(plural(remMonths, 'month'));
+    if (days > 0 && years === 0) parts.push(plural(days, 'day'));
+
+    return parts.length === 0 ? 'Captured today' : `Captured ${parts.join(', ')} ago`;
+  }
+
   formatMoney(value: number): string {
     return `₱${value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
   }
@@ -359,6 +456,22 @@ export class FinancialComparisonComponent {
     const sign = metric.change > 0 ? '+' : metric.change < 0 ? '-' : '';
     const magnitude = Math.abs(metric.change);
     return this.isCount(metric) ? `${sign}${magnitude}` : `${sign}${this.formatMoney(magnitude)}`;
+  }
+
+  formatSignedMoney(value: number): string {
+    const sign = value > 0 ? '+' : value < 0 ? '-' : '';
+    return `${sign}${this.formatMoney(Math.abs(value))}`;
+  }
+
+  formatSignedPercent(value: number | null): string {
+    if (value === null) return 'N/A';
+    const sign = value > 0 ? '+' : '';
+    return `${sign}${value.toFixed(2)}%`;
+  }
+
+  /** Plain sign-based coloring, for figures where growth is always the good direction (e.g. Adjusted Capital Growth). */
+  signClass(value: number): 'good' | 'bad' | 'neutral' {
+    return value > 0 ? 'good' : value < 0 ? 'bad' : 'neutral';
   }
 
   changeIcon(change: number): string {

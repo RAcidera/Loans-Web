@@ -29,6 +29,10 @@ public static class FinancialCalculations
             ? entries.Where(e => e.TransactionDate <= cutoff).Sum(e => e.SignedAmount)
             : entries.Sum(e => e.SignedAmount);
 
+    /// <summary>Sum of ledger amounts of one transaction type dated in [from, to] — e.g. Owner Deposits / Owner Withdrawals for the Diary's "Since This Snapshot" band.</summary>
+    public static decimal ComputeLedgerTotal(IEnumerable<CashLedgerEntry> entries, CashTransactionType type, DateOnly from, DateOnly to) =>
+        entries.Where(e => e.TransactionType == type && e.TransactionDate >= from && e.TransactionDate <= to).Sum(e => e.Amount.Amount);
+
     /// <summary>Collections Today / Collections Month to Date (requirements §9) — sum of payments received in [from, to].</summary>
     public static decimal ComputeCollections(IEnumerable<Payment> payments, DateOnly from, DateOnly to) =>
         payments.Where(p => p.PaymentDate >= from && p.PaymentDate <= to).Sum(p => p.AmountPaid.Amount);

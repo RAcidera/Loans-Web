@@ -15,9 +15,12 @@ public interface IFinancialSnapshotService
 {
     Task<FinancialPositionSnapshot> GetCurrentFinancialPositionAsync(DateOnly asOfDate, CancellationToken ct = default);
 
-    /// <summary>Collections received / loan principal released strictly within [from, to] — used by CompareSnapshotToCurrent's "Since This Snapshot" summary (requirements diary-detail-snapshot: activity between a captured snapshot and today, distinct from GetCurrentFinancialPositionAsync's calendar-month-to-date figures).</summary>
-    Task<(decimal Collections, decimal LoanReleases)> GetActivitySinceAsync(DateOnly from, DateOnly to, CancellationToken ct = default);
+    /// <summary>Collections received / loan principal released / owner deposits / owner withdrawals strictly within [from, to] — used by CompareSnapshotToCurrent's "Since This Snapshot" summary (requirements diary-detail-snapshot: activity between a captured snapshot and today, distinct from GetCurrentFinancialPositionAsync's calendar-month-to-date figures).</summary>
+    Task<ActivitySince> GetActivitySinceAsync(DateOnly from, DateOnly to, CancellationToken ct = default);
 }
+
+/// <summary>Activity totals over a date range — see IFinancialSnapshotService.GetActivitySinceAsync.</summary>
+public sealed record ActivitySince(decimal Collections, decimal LoanReleases, decimal OwnerDeposits, decimal OwnerWithdrawals);
 
 /// <summary>Every figure requirements §8's DiaryFinancialSnapshot table stores, computed live — see FinancialSnapshotService.</summary>
 public sealed record FinancialPositionSnapshot(

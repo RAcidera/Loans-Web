@@ -1,4 +1,5 @@
 using LoanManagementSystem.Application.Common.Financial;
+using LoanManagementSystem.Domain.CashLedger;
 using LoanManagementSystem.Domain.Loans;
 using LoanManagementSystem.Domain.Repositories;
 
@@ -54,15 +55,20 @@ public sealed class FinancialSnapshotService : IFinancialSnapshotService
             collectionsToday, collectionsMtd, releasesToday, releasesMtd);
     }
 
-    public async Task<(decimal Collections, decimal LoanReleases)> GetActivitySinceAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
+    public async Task<ActivitySince> GetActivitySinceAsync(DateOnly from, DateOnly to, CancellationToken ct = default)
     {
-        if (from > to) return (0m, 0m);
+        if (from > to) return new ActivitySince(0m, 0m, 0m, 0m);
 
         var loans = await _loanRepository.GetAllWithDetailsAsync(ct);
         var payments = loans.SelectMany(l => l.Payments).ToList();
 
         var collections = FinancialCalculations.ComputeCollections(payments, from, to);
         var releases = FinancialCalculations.ComputeLoanReleases(loans, from, to);
-        return (collections, releases);
+
+        var cashEntries = await _cashLedgerRepository.GetAllAsync(ct);
+        var ownerDeposits = FinancialCalculations.ComputeLedgerTotal(cashEntries, CashTransactionType.OwnerDeposit, from, to);
+        var ownerWithdrawals = FinancialCalculations.ComputeLedgerTotal(cashEntries, CashTransactionType.OwnerWithdrawal, from, to);
+
+        return new ActivitySince(collections, releases, ownerDeposits, ownerWithdrawals);
     }
 }

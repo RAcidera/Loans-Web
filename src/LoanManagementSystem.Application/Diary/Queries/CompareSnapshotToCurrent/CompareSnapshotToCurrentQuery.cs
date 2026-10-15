@@ -37,13 +37,20 @@ public sealed class CompareSnapshotToCurrentQueryHandler : IRequestHandler<Compa
         var current = await _financialSnapshotService.GetCurrentFinancialPositionAsync(today, ct);
         var since = await _financialSnapshotService.GetActivitySinceAsync(entry.EntryDate.AddDays(1), today, ct);
 
+        var startingPosition = snapshot.GrossReceivables + snapshot.CashOnHand;
+        var endingPosition = current.GrossReceivables + current.CashOnHand;
+
+        // Strips owner capital movements out of the raw position change, so growth reflects business performance only.
+        var adjustedGrowth = endingPosition - startingPosition + since.OwnerWithdrawals - since.OwnerDeposits;
+        decimal? adjustedGrowthPercent = startingPosition == 0 ? null : Math.Round(adjustedGrowth / startingPosition * 100, 2);
+
         var metrics = new List<FinancialComparisonMetricDto>
         {
             BuildMetric("grossReceivables", "Gross Receivables", snapshot.GrossReceivables, current.GrossReceivables),
             BuildMetric("collectibleReceivables", "Collectible Receivables", snapshot.CollectibleReceivables, current.CollectibleReceivables),
             BuildMetric("badLoanReceivables", "Bad Loan Receivables", snapshot.BadLoanReceivables, current.BadLoanReceivables),
             BuildMetric("cashOnHand", "Cash on Hand", snapshot.CashOnHand, current.CashOnHand),
-            BuildMetric("totalBusinessPosition", "Total Business Position", snapshot.GrossReceivables + snapshot.CashOnHand, current.GrossReceivables + current.CashOnHand),
+            BuildMetric("totalBusinessPosition", "Total Business Position", startingPosition, endingPosition),
             BuildMetric("activeLoanCount", "Active Loans", snapshot.ActiveLoanCount, current.ActiveLoanCount),
             BuildMetric("overdueLoanCount", "Overdue Loans", snapshot.OverdueLoanCount, current.OverdueLoanCount),
             BuildMetric("badLoanCount", "Bad Loans", snapshot.BadLoanCount, current.BadLoanCount),
@@ -54,7 +61,11 @@ public sealed class CompareSnapshotToCurrentQueryHandler : IRequestHandler<Compa
             TodayDate: today.ToString("yyyy-MM-dd"),
             Metrics: metrics,
             CollectionsSinceSnapshot: since.Collections,
-            LoanReleasesSinceSnapshot: since.LoanReleases);
+            LoanReleasesSinceSnapshot: since.LoanReleases,
+            OwnerWithdrawals: since.OwnerWithdrawals,
+            OwnerDeposits: since.OwnerDeposits,
+            AdjustedCapitalGrowth: adjustedGrowth,
+            AdjustedCapitalGrowthPercent: adjustedGrowthPercent);
     }
 
     /// <summary>Requirements §16 — Change = Current - Snapshot; Percentage = (Change / Snapshot) x 100, null (rendered "N/A"/"New" by the frontend) when SnapshotValue is zero.</summary>

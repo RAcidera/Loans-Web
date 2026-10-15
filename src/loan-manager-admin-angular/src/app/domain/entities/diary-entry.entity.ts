@@ -91,6 +91,12 @@ export interface FinancialComparison {
   metrics: FinancialComparisonMetric[];
   collectionsSinceSnapshot: number;
   loanReleasesSinceSnapshot: number;
+  ownerWithdrawals: number;
+  ownerDeposits: number;
+  /** Ending Business Position - Starting Business Position + Owner Withdrawals - Owner Deposits (server-computed). */
+  adjustedCapitalGrowth: number;
+  /** adjustedCapitalGrowth as a % of the starting business position; null when that starting position is zero. */
+  adjustedCapitalGrowthPercent: number | null;
 }
 
 /** Backs the Diary Entry Detail "Audit Information" section (requirements §13/§24). */
