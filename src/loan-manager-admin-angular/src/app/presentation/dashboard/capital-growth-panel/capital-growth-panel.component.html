@@ -54,7 +54,7 @@
           <span class="chart-legend__item"><i class="chart-legend__swatch chart-legend__swatch--none"></i>No history</span>
         </div>
 
-        <div class="cg-chart__scroll">
+        <div class="cg-chart__scroll" #chartBox>
           <svg
             [attr.viewBox]="viewBox"
             class="cg-svg"
@@ -105,7 +105,7 @@
               <text *ngIf="s.month.status === 'nohistory'" [attr.x]="s.x" [attr.y]="(plot.top + plot.bottom) / 2" text-anchor="middle" class="cg-none-label">—</text>
               <ng-container *ngIf="s.showLabel">
                 <text [attr.x]="s.x" [attr.y]="plot.bottom + 14" text-anchor="middle" class="cg-xlabel">{{ s.monthLabel }}</text>
-                <text [attr.x]="s.x" [attr.y]="plot.bottom + 26" text-anchor="middle" class="cg-xlabel cg-xlabel--year">{{ s.yearLabel }}</text>
+                <text [attr.x]="s.x" [attr.y]="plot.bottom + 27" text-anchor="middle" class="cg-xlabel cg-xlabel--year">{{ s.yearLabel }}</text>
               </ng-container>
             </g>
 

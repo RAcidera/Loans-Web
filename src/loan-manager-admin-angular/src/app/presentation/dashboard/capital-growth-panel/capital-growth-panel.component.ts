@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit, inject } from '@angular/core';
+import { Component, ElementRef, NgZone, OnDestroy, OnInit, ViewChild, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { MatCardModule } from '@angular/material/card';
@@ -16,10 +16,18 @@ import { ChartTooltipDirective } from '../../shared/chart-tooltip.directive';
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTH_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
-/** Chart canvas in SVG user units — the SVG scales to its container width, keeping this aspect ratio. */
-const W = 720;
+/**
+ * Chart height in px. Width is measured from the container at runtime so one
+ * SVG unit = one CSS pixel — a fixed viewBox would scale the axis text up
+ * along with the chart (wider column → bigger labels), unlike the
+ * dashboard's other charts whose labels stay at a constant 9–9.5px.
+ */
 const H = 250;
-const PLOT = { left: 62, right: W - 70, top: 18, bottom: H - 36 };
+const MIN_W = 520;
+
+function plotFor(width: number) {
+  return { left: 62, right: width - 70, top: 18, bottom: H - 38 };
+}
 
 export const GROWTH_EXPLANATION =
   'Adjusted Capital Growth = change in Total Business Position (Cash on Hand + Gross Receivables), ' +
@@ -106,15 +114,38 @@ function niceScale(min: number, max: number, count = 4): { min: number; max: num
   templateUrl: './capital-growth-panel.component.html',
   styleUrls: ['./capital-growth-panel.component.scss'],
 })
-export class CapitalGrowthPanelComponent implements OnInit {
+export class CapitalGrowthPanelComponent implements OnInit, OnDestroy {
   private readonly getMonthlyCapitalGrowth = inject(GetMonthlyCapitalGrowthUseCase);
   private readonly router = inject(Router);
   private readonly host = inject<ElementRef<HTMLElement>>(ElementRef);
+  private readonly zone = inject(NgZone);
 
   readonly ranges: CapitalGrowthRange[] = [6, 12, 24];
   readonly explanation = GROWTH_EXPLANATION;
-  readonly viewBox = `0 0 ${W} ${H}`;
-  readonly plot = PLOT;
+  width = 720;
+  plot = plotFor(this.width);
+  get viewBox(): string {
+    return `0 0 ${this.width} ${H}`;
+  }
+
+  private resizeObserver: ResizeObserver | null = null;
+
+  /** The chart's scroll container only exists once data has loaded (it's inside *ngIf), so observe it whenever it (re)appears. */
+  @ViewChild('chartBox') set chartBox(el: ElementRef<HTMLElement> | undefined) {
+    this.resizeObserver?.disconnect();
+    this.resizeObserver = null;
+    if (!el || typeof ResizeObserver === 'undefined') return;
+
+    this.resizeObserver = new ResizeObserver((entries) => {
+      const measured = Math.max(MIN_W, Math.round(entries[0].contentRect.width));
+      if (measured === this.width || !this.data) return;
+      this.zone.run(() => {
+        this.width = measured;
+        this.buildChart(this.data!);
+      });
+    });
+    this.resizeObserver.observe(el.nativeElement);
+  }
 
   range: CapitalGrowthRange = 12;
   loading = true;
@@ -124,7 +155,7 @@ export class CapitalGrowthPanelComponent implements OnInit {
   slots: Slot[] = [];
   growthTicks: Tick[] = [];
   positionTicks: Tick[] = [];
-  zeroY = PLOT.bottom;
+  zeroY = this.plot.bottom;
   linePoints = '';
   selectedIndex = -1;
   hasAnyHistory = false;
@@ -133,6 +164,10 @@ export class CapitalGrowthPanelComponent implements OnInit {
 
   ngOnInit(): void {
     this.load();
+  }
+
+  ngOnDestroy(): void {
+    this.resizeObserver?.disconnect();
   }
 
   setRange(range: CapitalGrowthRange): void {
@@ -168,6 +203,7 @@ export class CapitalGrowthPanelComponent implements OnInit {
   // ---- chart geometry ---------------------------------------------------
 
   private buildChart(data: MonthlyCapitalGrowth): void {
+    const PLOT = (this.plot = plotFor(this.width));
     const months = data.series;
     const growths = months.map((m) => m.adjustedGrowth).filter((v): v is number => v !== null);
     const positions = months.map((m) => m.endingPosition).filter((v): v is number => v !== null);

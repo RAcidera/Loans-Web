@@ -186,10 +186,12 @@
   height: auto;
 }
 
+// The SVG is drawn at its real pixel width (see the component's
+// ResizeObserver), so these sizes render as-is.
 .cg-axis,
 .cg-xlabel,
 .cg-axis-title {
-  font-size: 10px;
+  font-size: 11px;
   fill: var(--lm-text-muted);
 }
 
@@ -202,14 +204,14 @@
 }
 
 .cg-axis-title {
-  font-size: 9px;
+  font-size: 8.5px;
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.04em;
 }
 
 .cg-xlabel--year {
-  font-size: 9px;
+  font-size: 11px;
 }
 
 .cg-grid {
