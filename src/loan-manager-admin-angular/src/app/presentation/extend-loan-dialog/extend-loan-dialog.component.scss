@@ -1,17 +1,14 @@
-@use '../../styles/tokens';
 @use '../_shared-dialog-form' as *;
 
 .dialog-subtitle {
-  font-size: 13px;
-  color: var(--lm-text-muted);
-  margin: -8px 0 16px;
-  padding: 0 24px;
+  // Sits under the toolkit dialog header (.dialog-title), aligned to its gutter.
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
+  margin: 0;
+  padding: var(--space-3) var(--space-5) 0;
 
-  @include tokens.mobile {
-    padding: 0 16px;
+  @media (max-width: 599px) {
+    padding: var(--space-3) var(--space-4) 0;
   }
-}
-
-.mono {
-  font-family: var(--lm-font-mono);
 }

@@ -36,6 +36,7 @@ import { AuthService } from '../../application/auth/auth.service';
 import { AppDateTimePipe } from '../shared/app-date-time.pipe';
 import { AppDatePipe } from '../shared/app-date.pipe';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 const STATUS_LABEL: Record<LoanStatus, string> = {
   active: 'Active',
   extended: 'Extended',
@@ -96,7 +97,7 @@ interface TimelineEvent {
 @Component({
   selector: 'lm-loan-details',
   standalone: true,
-  imports: [
+  imports: [BadgeTonePipe, 
     CommonModule,
     MatCardModule,
     MatTabsModule,

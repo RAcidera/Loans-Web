@@ -1,70 +1,74 @@
 <lm-diary-header (newDiaryEntry)="openNewEntry()" (newReminder)="openNewReminder()" (newPromise)="openNewPromise()"></lm-diary-header>
 
 <mat-card class="filter-card">
-  <form [formGroup]="filters" class="filter-bar">
-    <div class="field field--search">
-      <label>Search diary</label>
-      <div class="search-box">
-        <mat-icon>search</mat-icon>
-        <input type="text" (input)="applySearch($any($event.target).value)" placeholder="Title, notes, tags, customer, loan…" aria-label="Search diary" />
+  <div class="filter-top">
+    <form [formGroup]="filters" class="filter-bar">
+      <div class="field field--search">
+        <label>Search diary</label>
+        <div class="search-box">
+          <mat-icon>search</mat-icon>
+          <input type="text" (input)="applySearch($any($event.target).value)" placeholder="Title, notes, tags, customer, loan…" aria-label="Search diary" />
+        </div>
       </div>
-    </div>
 
-    <div class="field">
-      <label>Category</label>
-      <mat-select formControlName="categoryId" panelClass="lm-select-panel" placeholder="All Categories">
-        <mat-option [value]="null">All Categories</mat-option>
-        <mat-option *ngFor="let category of categories" [value]="category.categoryId">{{ category.name }}</mat-option>
-      </mat-select>
-    </div>
-
-    <div class="field">
-      <label>Date from</label>
-      <input type="date" class="date-input" formControlName="dateFrom" />
-    </div>
-
-    <div class="field">
-      <label>Date to</label>
-      <input type="date" class="date-input" formControlName="dateTo" />
-    </div>
-
-    <div class="field">
-      <label>Customer</label>
-      <div class="autocomplete-box">
-        <input
-          type="text"
-          [value]="customerFilterText || displayCustomerName(filters.value.customerId)"
-          (input)="customerFilterText = $any($event.target).value"
-          [matAutocomplete]="customerAuto"
-          placeholder="Any Customer"
-        />
-        <button type="button" class="autocomplete-box__clear" *ngIf="filters.value.customerId" (click)="clearCustomer()" aria-label="Clear customer">
-          <mat-icon>close</mat-icon>
-        </button>
+      <div class="field">
+        <label>Category</label>
+        <mat-select formControlName="categoryId" panelClass="lm-select-panel" placeholder="All Categories">
+          <mat-option [value]="null">All Categories</mat-option>
+          <mat-option *ngFor="let category of categories" [value]="category.categoryId">{{ category.name }}</mat-option>
+        </mat-select>
       </div>
-      <mat-autocomplete #customerAuto="matAutocomplete" (optionSelected)="onCustomerSelected($event)">
-        <mat-option *ngFor="let customer of filteredCustomers" [value]="customer.customerId">{{ customer.fullName }}</mat-option>
-      </mat-autocomplete>
-    </div>
 
-    <div class="field">
-      <label>Loan</label>
-      <div class="autocomplete-box">
-        <input
-          type="text"
-          [value]="loanFilterText || displayLoanNumber(filters.value.loanId)"
-          (input)="loanFilterText = $any($event.target).value"
-          [matAutocomplete]="loanAuto"
-          placeholder="Any Loan"
-        />
-        <button type="button" class="autocomplete-box__clear" *ngIf="filters.value.loanId" (click)="clearLoan()" aria-label="Clear loan">
-          <mat-icon>close</mat-icon>
-        </button>
+      <div class="field">
+        <label>Date from</label>
+        <input type="date" class="input" formControlName="dateFrom" aria-label="Date from" />
       </div>
-      <mat-autocomplete #loanAuto="matAutocomplete" (optionSelected)="onLoanSelected($event)">
-        <mat-option *ngFor="let loan of filteredLoans" [value]="loan.loanId">{{ loan.loanNumber }} — {{ loan.customerName }}</mat-option>
-      </mat-autocomplete>
-    </div>
+
+      <div class="field">
+        <label>Date to</label>
+        <input type="date" class="input" formControlName="dateTo" aria-label="Date to" />
+      </div>
+
+      <div class="field">
+        <label>Customer</label>
+        <div class="autocomplete-box">
+          <input
+            type="text"
+            [value]="customerFilterText || displayCustomerName(filters.value.customerId)"
+            (input)="customerFilterText = $any($event.target).value"
+            [matAutocomplete]="customerAuto"
+            placeholder="Any Customer"
+            aria-label="Customer"
+          />
+          <button type="button" class="autocomplete-box__clear" *ngIf="filters.value.customerId" (click)="clearCustomer()" aria-label="Clear customer">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <mat-autocomplete #customerAuto="matAutocomplete" (optionSelected)="onCustomerSelected($event)">
+          <mat-option *ngFor="let customer of filteredCustomers" [value]="customer.customerId">{{ customer.fullName }}</mat-option>
+        </mat-autocomplete>
+      </div>
+
+      <div class="field">
+        <label>Loan</label>
+        <div class="autocomplete-box">
+          <input
+            type="text"
+            [value]="loanFilterText || displayLoanNumber(filters.value.loanId)"
+            (input)="loanFilterText = $any($event.target).value"
+            [matAutocomplete]="loanAuto"
+            placeholder="Any Loan"
+            aria-label="Loan"
+          />
+          <button type="button" class="autocomplete-box__clear" *ngIf="filters.value.loanId" (click)="clearLoan()" aria-label="Clear loan">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
+        <mat-autocomplete #loanAuto="matAutocomplete" (optionSelected)="onLoanSelected($event)">
+          <mat-option *ngFor="let loan of filteredLoans" [value]="loan.loanId">{{ loan.loanNumber }} — {{ loan.customerName }}</mat-option>
+        </mat-autocomplete>
+      </div>
+    </form>
 
     <div class="filter-actions">
       <button mat-stroked-button type="button" (click)="clearFilters()">Clear</button>
@@ -73,7 +77,7 @@
         Apply
       </button>
     </div>
-  </form>
+  </div>
 </mat-card>
 
 <div class="diary-layout">
@@ -96,19 +100,19 @@
         ></lm-diary-entry-card>
       </ng-container>
 
-      <div class="empty-state" *ngIf="groups.length === 0 && !hasActiveFilters()">
-        <mat-icon>menu_book</mat-icon>
-        <p class="empty-state__title">No diary entries yet.</p>
-        <p class="empty-state__body">Record important collections, customer events, financial snapshots, or business observations.</p>
+      <div class="empty" *ngIf="groups.length === 0 && !hasActiveFilters()">
+        <span class="empty__ic"><mat-icon>menu_book</mat-icon></span>
+        <p class="empty__title">No diary entries yet.</p>
+        <p class="empty__body">Record important collections, customer events, financial snapshots, or business observations.</p>
         <button mat-flat-button color="primary" (click)="openNewEntry()">
           <mat-icon>add</mat-icon>
           New Entry
         </button>
       </div>
 
-      <div class="empty-state" *ngIf="groups.length === 0 && hasActiveFilters()">
-        <mat-icon>search_off</mat-icon>
-        <p class="empty-state__title">No entries match your filters.</p>
+      <div class="empty" *ngIf="groups.length === 0 && hasActiveFilters()">
+        <span class="empty__ic"><mat-icon>search_off</mat-icon></span>
+        <p class="empty__title">No entries match your filters.</p>
         <button mat-stroked-button (click)="clearFilters()">Clear Filters</button>
       </div>
     </ng-container>

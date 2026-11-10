@@ -1,54 +1,67 @@
-.table-card {
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-  padding: 4px 4px 0;
-  height: fit-content;
+// Reports index. mat-card is themed globally as a toolkit .card.
+
+.available-reports-card {
+  padding-bottom: var(--space-2);
 }
 
-.table-card__header {
-  padding: 16px 20px 4px;
+.reports-card__header {
+  padding: var(--space-4) var(--space-5) var(--space-1);
 
   h2 {
-    font-family: var(--lm-font-display);
-    font-size: 17px;
-    font-weight: 600;
-    margin: 0 0 2px;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 0;
   }
 
   p {
-    font-size: 13px;
-    color: var(--lm-text-muted);
-    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
+    margin: 2px 0 0;
   }
-}
-
-.available-reports-card {
-  margin-bottom: 16px;
-  padding-bottom: 8px;
 }
 
 .report-link {
   display: flex;
   align-items: center;
-  gap: 12px;
-  width: calc(100% - 32px);
-  margin: 4px 16px 12px;
-  padding: 12px 14px;
-  border: 1px solid var(--lm-border);
-  border-radius: var(--lm-radius-control);
-  background: var(--lm-surface);
+  gap: var(--space-3);
+  width: calc(100% - 2 * var(--space-5));
+  margin: var(--space-3) var(--space-5) var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
   cursor: pointer;
   text-align: left;
 
   &:hover {
-    background: var(--lm-bg);
-    border-color: var(--lm-primary);
+    background: var(--surface-sunken);
+    border-color: var(--border-strong);
   }
 
-  > mat-icon:first-child {
-    color: var(--lm-primary);
+  &:focus-visible {
+    outline: none;
+    border-color: var(--focus-ring);
+    box-shadow: inset 0 0 0 1px var(--focus-ring);
+  }
+
+  &__icon {
+    width: 40px;
+    height: 40px;
     flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--success-subtle);
+    color: var(--success-text);
+
+    mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
   }
 
   &__text {
@@ -60,18 +73,19 @@
 
   &__title {
     font-size: 13px;
-    font-weight: 700;
-    color: var(--lm-text);
+    font-weight: 600;
+    color: var(--text);
   }
 
   &__sub {
-    font-size: 11px;
-    color: var(--lm-text-muted);
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
     margin-top: 2px;
   }
 
   &__arrow {
-    color: var(--lm-text-muted);
+    color: var(--text-muted);
     flex-shrink: 0;
   }
 }

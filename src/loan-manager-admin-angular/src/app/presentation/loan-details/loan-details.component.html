@@ -23,22 +23,22 @@
           </button>
         </p>
         <div class="hero-card__chips">
-          <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
-          <span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span>
+          <span class="badge-compact soft titlecase" [attr.data-tone]="loan.status | badgeTone">{{ getStatusLabel(loan.status) }}</span>
+          <span class="badge-compact soft titlecase" [attr.data-tone]="loan.classification | badgeTone">{{ getClassificationLabel(loan.classification) }}</span>
         </div>
       </div>
 
       <div class="hero-card__actions">
-        <button mat-stroked-button color="primary" (click)="openEditLoan()" *ngIf="authService.hasRole('admin')">
+        <button mat-stroked-button (click)="openEditLoan()" *ngIf="authService.hasRole('admin')">
           <mat-icon>edit</mat-icon> Edit Loan
         </button>
-        <button mat-stroked-button color="primary" (click)="openExtendLoan()" [disabled]="loan.status === 'writtenoff'" *ngIf="authService.hasRole('admin')">
+        <button mat-stroked-button (click)="openExtendLoan()" [disabled]="loan.status === 'writtenoff'" *ngIf="authService.hasRole('admin')">
           <mat-icon>update</mat-icon> New Extension
         </button>
-        <button mat-stroked-button class="btn--success" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
+        <button mat-flat-button color="primary" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
           <mat-icon>payments</mat-icon> New Payment
         </button>
-        <button mat-stroked-button color="primary" [matMenuTriggerFor]="soaMenu" [disabled]="generatingSoa || generatingSoaV2" matTooltip="Download Statement of Account PDF">
+        <button mat-stroked-button [matMenuTriggerFor]="soaMenu" [disabled]="generatingSoa || generatingSoaV2" matTooltip="Download Statement of Account PDF">
           <mat-icon>picture_as_pdf</mat-icon>
           {{ generatingSoa || generatingSoaV2 ? 'Generating…' : 'Generate SOA' }}
         </button>
@@ -46,7 +46,7 @@
           <button mat-menu-item (click)="generateSoa()">Current SOA</button>
           <button mat-menu-item (click)="generateSoaV2()">SOA V2 - Account Activity</button>
         </mat-menu>
-        <button mat-stroked-button color="primary" [matMenuTriggerFor]="classificationMenu">
+        <button mat-stroked-button [matMenuTriggerFor]="classificationMenu">
           <mat-icon>flag</mat-icon> Change Classification
         </button>
         <mat-menu #classificationMenu="matMenu">
@@ -108,8 +108,8 @@
                 <div class="info-row"><span>Loan Term</span><strong>{{ loan.paymentTermsMonths }} month{{ loan.paymentTermsMonths === 1 ? '' : 's' }}</strong></div>
                 <div class="info-row"><span>Interest Rate</span><strong class="mono">{{ loan.interestRate * 100 | number:'1.2-2' }}%</strong></div>
                 <div class="info-row"><span>Interest Amount</span><strong class="mono">₱{{ loan.totalInterest | number:'1.2-2' }}</strong></div>
-                <div class="info-row"><span>Loan Status</span><strong><span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span></strong></div>
-                <div class="info-row"><span>Loan Classification</span><strong><span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span></strong></div>
+                <div class="info-row"><span>Loan Status</span><strong><span class="badge-compact soft titlecase" [attr.data-tone]="loan.status | badgeTone">{{ getStatusLabel(loan.status) }}</span></strong></div>
+                <div class="info-row"><span>Loan Classification</span><strong><span class="badge-compact soft titlecase" [attr.data-tone]="loan.classification | badgeTone">{{ getClassificationLabel(loan.classification) }}</span></strong></div>
                 <div class="info-row"><span>Created At</span><strong class="mono">{{ loan.createdAt | appDateTime:'MMM dd, yyyy' }}</strong></div>
                 <div class="info-row info-row--full" *ngIf="loan.remarks"><span>Remarks</span><strong>{{ loan.remarks }}</strong></div>
               </div>
@@ -119,7 +119,7 @@
               <div class="info-card__header">Financial Summary</div>
               <div class="info-card__body">
                 <div class="finance">
-                  <div class="donut" [style.background]="'conic-gradient(var(--lm-primary) ' + paidPercent + '%, var(--lm-border) 0)'">
+                  <div class="donut" [style.background]="'conic-gradient(var(--success) ' + paidPercent + '%, var(--surface-sunken) 0)'">
                     <div class="donut__text">{{ paidPercent }}%<small>{{ loan.status === 'paid' ? 'Paid' : 'Collected' }}</small></div>
                   </div>
                   <div class="finance-legend">
@@ -149,7 +149,7 @@
                   </div>
                   <span class="timeline-event__date mono">{{ ev.dateOnly ? (ev.date | appDate:'MMM dd, yyyy') : (ev.date | appDateTime:'MMM dd, yyyy') }}</span>
                 </li>
-                <li class="empty-note" *ngIf="timelineEvents.length === 0">No activity yet.</li>
+                <li class="empty-hint" *ngIf="timelineEvents.length === 0">No activity yet.</li>
               </ul>
             </section>
           </div>
@@ -158,7 +158,7 @@
             <section class="info-card">
               <div class="info-card__header info-card__header--with-action">
                 Payment History
-                <button mat-stroked-button class="btn--success btn--small" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
+                <button mat-stroked-button class="header-action" (click)="openAddPayment()" [disabled]="loan.status === 'paid' || loan.status === 'writtenoff'">
                   <mat-icon>add</mat-icon> New Payment
                 </button>
               </div>
@@ -185,13 +185,13 @@
                 <tr mat-row *matRowDef="let row; columns: ['date', 'amount', 'method', 'reference']"></tr>
               </table>
               </div>
-              <p class="empty-note" *ngIf="recentPayments.length === 0">No payments recorded yet.</p>
+              <p class="empty-hint" *ngIf="recentPayments.length === 0">No payments recorded yet.</p>
             </section>
 
             <section class="info-card">
               <div class="info-card__header info-card__header--with-action">
                 Extension History
-                <button mat-stroked-button color="primary" class="btn--small" (click)="openExtendLoan()" [disabled]="loan.status === 'writtenoff'" *ngIf="authService.hasRole('admin')">
+                <button mat-stroked-button class="header-action" (click)="openExtendLoan()" [disabled]="loan.status === 'writtenoff'" *ngIf="authService.hasRole('admin')">
                   <mat-icon>add</mat-icon> New Extension
                 </button>
               </div>
@@ -214,7 +214,7 @@
                 <tr mat-row *matRowDef="let row; columns: ['date', 'days', 'charges']"></tr>
               </table>
               </div>
-              <p class="empty-note" *ngIf="extensions.length === 0">This loan has no extension records.</p>
+              <p class="empty-hint" *ngIf="extensions.length === 0">This loan has no extension records.</p>
               <div class="lower-total" *ngIf="extensions.length > 0">
                 Total Extension Charges
                 <span class="hero-stat__value--orange mono">₱{{ totalExtensionCharges | number:'1.2-2' }}</span>
@@ -274,10 +274,10 @@
 
             <tr mat-header-row *matHeaderRowDef="paymentColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: paymentColumns"></tr>
-            <tr mat-footer-row *matFooterRowDef="paymentColumns" class="history-table__footer" [hidden]="paymentsPageItems.length === 0"></tr>
+            <tr mat-footer-row *matFooterRowDef="paymentColumns" [hidden]="paymentsPageItems.length === 0"></tr>
           </table>
           </div>
-          <p class="empty-note" *ngIf="paymentsPageItems.length === 0">No payments recorded yet.</p>
+          <p class="empty-hint" *ngIf="paymentsPageItems.length === 0">No payments recorded yet.</p>
           <mat-paginator
             *ngIf="paymentsPageTotalCount > 0"
             [length]="paymentsPageTotalCount"
@@ -332,10 +332,10 @@
 
             <tr mat-header-row *matHeaderRowDef="extensionColumns"></tr>
             <tr mat-row *matRowDef="let row; columns: extensionColumns"></tr>
-            <tr mat-footer-row *matFooterRowDef="extensionColumns" class="history-table__footer" [hidden]="extensions.length === 0"></tr>
+            <tr mat-footer-row *matFooterRowDef="extensionColumns" [hidden]="extensions.length === 0"></tr>
           </table>
           </div>
-          <p class="empty-note" *ngIf="extensions.length === 0">No extensions granted yet.</p>
+          <p class="empty-hint" *ngIf="extensions.length === 0">No extensions granted yet.</p>
         </div>
       </mat-tab>
 
@@ -376,7 +376,7 @@
             <tr mat-row *matRowDef="let row; columns: auditLogColumns"></tr>
           </table>
           </div>
-          <p class="empty-note" *ngIf="auditLog.length === 0">No audit log entries yet.</p>
+          <p class="empty-hint" *ngIf="auditLog.length === 0">No audit log entries yet.</p>
         </div>
       </mat-tab>
     </mat-tab-group>

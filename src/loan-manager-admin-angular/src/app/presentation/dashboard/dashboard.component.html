@@ -1,26 +1,25 @@
-<section class="kpi-row">
+<section class="dash-kpi-row">
   <mat-card
-    class="kpi-card"
+    class="dash-kpi"
     *ngFor="let kpi of kpis"
-    [ngClass]="['kpi-card--' + kpi.tone, kpi.onClick ? 'kpi-card--clickable' : '']"
+    [ngClass]="['dash-kpi--' + kpi.tone, kpi.onClick ? 'dash-kpi--clickable' : '']"
     (click)="kpi.onClick && kpi.onClick()"
     [attr.tabindex]="kpi.onClick ? 0 : null"
     [attr.role]="kpi.onClick ? 'button' : null"
   >
-    <mat-icon class="kpi-card__chevron" *ngIf="kpi.onClick">chevron_right</mat-icon>
-    <div class="kpi-card__top">
-      <div class="kpi-card__icon">
+    <!-- Dashboard mockup .kpi: label + icon tile, value, trend (toolkit .delta) -->
+    <div class="dash-kpi__head">
+      <span class="dash-kpi__label">{{ kpi.label }}</span>
+      <div class="dash-kpi__icon" aria-hidden="true">
         <mat-icon>{{ kpi.icon }}</mat-icon>
       </div>
-      <div class="kpi-card__text">
-        <span class="kpi-card__label">{{ kpi.label }}</span>
-        <div class="kpi-card__value" [style.color]="kpi.valueColor || null">{{ kpi.value }}</div>
-      </div>
     </div>
-    <div class="kpi-card__trend" *ngIf="kpi.changePercent !== null" [ngClass]="'kpi-card__trend--' + trendClass(kpi.changePercent)">
-      <mat-icon>{{ trendIcon(kpi.changePercent) }}</mat-icon>
-      {{ (kpi.changePercent > 0 ? '+' : '') + kpi.changePercent + '%' }}
-      <span class="kpi-card__trend-label">vs last month</span>
+    <div class="dash-kpi__value mono" [style.color]="kpi.valueColor || null">{{ kpi.value }}</div>
+    <div class="dash-kpi__trend" *ngIf="kpi.changePercent !== null">
+      <span class="delta" [ngClass]="trendClass(kpi.changePercent) === 'good' ? 'up' : trendClass(kpi.changePercent) === 'bad' ? 'down' : ''">
+        <mat-icon>{{ trendIcon(kpi.changePercent) }}</mat-icon>{{ (kpi.changePercent > 0 ? '+' : '') + kpi.changePercent + '%' }}
+      </span>
+      <span class="dash-kpi__trend-label">vs last month</span>
     </div>
   </mat-card>
 </section>
@@ -34,17 +33,15 @@
         <h2>{{ overviewTitle }}</h2>
         <p>{{ overviewSubtitle }}</p>
       </div>
-      <div class="overview-toggle">
+      <div class="pills" role="group" aria-label="Overview">
         <button
           type="button"
-          class="overview-toggle__btn"
-          [class.overview-toggle__btn--active]="overviewMode === 'collections'"
+          [attr.aria-pressed]="overviewMode === 'collections'"
           (click)="setOverviewMode('collections')"
         >Collections</button>
         <button
           type="button"
-          class="overview-toggle__btn"
-          [class.overview-toggle__btn--active]="overviewMode === 'loans'"
+          [attr.aria-pressed]="overviewMode === 'loans'"
           (click)="setOverviewMode('loans')"
         >Loans</button>
       </div>
@@ -130,7 +127,7 @@
         <h2>Recent Loans</h2>
         <p>Latest loans across all status</p>
       </div>
-      <a class="view-all-link" (click)="router.navigate(['/loans'])">View all loans <mat-icon>arrow_forward</mat-icon></a>
+      <a class="link view-all-link" (click)="router.navigate(['/loans'])">View all loans <mat-icon>arrow_forward</mat-icon></a>
     </div>
 
     <div class="table-scroll">
@@ -165,7 +162,7 @@
       <ng-container matColumnDef="status">
         <th mat-header-cell *matHeaderCellDef>Status</th>
         <td mat-cell *matCellDef="let loan">
-          <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
+          <span class="badge-compact soft upper" [attr.data-tone]="loan.status | badgeTone">{{ getStatusLabel(loan.status) }}</span>
         </td>
       </ng-container>
 
@@ -192,7 +189,7 @@
         <h2>Recent Payments</h2>
         <p>Latest collections across all loans</p>
       </div>
-      <a class="view-all-link" (click)="router.navigate(['/payments'])">View all payments <mat-icon>arrow_forward</mat-icon></a>
+      <a class="link view-all-link" (click)="router.navigate(['/payments'])">View all payments <mat-icon>arrow_forward</mat-icon></a>
     </div>
 
     <ul class="feed-list">

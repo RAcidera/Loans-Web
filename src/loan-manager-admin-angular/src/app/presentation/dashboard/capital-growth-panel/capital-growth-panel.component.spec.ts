@@ -106,13 +106,13 @@ describe('CapitalGrowthPanelComponent', () => {
     (el.querySelector('[data-slot="5"]') as SVGGElement).dispatchEvent(new MouseEvent('click'));
     fixture.detectChanges();
 
-    expect(el.querySelector('.cg-pill')?.textContent).toContain('Month to Date');
+    expect(el.querySelector('.cg-detail__head .badge-compact')?.textContent).toContain('Month to Date');
     expect(el.textContent).toContain('as of Oct 15, 2026');
   });
 
   it('refetches when the range changes', () => {
     const el = create();
-    const buttons = el.querySelectorAll<HTMLButtonElement>('.range-toggle__btn');
+    const buttons = el.querySelectorAll<HTMLButtonElement>('.cg-header .pills button');
 
     buttons[2].click();
 

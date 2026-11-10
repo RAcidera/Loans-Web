@@ -83,6 +83,17 @@ public interface ILoanRepository
         IReadOnlyCollection<CustomerId> customerIds, CancellationToken ct = default);
 
     /// <summary>
+    /// Customers grid row figures (loan count, outstanding balance, overdue
+    /// loan count, last payment date) per customer. Scoped to
+    /// <paramref name="customerIds"/> when given (one page of rows), or every
+    /// customer when null (used to sort the whole filtered set by one of
+    /// these figures before paging). <paramref name="asOfDate"/> is the
+    /// business-local today, for the overdue rule.
+    /// </summary>
+    Task<Dictionary<CustomerId, CustomerLoanStats>> GetCustomerLoanStatsAsync(
+        IReadOnlyCollection<CustomerId>? customerIds, DateOnly asOfDate, CancellationToken ct = default);
+
+    /// <summary>
     /// One page of loans, plus the total count of matching rows — backs
     /// the Loans list page's server-side paging. <paramref name="search"/>
     /// matches loan number (digits) or loan status directly, and customer

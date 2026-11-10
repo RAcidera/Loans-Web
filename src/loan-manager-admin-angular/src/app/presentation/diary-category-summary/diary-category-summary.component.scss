@@ -1,30 +1,34 @@
 .cat-summary__header {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--lm-text-muted);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-2);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--text);
 }
 
+// Toolkit .menu row look: 32px rows, sunken hover, primary-subtle selection.
 .cat-summary__row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   width: 100%;
+  height: 32px;
+  padding: 0 var(--space-2);
   border: none;
+  border-radius: var(--radius-sm);
   background: transparent;
-  border-radius: 8px;
-  padding: 6px 8px;
-  cursor: pointer;
+  color: var(--text);
+  font: inherit;
   text-align: left;
+  cursor: pointer;
 
   &:hover {
-    background: var(--lm-bg);
+    background: var(--surface-sunken);
   }
 
-  &--active {
-    background: rgba(108, 93, 211, 0.1);
+  &--active,
+  &--active:hover {
+    background: var(--primary-subtle);
   }
 }
 
@@ -37,20 +41,25 @@
 
 .cat-summary__name {
   flex: 1;
-  font-size: 12.5px;
-  color: var(--lm-text);
+  font-size: 13px;
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
+.cat-summary__row--active .cat-summary__name {
+  color: var(--primary-text);
+  font-weight: 600;
+}
+
 .cat-summary__count {
-  font-size: 11.5px;
-  font-weight: 700;
-  color: var(--lm-text-muted);
-  font-family: var(--lm-font-mono);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
 .cat-summary__row--active .cat-summary__count {
-  color: var(--lm-primary);
+  color: var(--primary-text);
 }

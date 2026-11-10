@@ -16,7 +16,14 @@ import { PagedResult } from '../entities/paged-result.entity';
 import { Payment, PaymentMethod, PaymentPageFilters, PaymentWithCustomer, PaymentsTotals } from '../entities/payment.entity';
 
 /** Customers list-page row shape — a Customer plus its server-computed loan count and outstanding balance. */
-export type CustomerListItem = Customer & { loanCount: number; outstandingBalance: number };
+export type CustomerListItem = Customer & {
+  loanCount: number;
+  outstandingBalance: number;
+  /** Loans past due — same rule as the Loans list's Overdue filter. */
+  overdueLoanCount: number;
+  /** Most recent payment date across the customer's loans ("yyyy-MM-dd"); null = never paid. */
+  lastPaymentDate: string | null;
+};
 
 /** Spec's "Edit Loan" overrides — every field optional so a caller can change just one. */
 export interface UpdateLoanFields {

@@ -19,6 +19,8 @@
       [class.mini-cal__day--outside]="!cell.inCurrentMonth"
       [class.mini-cal__day--today]="cell.isToday"
       [class.mini-cal__day--selected]="cell.dateKey === selectedDate"
+      [attr.aria-pressed]="cell.dateKey === selectedDate"
+      [attr.aria-current]="cell.isToday ? 'date' : null"
       (click)="selectDate(cell)"
     >
       <span>{{ cell.dayNumber }}</span>

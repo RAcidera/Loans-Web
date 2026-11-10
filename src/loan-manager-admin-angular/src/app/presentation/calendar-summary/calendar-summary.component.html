@@ -8,22 +8,22 @@
   </div>
 
   <div class="summary__stat">
-    <span class="summary__value">{{ summary.loanDueCount }}</span>
+    <span class="summary__value" [style.color]="meta.loan_due.text">{{ summary.loanDueCount }}</span>
     <span class="summary__label">Loan Due</span>
   </div>
 
   <div class="summary__stat summary__stat--extension">
-    <span class="summary__value">{{ summary.extensionCount }}</span>
+    <span class="summary__value" [style.color]="meta.extension_due.text">{{ summary.extensionCount }}</span>
     <span class="summary__label">Extensions</span>
   </div>
 
   <div class="summary__stat summary__stat--followup">
-    <span class="summary__value">{{ summary.followUpCount }}</span>
+    <span class="summary__value" [style.color]="meta.reminder.text">{{ summary.followUpCount }}</span>
     <span class="summary__label">Follow-ups</span>
   </div>
 
   <div class="summary__stat summary__stat--promise">
-    <span class="summary__value">{{ summary.promiseCount }}</span>
+    <span class="summary__value" [style.color]="meta.promise.text">{{ summary.promiseCount }}</span>
     <span class="summary__label">Promises to Pay</span>
   </div>
 

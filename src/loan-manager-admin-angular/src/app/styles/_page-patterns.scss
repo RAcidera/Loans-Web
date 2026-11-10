@@ -1,0 +1,312 @@
+// ---------------------------------------------------------
+// Shared page patterns — app compositions built from Cambria toolkit
+// tokens/looks. Defined ONCE here (loaded globally from styles.scss);
+// pages use these class names and must not redeclare them in their own
+// SCSS (page files keep only page-specific layout like column widths).
+//
+//   .filter-card > .filter-top > form.filter-bar > .field > label + control
+//                              > .filter-actions (buttons)
+//   .kpi-row > .kpi-card(--good|--warn|--danger|--info) > __icon + __label/__value/__sub
+//   .table-card > .table-scroll > table[mat-table]
+//   .row-link · .empty-hint · .results-caption · .mono · .right · .center · .bold
+// ---------------------------------------------------------
+
+// ----- Utilities -----
+// th/td variants out-rank Material's own `.mdc-data-table__cell` text-align
+// (single-class ties lose to Material, whose styles load after the global sheet).
+.right, td.right, th.right { text-align: right; }
+.center, td.center, th.center { text-align: center; }
+.bold { font-weight: 700; }
+
+// ----- Filter toolbar (toolkit .tbar + .field/.label + .input/.select) -----
+.filter-card {
+  padding: var(--space-4) var(--space-5);
+  margin-bottom: var(--space-3);
+}
+
+.filter-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end; // button row aligns with the controls, not their labels
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+// A labelled filter control. Toolkit .field (flex column, 4px gap) is
+// global; this sets the default width and the toolkit .label look.
+.filter-bar .field,
+.filter-top .field {
+  width: 150px;
+
+  > label {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  &--search { width: 220px; }
+  &--range { width: 240px; }
+}
+
+// Search box -> toolkit .ctl.search + .input (36px, icon inset 12px)
+.search-box {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--control-height);
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+
+  &:focus-within {
+    border-color: var(--focus-ring);
+    box-shadow: inset 0 0 0 1px var(--focus-ring);
+  }
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+  }
+
+  input {
+    width: 100%;
+    min-width: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    font: inherit;
+    font-size: 13px;
+    color: var(--text);
+
+    &::placeholder { color: var(--text-muted); }
+  }
+}
+
+// Bare mat-select used directly in a filter field -> toolkit .select box
+.field > .mat-mdc-select {
+  box-sizing: border-box;
+  width: 100%;
+  height: var(--control-height);
+  display: flex;
+  align-items: center;
+  padding: 0 var(--space-3);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: 13px;
+  color: var(--text);
+
+  // Toolkit field focus: border + 1px inner ring (one 2px edge), not an
+  // outer outline — overrides the generic select focus ring in the bridge.
+  &.mat-mdc-select:focus,
+  &.mat-mdc-select[aria-expanded='true'] {
+    border-color: var(--focus-ring);
+    box-shadow: inset 0 0 0 1px var(--focus-ring);
+    outline: none;
+  }
+
+  &.mat-mdc-select-empty .mat-mdc-select-min-line {
+    color: var(--text-muted);
+  }
+}
+
+// Date-range mat-form-field in a filter field: 36px toolkit height comes
+// from the global form-field tokens; the subscript row is hidden.
+.range-field {
+  display: block;
+  width: 100%;
+
+  .mat-mdc-form-field-subscript-wrapper { display: none; }
+
+  .mat-mdc-icon-button {
+    --mat-icon-button-state-layer-size: 28px;
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+  }
+}
+
+.filter-actions {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+  flex-shrink: 0;
+}
+
+// Phone: every filter takes the full row, and the action buttons wrap
+// within the screen instead of running off its right edge.
+@media (max-width: 599px) {
+  .filter-bar,
+  .filter-actions {
+    width: 100%;
+    flex-shrink: 1;
+    min-width: 0;
+  }
+
+  .filter-bar .field,
+  .filter-top .field {
+    width: 100%;
+  }
+}
+
+// ----- Page KPI cards (icon tile left, label/value/sub right) -----
+.kpi-row {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+
+  @media (max-width: 899px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.kpi-card {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-width: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--surface);
+
+  &__icon {
+    width: 40px;
+    height: 40px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--primary-subtle);
+    color: var(--primary-text);
+
+    .mat-icon {
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
+    }
+  }
+
+  &--good &__icon { background: var(--success-subtle); color: var(--success-text); }
+  &--warn &__icon { background: var(--warning-subtle); color: var(--warning-text); }
+  &--danger &__icon { background: var(--danger-subtle); color: var(--danger-text); }
+  &--info &__icon { background: var(--info-subtle); color: var(--info-text); }
+
+  &__label {
+    display: block;
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    color: var(--text-muted);
+  }
+
+  // Toolkit .kpi__v (amount style: tabular digits)
+  &__value {
+    margin-top: 2px;
+    font-size: 20px;
+    line-height: 26px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  &__sub {
+    margin-top: 2px;
+    font-size: 11px;
+    line-height: 14px;
+    color: var(--text-muted);
+  }
+}
+
+// Phone (two KPIs per row): icon above the text so a figure like
+// "₱1,343,093.35" gets the card's full width instead of overflowing it;
+// an odd last card spans the row.
+@media (max-width: 599px) {
+  .kpi-card {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+
+    &__value {
+      font-size: 18px;
+      line-height: 24px;
+    }
+  }
+
+  .kpi-row > .kpi-card:last-child:nth-child(odd) {
+    grid-column: 1 / -1;
+  }
+}
+
+// ----- Table card -----
+.table-card {
+  overflow: hidden;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.table-card table.mat-mdc-table {
+  width: 100%;
+}
+
+// Free-text columns opt out of the toolkit's single-line cells: a long
+// note/remark wraps (the row grows) instead of pushing the grid sideways.
+// Material stamps `mat-column-<name>` on every cell, so this needs no
+// template changes. Add `.wrap` to any other free-text th/td.
+td.mat-column-notes,
+td.mat-column-remarks,
+td.mat-column-description,
+td.wrap {
+  white-space: normal;
+  min-width: 180px;
+  line-height: 16px;
+  padding-top: 6px;
+  padding-bottom: 6px;
+}
+
+// Primary-text link inside a grid row (toolkit .link weight)
+.row-link {
+  color: var(--primary-text);
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+
+  &:hover { text-decoration: underline; }
+}
+
+// ----- Empty / caption text -----
+.empty-hint {
+  padding: var(--space-5);
+  text-align: center;
+  color: var(--text-muted);
+  font-size: 13px;
+}
+
+.results-caption {
+  margin: 0;
+  padding: var(--space-3) var(--space-5) 0;
+  color: var(--text-muted);
+  font-size: 12px;
+}

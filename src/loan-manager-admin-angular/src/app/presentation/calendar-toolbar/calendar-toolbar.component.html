@@ -7,16 +7,16 @@
   </div>
 
   <div class="toolbar__right">
-    <mat-button-toggle-group [value]="viewMode" (change)="viewModeChange.emit($event.value)" aria-label="Calendar view">
-      <mat-button-toggle value="month">Month</mat-button-toggle>
-      <mat-button-toggle value="week">Week</mat-button-toggle>
-      <mat-button-toggle value="day">Day</mat-button-toggle>
-    </mat-button-toggle-group>
+    <div class="pills" role="group" aria-label="Calendar view">
+      <button type="button" [attr.aria-pressed]="viewMode === 'month'" (click)="viewModeChange.emit('month')">Month</button>
+      <button type="button" [attr.aria-pressed]="viewMode === 'week'" (click)="viewModeChange.emit('week')">Week</button>
+      <button type="button" [attr.aria-pressed]="viewMode === 'day'" (click)="viewModeChange.emit('day')">Day</button>
+    </div>
 
     <button mat-flat-button color="primary" [matMenuTriggerFor]="newMenu" class="toolbar__new">
       <mat-icon>add</mat-icon>
       New
-      <mat-icon>arrow_drop_down</mat-icon>
+      <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
     </button>
     <mat-menu #newMenu="matMenu">
       <button mat-menu-item (click)="newDiaryEntry.emit()">

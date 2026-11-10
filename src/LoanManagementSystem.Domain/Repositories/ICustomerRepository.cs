@@ -36,7 +36,9 @@ public interface ICustomerRepository
     /// One page of customers (filtered by <paramref name="search"/> against
     /// full name/contact number, and by <paramref name="status"/> if given),
     /// plus the total count of matching rows — backs the Customers list
-    /// page's server-side paging.
+    /// page's server-side paging. <paramref name="sortBy"/>: fullName
+    /// (default), code, contact, borrowerType, status, createdAt. Loan-derived
+    /// sorts are handled by GetCustomersPageQuery (see GetFilteredIdsAsync).
     /// </summary>
     Task<(List<Customer> Items, int TotalCount)> GetPageAsync(
         int pageIndex, int pageSize, string? search, string? sortBy, string? sortDir,
@@ -48,6 +50,17 @@ public interface ICustomerRepository
     /// counts/sums across the whole filtered set, not just the visible page.
     /// </summary>
     Task<List<Customer>> GetFilteredAsync(string? search, CustomerStatus? status, CancellationToken ct = default);
+
+    /// <summary>
+    /// Id + full name of every customer matching the same filters as
+    /// GetPageAsync — lets the Customers grid sort by a loan-derived figure
+    /// (loan count, balance, overdue count, last payment date) across the
+    /// whole filtered set before paging, without loading full rows.
+    /// </summary>
+    Task<List<(CustomerId Id, string FullName)>> GetFilteredIdsAsync(string? search, CustomerStatus? status, CancellationToken ct = default);
+
+    /// <summary>The given customers (any order) — the second step of that loan-figure sort.</summary>
+    Task<List<Customer>> GetByIdsAsync(IReadOnlyCollection<CustomerId> ids, CancellationToken ct = default);
 
     /// <summary>
     /// Customer IDs whose full name contains <paramref name="search"/>

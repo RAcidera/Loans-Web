@@ -1,5 +1,5 @@
 <div class="filter-chips">
-  <div class="filter-chips__row">
+  <div class="filter-chips__row" role="group" aria-label="Event types">
     <button
       type="button"
       class="filter-chip"
@@ -18,5 +18,6 @@
   <button mat-stroked-button class="filter-chips__filters-btn" [class.filter-chips__filters-btn--active]="advancedFiltersActive" (click)="openAdvancedFilters.emit()">
     <mat-icon>filter_alt</mat-icon>
     Filters
+    <span class="badge-compact soft titlecase filter-chips__active" data-tone="primary" *ngIf="advancedFiltersActive">On</span>
   </button>
 </div>

@@ -222,7 +222,13 @@ export class MockLoanRepository extends LoanRepository {
 
   private toListItem(c: Customer): CustomerListItem {
     const customerLoans = this.loans.filter((l) => l.customerId === c.customerId);
-    return { ...c, loanCount: customerLoans.length, outstandingBalance: customerLoans.reduce((sum, l) => sum + l.balance, 0) };
+    return {
+      ...c,
+      loanCount: customerLoans.length,
+      outstandingBalance: customerLoans.reduce((sum, l) => sum + l.balance, 0),
+      overdueLoanCount: customerLoans.filter((l) => l.status === 'overdue').length,
+      lastPaymentDate: null,
+    };
   }
 
   getCustomerById(customerId: string): Observable<Customer | undefined> {
@@ -451,7 +457,7 @@ export class MockLoanRepository extends LoanRepository {
     const badLoan = this.loans.filter((l) => l.classification === 'badloan' && l.status !== 'writtenoff');
     const paid = this.loans.filter((l) => l.status === 'paid');
 
-    const recentLoans = [...this.loans].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 5);
+    const recentLoans = [...this.loans].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).slice(0, 8);
 
     return of({
       grossReceivables: this.loans.filter((l) => l.status !== 'writtenoff').reduce((sum, l) => sum + l.balance, 0),

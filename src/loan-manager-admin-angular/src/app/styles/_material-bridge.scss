@@ -1,0 +1,616 @@
+@use '@angular/material' as mat;
+
+// ---------------------------------------------------------
+// Angular Material -> Cambria UI Toolkit bridge.
+// Material stays the component library (forms, validators, overlays, a11y
+// all unchanged); this file only restyles it to the toolkit's look:
+//   mat-flat-button     -> .btn--primary
+//   mat-stroked-button  -> .btn--secondary
+//   mat-button          -> .btn--tertiary
+//   color="warn"        -> .btn--danger / .btn--danger-solid
+//   mat-icon-button     -> .btn--icon (36px, square 6px corners)
+//   mat-form-field      -> .input / .select (36px, 6px, 2px focus edge)
+//   mat-table           -> toolkit table (Compact: 32px rows, 40px header)
+//   mat-menu/select     -> .menu ; mat-dialog -> .dialog ; tabs -> .tabs
+// Prefer Material's own override tokens; plain CSS only where no token
+// exists. Loaded once, globally, from styles.scss.
+// ---------------------------------------------------------
+
+html {
+  // ----- Cards -> toolkit .card (12px radius, card shadow, hairline border) -----
+  @include mat.card-overrides((
+    elevated-container-shape: var(--radius-lg),
+    elevated-container-color: var(--surface),
+    elevated-container-elevation: var(--shadow-card),
+    outlined-container-shape: var(--radius-lg),
+    outlined-container-color: var(--surface),
+    outlined-outline-color: var(--border),
+  ));
+
+  // ----- Buttons -----
+  @include mat.button-overrides((
+    filled-container-shape: var(--radius-sm),
+    filled-container-height: var(--control-height),
+    filled-horizontal-padding: var(--space-4),
+    filled-container-color: var(--primary),
+    filled-label-text-color: var(--on-primary),
+    filled-label-text-size: 13px,
+    filled-label-text-weight: 500,
+    filled-label-text-tracking: 0,
+    filled-disabled-container-color: var(--surface),
+    filled-disabled-label-text-color: var(--text-disabled),
+    filled-hover-state-layer-opacity: 0,
+    filled-icon-spacing: var(--space-2),
+    outlined-container-shape: var(--radius-sm),
+    outlined-container-height: var(--control-height),
+    outlined-horizontal-padding: var(--space-4),
+    outlined-outline-color: var(--border-strong),
+    outlined-label-text-color: var(--text),
+    outlined-label-text-size: 13px,
+    outlined-label-text-weight: 500,
+    outlined-label-text-tracking: 0,
+    outlined-disabled-outline-color: var(--border),
+    outlined-disabled-label-text-color: var(--text-disabled),
+    outlined-hover-state-layer-opacity: 0,
+    outlined-icon-spacing: var(--space-2),
+    text-container-shape: var(--radius-sm),
+    text-container-height: var(--control-height),
+    text-horizontal-padding: var(--space-3),
+    text-with-icon-horizontal-padding: var(--space-3),
+    text-label-text-color: var(--text),
+    text-label-text-size: 13px,
+    text-label-text-weight: 500,
+    text-label-text-tracking: 0,
+    text-disabled-label-text-color: var(--text-disabled),
+    text-hover-state-layer-opacity: 0,
+    text-icon-spacing: var(--space-2),
+  ));
+
+  @include mat.icon-button-overrides((
+    container-shape: var(--radius-sm),
+    state-layer-size: var(--control-height),
+    icon-size: 20px,
+    icon-color: var(--text-muted),
+    disabled-icon-color: var(--text-disabled),
+    hover-state-layer-opacity: 0,
+  ));
+
+  // ----- Form fields (outline appearance app-wide, label always floated) -----
+  @include mat.form-field-overrides((
+    outlined-container-shape: var(--radius-sm),
+    outlined-outline-width: 1px,
+    outlined-focus-outline-width: 2px,
+    outlined-outline-color: var(--border-control),
+    outlined-hover-outline-color: var(--text-secondary),
+    outlined-focus-outline-color: var(--focus-ring),
+    outlined-error-outline-color: var(--danger-text),
+    outlined-error-hover-outline-color: var(--danger-text),
+    outlined-error-focus-outline-color: var(--danger-text),
+    outlined-disabled-outline-color: var(--border),
+    // Disabled/computed fields (e.g. a loan's calculated Daily payment) still
+    // show information people read: muted text (AA) on the sunken background
+    // instead of Material's 38% disabled grey (~2.2:1).
+    outlined-disabled-label-text-color: var(--text-muted),
+    outlined-disabled-input-text-color: var(--text-muted),
+    outlined-label-text-color: var(--text-muted),
+    outlined-focus-label-text-color: var(--primary-text),
+    outlined-hover-label-text-color: var(--text-muted),
+    outlined-error-label-text-color: var(--danger-text),
+    outlined-error-focus-label-text-color: var(--danger-text),
+    outlined-input-text-color: var(--text),
+    outlined-input-text-placeholder-color: var(--text-muted),
+    outlined-caret-color: var(--primary),
+    outlined-label-text-size: 13px,
+    // Floated label is drawn at scale(.75): 16px -> 12px rendered (toolkit .label).
+    outlined-label-text-populated-size: 16px,
+    outlined-label-text-weight: 500,
+    outlined-label-text-tracking: 0,
+    container-height: var(--control-height),
+    container-vertical-padding: 6px,
+    container-text-size: 13px,
+    container-text-line-height: 22px,
+    container-text-tracking: 0,
+    subscript-text-size: 12px,
+    subscript-text-line-height: 16px,
+    subscript-text-tracking: 0,
+    error-text-color: var(--danger-text),
+    leading-icon-color: var(--text-muted),
+    trailing-icon-color: var(--text-muted),
+    enabled-select-arrow-color: var(--text-muted),
+    focus-select-arrow-color: var(--primary-text),
+  ));
+
+  @include mat.select-overrides((
+    panel-background-color: var(--surface),
+    container-elevation-shadow: var(--shadow-overlay),
+    enabled-trigger-text-color: var(--text),
+    placeholder-text-color: var(--text-muted),
+    enabled-arrow-color: var(--text-muted),
+    focused-arrow-color: var(--primary-text),
+    trigger-text-size: 13px,
+    trigger-text-tracking: 0,
+  ));
+
+  @include mat.option-overrides((
+    label-text-color: var(--text),
+    label-text-size: 13px,
+    label-text-tracking: 0,
+    hover-state-layer-color: var(--surface-sunken),
+    focus-state-layer-color: var(--surface-sunken),
+    selected-state-layer-color: var(--primary-subtle),
+    selected-state-label-text-color: var(--primary-text),
+  ));
+
+  @include mat.checkbox-overrides((
+    selected-icon-color: var(--primary),
+    selected-hover-icon-color: var(--primary-hover),
+    selected-focus-icon-color: var(--primary),
+    selected-pressed-icon-color: var(--primary),
+    selected-checkmark-color: var(--on-primary),
+    unselected-icon-color: var(--border-control),
+    unselected-hover-icon-color: var(--text-secondary),
+    unselected-focus-icon-color: var(--border-control),
+    label-text-color: var(--text),
+    label-text-size: 13px,
+    label-text-tracking: 0,
+  ));
+
+  // ----- Tables: toolkit "Comfortable" density -----
+  @include mat.table-overrides((
+    background-color: var(--surface),
+    header-container-height: 40px,
+    row-item-container-height: 32px, // toolkit Compact density (app default)
+    footer-container-height: 32px,
+    header-headline-color: var(--text-muted),
+    header-headline-size: 12px,
+    header-headline-weight: 500,
+    header-headline-line-height: 16px,
+    header-headline-tracking: 0,
+    row-item-label-text-color: var(--text),
+    row-item-label-text-size: 13px,
+    row-item-label-text-line-height: 18px,
+    row-item-label-text-tracking: 0,
+    row-item-outline-color: var(--border),
+    row-item-outline-width: 1px,
+    footer-supporting-text-size: 13px,
+    footer-supporting-text-weight: 600,
+    footer-supporting-text-tracking: 0,
+  ));
+
+  @include mat.sort-overrides((
+    arrow-color: var(--text-muted),
+  ));
+
+  @include mat.paginator-overrides((
+    container-background-color: var(--surface),
+    container-text-color: var(--text-muted),
+    container-text-size: 12px,
+    container-text-tracking: 0,
+    container-size: 52px,
+    enabled-icon-color: var(--text),
+    disabled-icon-color: var(--text-disabled),
+    form-field-container-height: var(--control-height-sm),
+    form-field-container-vertical-padding: 2px,
+    select-trigger-text-size: 12px,
+    touch-target-display: none,
+  ));
+
+  // ----- Overlays -----
+  @include mat.menu-overrides((
+    container-shape: var(--radius-md),
+    container-color: var(--surface),
+    container-elevation-shadow: var(--shadow-overlay),
+    divider-color: var(--border),
+    item-label-text-color: var(--text),
+    item-label-text-size: 13px,
+    item-label-text-weight: 400,
+    item-label-text-tracking: 0,
+    item-icon-color: var(--text-muted),
+    item-icon-size: 18px,
+    item-spacing: var(--space-2),
+    item-leading-spacing: var(--space-3),
+    item-trailing-spacing: var(--space-3),
+    item-with-icon-leading-spacing: var(--space-3),
+    item-with-icon-trailing-spacing: var(--space-3),
+    item-hover-state-layer-color: var(--surface-sunken),
+    item-focus-state-layer-color: var(--surface-sunken),
+  ));
+
+  @include mat.dialog-overrides((
+    container-shape: var(--radius-lg),
+    container-color: var(--surface),
+    container-elevation-shadow: var(--shadow-overlay),
+    subhead-color: var(--text),
+    subhead-size: 14px,
+    subhead-weight: 600,
+    subhead-tracking: 0,
+    supporting-text-color: var(--text-secondary),
+    supporting-text-size: 13px,
+    supporting-text-tracking: 0,
+  ));
+
+  @include mat.tooltip-overrides((
+    container-color: var(--text),
+    supporting-text-color: var(--bg),
+    container-shape: var(--radius-sm),
+    supporting-text-size: 12px,
+    supporting-text-line-height: 16px,
+    supporting-text-tracking: 0,
+  ));
+
+  @include mat.datepicker-overrides((
+    calendar-container-background-color: var(--surface),
+    calendar-container-text-color: var(--text),
+    calendar-container-shape: var(--radius-md),
+    calendar-container-elevation-shadow: var(--shadow-overlay),
+    calendar-date-selected-state-background-color: var(--primary),
+    calendar-date-selected-state-text-color: var(--on-primary),
+    calendar-date-today-outline-color: var(--primary),
+    calendar-date-in-range-state-background-color: var(--primary-subtle),
+    calendar-date-hover-state-background-color: var(--surface-sunken),
+    calendar-date-focus-state-background-color: var(--surface-sunken),
+    calendar-header-divider-color: var(--border),
+    calendar-text-size: 12px,
+    calendar-body-label-text-size: 12px,
+    calendar-header-text-size: 12px,
+    calendar-period-button-text-size: 12px,
+    toggle-icon-color: var(--text-muted),
+    toggle-active-state-icon-color: var(--primary-text),
+    range-input-separator-color: var(--text-muted),
+  ));
+
+  // ----- Tabs (toolkit .tabs/.tab) -----
+  @include mat.tabs-overrides((
+    container-height: 44px,
+    divider-color: var(--border),
+    divider-height: 1px,
+    active-indicator-color: var(--primary),
+    active-indicator-height: 2px,
+    active-focus-indicator-color: var(--primary),
+    active-hover-indicator-color: var(--primary),
+    active-label-text-color: var(--primary-text),
+    active-focus-label-text-color: var(--primary-text),
+    active-hover-label-text-color: var(--primary-text),
+    inactive-label-text-color: var(--text-muted),
+    inactive-hover-label-text-color: var(--text),
+    inactive-focus-label-text-color: var(--text),
+    label-text-size: 13px,
+    label-text-weight: 500,
+    label-text-tracking: 0,
+  ));
+
+  // ----- Segmented toggles (toolkit .pills) -----
+  @include mat.button-toggle-overrides((
+    shape: var(--radius-sm),
+    height: var(--control-height-sm),
+    background-color: transparent,
+    text-color: var(--text-muted),
+    selected-state-background-color: var(--surface),
+    selected-state-text-color: var(--text),
+    divider-color: transparent,
+    label-text-size: 13px,
+    label-text-weight: 500,
+    label-text-tracking: 0,
+    hover-state-layer-opacity: 0,
+  ));
+
+  @include mat.progress-spinner-overrides((
+    active-indicator-color: var(--primary),
+  ));
+}
+
+// ---------------------------------------------------------
+// CSS where no token exists
+// ---------------------------------------------------------
+
+// Cards: toolkit .card hairline border (elevated cards have no outline token).
+.mat-mdc-card {
+  border: 1px solid var(--border);
+}
+
+// Buttons: toolkit hover backgrounds (state layers disabled above).
+.mat-mdc-unelevated-button:not(:disabled):hover {
+  background-color: var(--primary-hover);
+}
+
+.mat-mdc-outlined-button:not(:disabled):hover,
+.mat-mdc-button:not(:disabled):hover,
+.mat-mdc-icon-button:not(:disabled):hover {
+  background-color: var(--surface-sunken);
+}
+
+.mat-mdc-icon-button:not(:disabled):hover {
+  color: var(--text);
+}
+
+.mat-mdc-unelevated-button:disabled {
+  box-shadow: inset 0 0 0 1px var(--border); // toolkit .btn:disabled border
+}
+
+.mat-mdc-button-base .mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+// color="warn" -> toolkit danger variants (M3 ignores `color` without the
+// backwards-compatibility mixin, so these used to render as plain buttons).
+.mat-mdc-unelevated-button.mat-warn:not(:disabled) {
+  background-color: var(--danger-text);
+  color: var(--surface);
+
+  &:hover {
+    background-color: color-mix(in srgb, var(--danger-text) 88%, var(--text));
+  }
+}
+
+.mat-mdc-outlined-button.mat-warn:not(:disabled) {
+  color: var(--danger-text);
+  border-color: var(--danger-border);
+
+  &:hover {
+    background-color: var(--danger-subtle);
+  }
+}
+
+.mat-mdc-button.mat-warn:not(:disabled) {
+  color: var(--danger-text);
+
+  &:hover {
+    background-color: var(--danger-subtle);
+  }
+}
+
+// Form fields: toolkit field surface + hint colour.
+.mat-mdc-form-field {
+  .mat-mdc-text-field-wrapper {
+    background-color: var(--surface);
+  }
+
+  &.mat-form-field-disabled .mat-mdc-text-field-wrapper {
+    background-color: var(--surface-sunken);
+  }
+
+  .mat-mdc-form-field-hint {
+    color: var(--text-muted);
+  }
+}
+
+// Keyboard focus — toolkit `:focus-visible { outline: 2px solid
+// var(--focus-ring); outline-offset: 2px }`. Material resets `outline` on
+// its own controls (and its focus state layer is near-invisible in this
+// theme), so keyboard users lost track of focus on buttons, icon buttons,
+// bare selects, sort headers and tabs. Doubled classes out-rank Material's
+// own resets, whose component styles load after this global sheet.
+// (Inputs inside mat-form-field already show focus via the 2px outline.)
+.mat-mdc-button-base.mat-mdc-button-base:focus-visible,
+.mat-mdc-select.mat-mdc-select:focus-visible,
+.mat-sort-header-container.mat-sort-header-container:focus-visible,
+.mat-mdc-tab.mat-mdc-tab:focus-visible,
+.mat-mdc-menu-item.mat-mdc-menu-item:focus-visible,
+.mat-mdc-option.mat-mdc-option:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+// Inside clipped containers (tab bar, table header, menus) draw it inset.
+.mat-sort-header-container.mat-sort-header-container:focus-visible,
+.mat-mdc-tab.mat-mdc-tab:focus-visible,
+.mat-mdc-menu-item.mat-mdc-menu-item:focus-visible,
+.mat-mdc-option.mat-mdc-option:focus-visible {
+  outline-offset: -2px;
+}
+
+// A select inside a form field: the field's own 2px outline shows focus.
+.mat-mdc-form-field .mat-mdc-select.mat-mdc-select:focus-visible {
+  outline: none;
+}
+
+// Browser autofill (saved username/password etc.): Chrome/Edge paint
+// autofilled inputs with their own pale blue/yellow background and dark
+// text, ignoring the page — e.g. on the login form. The background can't be
+// overridden directly, so an inset box-shadow repaints the input with the
+// toolkit surface, the text fill is reset to the theme text colour, and the
+// UA background transition is pushed out so its colour never shows.
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
+input:-webkit-autofill:active,
+textarea:-webkit-autofill,
+select:-webkit-autofill {
+  -webkit-text-fill-color: var(--text);
+  -webkit-box-shadow: 0 0 0 1000px var(--surface) inset;
+  box-shadow: 0 0 0 1000px var(--surface) inset;
+  caret-color: var(--text);
+  transition: background-color 600000s 0s, color 600000s 0s;
+}
+
+// Overlay panels (select, autocomplete, menu): toolkit .menu frame.
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel,
+.mat-mdc-menu-panel {
+  border: 1px solid var(--border);
+}
+
+.mat-mdc-select-panel,
+.mat-mdc-autocomplete-panel {
+  border-radius: var(--radius-md) !important; // Material sets this inline-ish via its own panel class
+  padding: 4px !important;
+
+  .mat-mdc-option {
+    min-height: 34px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+.mat-mdc-menu-content {
+  padding: 4px !important;
+
+  .mat-mdc-menu-item {
+    min-height: 34px;
+    border-radius: var(--radius-sm);
+  }
+}
+
+// Dialog surface + backdrop (toolkit .dialog / .backdrop).
+.mat-mdc-dialog-surface {
+  border: 1px solid var(--border);
+}
+
+.cdk-overlay-dark-backdrop {
+  background: rgba(20, 19, 28, 0.48);
+}
+
+// Tabs: selected tab label is semibold in the toolkit.
+.mat-mdc-tab.mdc-tab--active .mdc-tab__text-label {
+  font-weight: 600;
+}
+
+// Segmented toggle group -> toolkit .pills container.
+.mat-button-toggle-group-appearance-standard {
+  background: var(--surface-sunken);
+  border: 0 !important;
+  border-radius: var(--radius-sm);
+  padding: 3px;
+  gap: 2px;
+
+  .mat-button-toggle {
+    border-radius: 4px;
+    border: 0 !important;
+  }
+
+  .mat-button-toggle-checked {
+    box-shadow: var(--shadow-card);
+  }
+
+  .mat-button-toggle-label-content {
+    line-height: var(--control-height-sm);
+    padding: 0 var(--space-3);
+  }
+}
+
+// ----- mat-table: toolkit table -----
+.mat-mdc-table {
+  font-variant-numeric: tabular-nums;
+}
+
+// Toolkit td/th: 12px side padding, single-line cells so every row holds
+// the 40px "Comfortable" height (tables scroll horizontally inside their
+// .table-scroll wrappers instead of wrapping into taller rows).
+.mat-mdc-header-cell,
+.mat-mdc-cell,
+.mat-mdc-footer-cell {
+  padding: 0 var(--space-3);
+  white-space: nowrap;
+}
+
+.mat-mdc-header-cell {
+  background-color: var(--surface);
+  border-bottom-color: var(--border-control);
+  white-space: nowrap;
+}
+
+.mat-mdc-row:hover > .mat-mdc-cell {
+  background-color: var(--surface-sunken);
+}
+
+.mat-mdc-row[aria-selected=true] > .mat-mdc-cell {
+  background-color: var(--primary-subtle);
+}
+
+.mat-mdc-footer-cell {
+  background-color: var(--surface-sunken);
+  color: var(--text);
+  border-top: 1px solid var(--border-control);
+  border-bottom: 0;
+}
+
+// Sorted column header: toolkit th[aria-sort] -> text colour, semibold.
+.mat-sort-header-sorted .mat-sort-header-content {
+  color: var(--text);
+  font-weight: 600;
+}
+
+// ----- Grid density: toolkit "Compact" is the app default -----
+// Toolkit: `table.compact td { height: 32px }` — body and totals rows are
+// 32px; the header row stays 40px. Applied to EVERY mat-table (project
+// decision, 2026-11-10) so more rows fit on screen; no per-table class.
+.mat-mdc-table {
+  --mat-table-row-item-container-height: 32px;
+  --mat-table-footer-container-height: 32px;
+
+  // Row actions -> toolkit .btn--sm.btn--icon, sized to sit inside 32px.
+  td.mat-mdc-cell .mat-mdc-icon-button {
+    --mat-icon-button-state-layer-size: 26px;
+    width: 26px;
+    height: 26px;
+    padding: 1px;
+
+    .mat-icon {
+      font-size: 18px;
+      width: 18px;
+      height: 18px;
+    }
+  }
+
+  // Toolkit header button (.thc/.thb): sortable labels get a 28px hover
+  // target with a sunken background; the -6px margin keeps the label text
+  // aligned with the cell text below it.
+  .mat-sort-header-container {
+    height: var(--control-height-sm);
+    padding: 0 6px;
+    margin-left: -6px;
+    gap: 4px;
+    border-radius: var(--radius-sm);
+  }
+
+  .mat-sort-header:not(.mat-sort-header-disabled) .mat-sort-header-container:hover {
+    background: var(--surface-sunken);
+    color: var(--text);
+  }
+
+  // Sorted column: toolkit .thc.on — label in text colour/semibold (rule
+  // above) and the sort arrow in the primary text colour (.srt).
+  .mat-sort-header-sorted {
+    --mat-sort-arrow-color: var(--primary-text);
+  }
+
+  // Right-aligned (money) / centred columns: the header label sits over the
+  // figures, like the toolkit's `th.num .thc { justify-content: flex-end }`.
+  // The arrow goes BEFORE the label here (same as Material's
+  // arrowPosition="before"), so the label's right edge lines up with the
+  // right edge of the figures — the arrow keeps its space even when hidden.
+  th.right .mat-sort-header-container {
+    flex-direction: row-reverse;
+    justify-content: flex-start;
+    margin-left: 0;
+    margin-right: -6px;
+  }
+
+  th.center .mat-sort-header-container {
+    justify-content: center;
+    margin-left: 0;
+  }
+}
+
+// Paginator nav buttons -> toolkit .pages buttons (28px, bordered).
+.mat-mdc-paginator {
+  border-top: 1px solid var(--border);
+
+  .mat-mdc-paginator-navigation-first,
+  .mat-mdc-paginator-navigation-previous,
+  .mat-mdc-paginator-navigation-next,
+  .mat-mdc-paginator-navigation-last {
+    --mat-icon-button-state-layer-size: var(--control-height-sm);
+    width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    padding: 2px;
+    margin-left: 4px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+
+    .mat-mdc-paginator-icon {
+      width: 20px;
+    }
+  }
+}

@@ -12,6 +12,7 @@ import {
 } from '../../../domain/entities/capital-growth.entity';
 import { GetMonthlyCapitalGrowthUseCase } from '../../../application/use-cases/get-monthly-capital-growth.use-case';
 import { ChartTooltipDirective } from '../../shared/chart-tooltip.directive';
+import { BadgeTonePipe } from '../../shared/badge-tone.pipe';
 
 const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const MONTH_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -110,7 +111,7 @@ function niceScale(min: number, max: number, count = 4): { min: number; max: num
 @Component({
   selector: 'lm-capital-growth-panel',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatIconModule, MatTooltipModule, ChartTooltipDirective],
+  imports: [CommonModule, MatCardModule, MatIconModule, MatTooltipModule, ChartTooltipDirective, BadgeTonePipe],
   templateUrl: './capital-growth-panel.component.html',
   styleUrls: ['./capital-growth-panel.component.scss'],
 })

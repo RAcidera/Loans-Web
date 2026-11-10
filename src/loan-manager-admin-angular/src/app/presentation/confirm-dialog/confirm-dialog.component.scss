@@ -1,80 +1,71 @@
-@use '../../styles/tokens';
+// Confirmation dialog — toolkit tokens; the destructive button uses the
+// global `color="warn"` -> .btn--danger-solid mapping (_material-bridge.scss).
 
 .confirm-dialog {
   // box-sizing:border-box is load-bearing here, not decoration — without
   // it, width + padding add up to MORE than the MatDialog surface's own
   // width (set via ConfirmDialogService's dialogRef config), so this content
-  // box was rendering wider than the visible white card and clipping the
-  // message text past its right edge (confirmed via getBoundingClientRect:
-  // content 428px vs. surface 380px).
+  // box was rendering wider than the visible card and clipping the message
+  // text past its right edge.
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
   width: 100%;
-  padding: 28px 24px 24px;
+  padding: var(--space-6) var(--space-5) var(--space-5);
 
-  @include tokens.mobile {
-    padding: 24px 16px 20px;
+  @media (max-width: 599px) {
+    padding: var(--space-5) var(--space-4) var(--space-4);
   }
 
+  // Toolkit .empty__ic proportions
   &__icon {
-    width: 52px;
-    height: 52px;
+    width: 48px;
+    height: 48px;
     border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 16px;
-    background: rgba(108, 93, 211, 0.12);
-    color: var(--lm-primary);
+    display: grid;
+    place-items: center;
+    margin-bottom: var(--space-4);
+    background: var(--primary-subtle);
+    color: var(--primary-text);
 
     mat-icon {
-      font-size: 26px;
-      width: 26px;
-      height: 26px;
+      font-size: 24px;
+      width: 24px;
+      height: 24px;
     }
 
     &--danger {
-      background: rgba(193, 102, 107, 0.14);
-      color: var(--lm-danger);
+      background: var(--danger-subtle);
+      color: var(--danger-text);
     }
   }
 
   &__title {
-    font-family: var(--lm-font-display);
-    font-size: 17px;
+    font-size: 16px;
+    line-height: 24px;
     font-weight: 700;
-    margin: 0 0 8px;
-    color: var(--lm-text);
+    margin: 0 0 var(--space-2);
+    color: var(--text);
   }
 
   &__message {
-    font-size: 13.5px;
-    line-height: 1.5;
-    color: var(--lm-text-muted);
-    margin: 0 0 24px;
+    font-size: 13px;
+    line-height: 20px;
+    color: var(--text-secondary);
+    margin: 0 0 var(--space-5);
     overflow-wrap: break-word; // safety net for a long filename/remarks value with no natural break points
   }
 
   &__actions {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: var(--space-2);
     width: 100%;
 
     button {
       flex: 1;
     }
-  }
-
-  // Overrides Material's primary-palette flat-button fill — this app's
-  // destructive actions use --lm-danger throughout (chips, KPI values),
-  // not Material's own separate "warn" red, so the confirm button matches
-  // that same rose tone instead of introducing a second, different red.
-  &__confirm--danger {
-    background-color: var(--lm-danger) !important;
-    color: #fff !important;
   }
 }

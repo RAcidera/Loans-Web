@@ -18,5 +18,9 @@ public sealed record CustomerListItemDto(
     string Status,
     string CreatedAt,
     int LoanCount,
-    decimal OutstandingBalance
+    decimal OutstandingBalance,
+    // Loans past due (same rule as the Loans list's Overdue filter).
+    int OverdueLoanCount = 0,
+    // Most recent payment date across the customer's loans, "yyyy-MM-dd"; null = no payments yet.
+    string? LastPaymentDate = null
 );

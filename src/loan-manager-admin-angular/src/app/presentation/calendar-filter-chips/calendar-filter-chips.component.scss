@@ -2,76 +2,76 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 8px 16px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
   flex-wrap: wrap;
 }
 
 .filter-chips__row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
+// Toolkit .chip: unselected = surface + strong border, selected =
+// primary-subtle + primary-text. The per-type colour only tints the icon.
 .filter-chip {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 5px;
-  border: 1px solid var(--lm-border);
-  background: var(--lm-surface);
-  color: var(--lm-text-muted);
-  border-radius: 999px;
-  padding: 5px 12px 5px 10px;
+  gap: 6px;
+  height: 32px;
+  box-sizing: border-box;
+  border: 1px solid var(--border-strong);
+  background: var(--surface);
+  color: var(--text-secondary);
+  border-radius: var(--radius-pill);
+  padding: 0 var(--space-3) 0 10px;
+  font: inherit;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
+  white-space: nowrap;
   cursor: pointer;
   transition: background 0.12s, border-color 0.12s, color 0.12s;
 
   &:hover {
-    border-color: var(--chip-color, var(--lm-primary));
+    background: var(--surface-sunken);
   }
 
   &:focus-visible {
-    outline: 2px solid var(--lm-primary);
+    outline: 2px solid var(--focus-ring);
     outline-offset: 1px;
   }
 }
 
 .filter-chip__icon {
-  font-size: 15px;
-  width: 15px;
-  height: 15px;
-  color: var(--chip-color, var(--lm-text-muted));
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--chip-color, var(--text-muted));
 }
 
 .filter-chip__check {
-  font-size: 14px;
-  width: 14px;
-  height: 14px;
-  color: var(--chip-color, var(--lm-primary));
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--primary-text);
 }
 
 .filter-chip--active {
-  background: color-mix(in srgb, var(--chip-color, var(--lm-primary)) 12%, var(--lm-surface));
-  border-color: var(--chip-color, var(--lm-primary));
-  color: var(--lm-text);
-}
+  background: var(--primary-subtle);
+  border-color: transparent;
+  color: var(--primary-text);
 
-.filter-chips__filters-btn {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  flex-shrink: 0;
-
-  mat-icon {
-    font-size: 17px;
-    width: 17px;
-    height: 17px;
+  &:hover {
+    background: color-mix(in srgb, var(--primary) 18%, var(--surface));
   }
 }
 
-.filter-chips__filters-btn--active {
-  border-color: var(--lm-primary) !important;
-  color: var(--lm-primary) !important;
+.filter-chips__filters-btn {
+  flex-shrink: 0;
+}
+
+.filter-chips__active {
+  margin-left: var(--space-1);
 }

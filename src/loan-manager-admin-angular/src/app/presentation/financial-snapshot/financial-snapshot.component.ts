@@ -15,12 +15,12 @@ import { AppDateTimePipe } from '../shared/app-date-time.pipe';
     <div class="snapshot" *ngIf="snapshot">
       <div class="snapshot__header">
         <div class="snapshot__title-group">
-          <span class="snapshot__title">FINANCIAL SNAPSHOT</span>
+          <span class="snapshot__title">Financial Snapshot</span>
           <mat-icon class="snapshot__info" matTooltip="Captured figures are immutable — they never change after the entry is saved." aria-hidden="false">info_outline</mat-icon>
         </div>
         <div class="snapshot__header-right">
           <span class="snapshot__date">Captured on {{ snapshot.snapshotDateTime | appDateTime: "MMM d, y 'at' h:mm a" }}</span>
-          <button mat-flat-button color="primary" class="snapshot__compare-btn" (click)="compare.emit()" [disabled]="comparing">
+          <button mat-flat-button color="primary" (click)="compare.emit()" [disabled]="comparing">
             <mat-icon>trending_up</mat-icon>
             {{ comparing ? 'Comparing…' : 'Compare to Today' }}
           </button>
@@ -28,37 +28,37 @@ import { AppDateTimePipe } from '../shared/app-date-time.pipe';
       </div>
 
       <div class="kpi-grid">
-        <div class="kpi-card kpi-card--primary">
+        <div class="kpi-card kpi-card--primary snap-kpi">
           <span class="kpi-card__icon"><mat-icon>account_balance_wallet</mat-icon></span>
           <span class="kpi-card__text">
             <span class="kpi-card__label">Gross Receivables</span>
             <span class="kpi-card__value mono">₱{{ snapshot.grossReceivables | number: '1.2-2' }}</span>
           </span>
-          <span class="kpi-card__bar"></span>
+          <span class="snap-kpi__bar"></span>
         </div>
-        <div class="kpi-card kpi-card--success">
+        <div class="kpi-card kpi-card--good snap-kpi">
           <span class="kpi-card__icon"><mat-icon>fact_check</mat-icon></span>
           <span class="kpi-card__text">
             <span class="kpi-card__label">Collectible Receivables</span>
             <span class="kpi-card__value mono">₱{{ snapshot.collectibleReceivables | number: '1.2-2' }}</span>
           </span>
-          <span class="kpi-card__bar"></span>
+          <span class="snap-kpi__bar"></span>
         </div>
-        <div class="kpi-card kpi-card--danger">
+        <div class="kpi-card kpi-card--danger snap-kpi">
           <span class="kpi-card__icon"><mat-icon>report_problem</mat-icon></span>
           <span class="kpi-card__text">
             <span class="kpi-card__label">Bad Loan Receivables</span>
             <span class="kpi-card__value mono">₱{{ snapshot.badLoanReceivables | number: '1.2-2' }}</span>
           </span>
-          <span class="kpi-card__bar"></span>
+          <span class="snap-kpi__bar"></span>
         </div>
-        <div class="kpi-card kpi-card--info">
+        <div class="kpi-card kpi-card--info snap-kpi">
           <span class="kpi-card__icon"><mat-icon>payments</mat-icon></span>
           <span class="kpi-card__text">
             <span class="kpi-card__label">Cash on Hand</span>
             <span class="kpi-card__value mono">₱{{ snapshot.cashOnHand | number: '1.2-2' }}</span>
           </span>
-          <span class="kpi-card__bar"></span>
+          <span class="snap-kpi__bar"></span>
         </div>
       </div>
 
@@ -120,301 +120,111 @@ import { AppDateTimePipe } from '../shared/app-date-time.pipe';
   `,
   styles: [
     `
-      .mono {
-        font-family: var(--lm-font-mono);
-        font-feature-settings: 'tnum' 1;
-      }
-
+      // Headline figures use the global page KPI card (.kpi-card + tone
+      // modifiers, styles/_page-patterns.scss); only the snapshot-specific
+      // tone underline bar, stat row and MTD row are styled here.
       .snapshot {
         display: flex;
         flex-direction: column;
-        gap: 14px;
+        gap: var(--space-4);
       }
 
       .snapshot__header {
         display: flex;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
         flex-wrap: wrap;
-        gap: 10px;
+        gap: var(--space-3);
       }
 
       .snapshot__title-group {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: var(--space-1);
       }
 
       .snapshot__title {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: var(--lm-text-muted);
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 600;
+        color: var(--text);
       }
 
       .snapshot__info {
-        font-size: 15px;
-        width: 15px;
-        height: 15px;
-        color: var(--lm-text-muted);
+        font-size: 16px;
+        width: 16px;
+        height: 16px;
+        color: var(--text-muted);
         cursor: help;
       }
 
       .snapshot__header-right {
         display: flex;
         align-items: center;
-        gap: 12px;
+        gap: var(--space-3);
         flex-wrap: wrap;
       }
 
       .snapshot__date {
         font-size: 12px;
-        color: var(--lm-text-muted);
+        color: var(--text-muted);
       }
 
-      .snapshot__compare-btn {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-        line-height: 1;
-
-        mat-icon {
-          font-size: 17px;
-          width: 17px;
-          height: 17px;
-        }
-      }
-
-      // KPI cards — four headline figures, each with an icon badge and a
-      // colored underline bar (design assets/diary-detail-snapshot.png).
       .kpi-grid {
         display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 12px;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: var(--space-3);
       }
 
-      .kpi-card {
+      .snap-kpi {
         position: relative;
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        gap: 10px;
-        background: var(--lm-surface);
-        border: 1px solid var(--lm-border);
-        border-radius: var(--lm-radius-control);
-        padding: 10px 14px 12px;
         overflow: hidden;
-
-        &__icon {
-          width: 32px;
-          height: 32px;
-          border-radius: 10px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-
-          mat-icon {
-            font-size: 17px;
-            width: 17px;
-            height: 17px;
-          }
-        }
-
-        &__text {
-          display: flex;
-          flex-direction: column;
-          gap: 2px;
-          min-width: 0;
-        }
-
-        &__label {
-          font-size: 11.5px;
-          font-weight: 600;
-          color: var(--lm-text-muted);
-        }
-
-        &__value {
-          font-size: 17px;
-          font-weight: 700;
-          color: var(--lm-text);
-          white-space: nowrap;
-        }
-
-        &__bar {
-          position: absolute;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          height: 3px;
-        }
-
-        &--primary {
-          .kpi-card__icon {
-            background: rgba(108, 93, 211, 0.12);
-            color: var(--lm-primary);
-          }
-          .kpi-card__bar {
-            background: var(--lm-primary);
-          }
-        }
-
-        &--success {
-          .kpi-card__icon {
-            background: rgba(34, 160, 107, 0.12);
-            color: var(--lm-success);
-          }
-          .kpi-card__bar {
-            background: var(--lm-success);
-          }
-        }
-
-        &--danger {
-          .kpi-card__icon {
-            background: rgba(193, 102, 107, 0.12);
-            color: var(--lm-danger);
-          }
-          .kpi-card__bar {
-            background: var(--lm-danger);
-          }
-        }
-
-        &--info {
-          .kpi-card__icon {
-            background: rgba(76, 141, 255, 0.12);
-            color: var(--lm-info);
-          }
-          .kpi-card__bar {
-            background: var(--lm-info);
-          }
-        }
       }
+
+      .kpi-card__text {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+      }
+
+      // Tone underline bar along the card's bottom edge.
+      .snap-kpi__bar {
+        position: absolute;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        height: 3px;
+        background: var(--primary);
+      }
+
+      .kpi-card--good .snap-kpi__bar { background: var(--success); }
+      .kpi-card--danger .snap-kpi__bar { background: var(--danger); }
+      .kpi-card--info .snap-kpi__bar { background: var(--info); }
 
       // Stat row — loan counts + today's activity, five compact cells.
       .stat-row {
         display: grid;
-        grid-template-columns: repeat(5, 1fr);
-        gap: 10px;
-        background: var(--lm-bg);
-        border: 1px solid var(--lm-border);
-        border-radius: var(--lm-radius-control);
-        padding: 10px;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: var(--space-3);
+        padding: var(--space-3);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+        background: var(--surface-sunken);
       }
 
       .stat-cell {
         display: flex;
-        flex-direction: row;
         align-items: center;
-        gap: 8px;
-        text-align: left;
+        gap: var(--space-2);
         min-width: 0;
 
         &__icon {
           width: 28px;
           height: 28px;
-          border-radius: 999px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
           flex-shrink: 0;
-
-          mat-icon {
-            font-size: 15px;
-            width: 15px;
-            height: 15px;
-          }
-
-          &--primary {
-            background: rgba(108, 93, 211, 0.12);
-            color: var(--lm-primary);
-          }
-          &--info {
-            background: rgba(76, 141, 255, 0.12);
-            color: var(--lm-info);
-          }
-          &--warning {
-            background: rgba(225, 170, 54, 0.15);
-            color: var(--lm-warning);
-          }
-          &--danger {
-            background: rgba(193, 102, 107, 0.12);
-            color: var(--lm-danger);
-          }
-          &--success {
-            background: rgba(34, 160, 107, 0.12);
-            color: var(--lm-success);
-          }
-        }
-
-        &__text {
-          display: flex;
-          flex-direction: column;
-          gap: 1px;
-          min-width: 0;
-        }
-
-        &__label {
-          font-size: 10.5px;
-          color: var(--lm-text-muted);
-          line-height: 1.2;
-        }
-
-        &__value {
-          font-size: 14px;
-          font-weight: 700;
-          color: var(--lm-text);
-          white-space: nowrap;
-        }
-      }
-
-      // MTD row — two wide cells with a trend glyph.
-      .mtd-row {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 12px;
-      }
-
-      .mtd-cell {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 10px;
-        border: 1px solid var(--lm-border);
-        border-radius: var(--lm-radius-control);
-        padding: 12px 16px;
-
-        > div {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        &__label {
-          font-size: 12px;
-          font-weight: 600;
-
-          &--success {
-            color: var(--lm-success);
-          }
-          &--primary {
-            color: var(--lm-primary);
-          }
-        }
-
-        &__value {
-          font-size: 16px;
-          font-weight: 700;
-          color: var(--lm-text);
-        }
-
-        &__trend {
-          width: 30px;
-          height: 30px;
-          border-radius: 999px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
+          display: grid;
+          place-items: center;
+          border-radius: 50%;
 
           mat-icon {
             font-size: 16px;
@@ -422,24 +232,97 @@ import { AppDateTimePipe } from '../shared/app-date-time.pipe';
             height: 16px;
           }
 
-          &--success {
-            background: rgba(34, 160, 107, 0.12);
-            color: var(--lm-success);
+          &--primary { background: var(--primary-subtle); color: var(--primary-text); }
+          &--info { background: var(--info-subtle); color: var(--info-text); }
+          &--warning { background: var(--warning-subtle); color: var(--warning-text); }
+          &--danger { background: var(--danger-subtle); color: var(--danger-text); }
+          &--success { background: var(--success-subtle); color: var(--success-text); }
+        }
+
+        &__text {
+          display: flex;
+          flex-direction: column;
+          min-width: 0;
+        }
+
+        &__label {
+          font-size: 12px;
+          line-height: 16px;
+          color: var(--text-muted);
+        }
+
+        &__value {
+          font-size: 14px;
+          line-height: 20px;
+          font-weight: 600;
+          color: var(--text);
+          white-space: nowrap;
+        }
+      }
+
+      // MTD row — two wide cells with a trend glyph.
+      .mtd-row {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: var(--space-3);
+      }
+
+      .mtd-cell {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
+
+        > div {
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+
+        &__label {
+          font-size: 12px;
+          line-height: 16px;
+          font-weight: 600;
+
+          &--success { color: var(--success-text); }
+          &--primary { color: var(--primary-text); }
+        }
+
+        &__value {
+          font-size: 16px;
+          line-height: 22px;
+          font-weight: 700;
+          color: var(--text);
+        }
+
+        &__trend {
+          width: 32px;
+          height: 32px;
+          flex-shrink: 0;
+          display: grid;
+          place-items: center;
+          border-radius: 50%;
+
+          mat-icon {
+            font-size: 16px;
+            width: 16px;
+            height: 16px;
           }
-          &--primary {
-            background: rgba(108, 93, 211, 0.12);
-            color: var(--lm-primary);
-          }
+
+          &--success { background: var(--success-subtle); color: var(--success-text); }
+          &--primary { background: var(--primary-subtle); color: var(--primary-text); }
         }
       }
 
       @media (max-width: 899px) {
         .kpi-grid {
-          grid-template-columns: repeat(2, 1fr);
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
         .stat-row {
-          grid-template-columns: repeat(3, 1fr);
-          row-gap: 14px;
+          grid-template-columns: repeat(3, minmax(0, 1fr));
         }
       }
 
@@ -448,7 +331,7 @@ import { AppDateTimePipe } from '../shared/app-date-time.pipe';
           grid-template-columns: 1fr;
         }
         .stat-row {
-          grid-template-columns: repeat(2, 1fr);
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
         .mtd-row {
           grid-template-columns: 1fr;

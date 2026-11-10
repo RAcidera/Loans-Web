@@ -26,7 +26,7 @@ public class DashboardSummaryTests : IClassFixture<TestApiFactory>
         Assert.NotNull(summary);
         Assert.Equal(12, summary!.MonthlyCollections.Count);
         Assert.Equal(7, summary.Last7DaysCollections.Count);
-        Assert.True(summary.RecentLoans.Count <= 5);
+        Assert.True(summary.RecentLoans.Count <= 8);
         Assert.True(summary.GrossReceivables >= summary.CollectibleReceivables);
 
         var breakdownTotal = summary.ReceivablesBreakdown.Current + summary.ReceivablesBreakdown.Overdue

@@ -1,47 +1,40 @@
-@use '../../styles/tokens';
-
 .toolbar {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 10px 16px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
 }
 
 .toolbar__nav {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: var(--space-1);
+  min-width: 0;
 }
 
+// Page-title scale (20/700) — the period label is the calendar's heading.
 .toolbar__period {
-  font-family: var(--lm-font-display);
-  font-size: 15px;
+  font-size: 20px;
+  line-height: 28px;
   font-weight: 700;
-  margin-left: 6px;
+  color: var(--text);
+  margin-left: var(--space-2);
   white-space: nowrap;
 }
 
 .toolbar__right {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   flex-wrap: wrap;
 }
 
-.toolbar__new {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-
-  mat-icon:last-child {
-    margin-left: -4px;
-  }
-}
-
-@include tokens.mobile {
+@media (max-width: 599px) {
   .toolbar__period {
     min-width: 0;
+    font-size: 16px;
+    white-space: normal;
   }
 }

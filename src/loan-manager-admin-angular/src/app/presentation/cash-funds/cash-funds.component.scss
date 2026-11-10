@@ -1,36 +1,27 @@
-@use '../../styles/tokens';
-
-.mono {
-  font-family: var(--lm-font-mono);
-  font-feature-settings: 'tnum' 1;
-}
-
-.right {
-  text-align: right;
-}
+// Cash & Funds ledger. Shared patterns — filter toolbar (.filter-card/
+// .field/.search-box/bare mat-select/.range-field), table card, grid
+// (incl. totals footer), .empty-hint, .mono/.right — are global (styles/
+// _page-patterns.scss, _material-bridge.scss). Only the Cash on Hand summary
+// card and ledger-specific cell colours belong here.
 
 // ---------------------------------------------------------
-// Cash on Hand summary card — one compact card instead of three, with
-// This Month's Cash In/Cash Out/Net Change as secondary stats to the right
-// (why the total moved), not separate KPI cards of their own.
+// Cash on Hand summary card — the total, with This Month's Cash In/Cash
+// Out/Net Change as secondary stats to the right.
 // ---------------------------------------------------------
 .summary-card {
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-  padding: 16px;
-  margin-bottom: 16px;
+  padding: var(--space-4);
+  margin-bottom: var(--space-3);
   display: grid;
   grid-template-columns: 1.3fr 0.85fr 0.85fr 0.85fr 0.85fr;
   align-items: center;
 
-  @include tokens.tablet {
+  @media (max-width: 899px) {
     grid-template-columns: 1fr;
 
     .summary-stat {
       border-left: 0;
-      border-top: 1px solid var(--lm-border);
-      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      padding: var(--space-3) 0;
     }
   }
 }
@@ -38,8 +29,8 @@
 .cash-main {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding-right: 12px;
+  gap: var(--space-3);
+  padding-right: var(--space-3);
   min-width: 0;
 
   &__text {
@@ -50,64 +41,68 @@
 .cash-icon {
   width: 48px;
   height: 48px;
-  border-radius: 12px;
+  border-radius: var(--radius-md);
   flex-shrink: 0;
-  background: linear-gradient(135deg, var(--lm-primary), var(--lm-primary-dark));
-  color: #fff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: var(--primary-subtle);
+  color: var(--primary-text);
+  display: grid;
+  place-items: center;
 
   mat-icon {
-    font-size: 22px;
-    width: 22px;
-    height: 22px;
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
   }
 }
 
 .cash-title {
-  font-size: 11px;
-  font-weight: 700;
-  color: var(--lm-text-muted);
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .cash-value {
-  font-family: var(--lm-font-display);
-  font-size: 21px;
-  font-weight: 800;
-  margin-top: 3px;
+  font-size: 22px;
+  line-height: 28px;
+  font-weight: 700;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+  margin-top: 2px;
   white-space: nowrap;
 }
 
 .cash-sub {
-  color: var(--lm-text-muted);
-  font-size: 10px;
-  margin-top: 3px;
+  color: var(--text-muted);
+  font-size: 11px;
+  margin-top: 2px;
 }
 
 .summary-stat {
-  padding: 6px 12px;
-  border-left: 1px solid var(--lm-border);
+  padding: 6px var(--space-4);
+  border-left: 1px solid var(--border);
   min-width: 0;
 
   .label {
-    color: var(--lm-text-muted);
-    font-size: 10.5px;
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 500;
   }
 
   .value {
-    font-family: var(--lm-font-display);
-    font-size: 15px;
-    font-weight: 800;
-    margin-top: 6px;
+    font-size: 16px;
+    line-height: 22px;
+    font-weight: 700;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
+    margin-top: var(--space-1);
     white-space: nowrap;
 
     &.good {
-      color: var(--lm-success);
+      color: var(--success-text);
     }
 
     &.bad {
-      color: var(--lm-danger);
+      color: var(--danger-text);
     }
   }
 
@@ -115,260 +110,83 @@
     display: flex;
     align-items: center;
     gap: 2px;
-    font-size: 10px;
-    color: var(--lm-text-muted);
-    margin-top: 7px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-top: var(--space-1);
 
     mat-icon {
-      font-size: 13px;
-      width: 13px;
-      height: 13px;
+      font-size: 14px;
+      width: 14px;
+      height: 14px;
     }
 
     &.good {
-      color: var(--lm-success);
+      color: var(--success-text);
     }
 
     &.bad {
-      color: var(--lm-danger);
+      color: var(--danger-text);
     }
   }
 
   .muted {
-    color: var(--lm-text-muted);
+    color: var(--text-muted);
+    font-weight: 400;
     margin-left: 2px;
   }
 }
 
 // ---------------------------------------------------------
-// Filter card — same label-on-top control chrome as the Loans/Customers
-// pages ("loans-list-modern.html" pattern): bare mat-select styled
-// directly (no mat-form-field host), .range-field for the date range
-// (its internals themed globally, see styles.scss's ".range-field" rule).
+// Filter toolbar widths
 // ---------------------------------------------------------
-.filter-card {
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-  padding: 18px 20px;
-  margin-bottom: 16px;
-}
-
-.filter-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: 14px;
-  flex-wrap: wrap;
-
-}
-
-.filter-bar {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-start;
-  gap: 12px;
-  flex: 1;
-}
-
 .field {
-  display: flex;
-  flex-direction: column;
   width: 190px;
-
-  label {
-    font-size: 11px;
-    font-weight: 650;
-    color: var(--lm-text);
-    margin-bottom: 6px;
-  }
 }
 
 .field--search {
-  width: 253px; // 220px + 15%
-}
-
-.field--range {
-  width: 230px;
-}
-
-.mat-mdc-select {
-  width: 100%;
-  box-sizing: border-box;
-  height: 42px;
-  display: flex;
-  align-items: center;
-  border: 1px solid var(--lm-border);
-  border-radius: var(--lm-radius-control);
-  background: var(--lm-surface);
-  padding: 0 12px;
-  font-size: 13.5px;
-  color: var(--lm-text);
-
-  &.mat-mdc-select-empty .mat-mdc-select-min-line {
-    color: var(--lm-text-muted);
-  }
-}
-
-.range-field {
-  width: 100%;
-  display: block;
-  --mat-form-field-container-height: 42px;
-  --mat-form-field-container-vertical-padding: 9px;
-
-  input {
-    font-size: 13.5px;
-  }
-}
-
-.filter-actions {
-  display: flex;
-  gap: 8px;
-  align-items: center;
-  flex-wrap: wrap;
-  flex-shrink: 0;
-
-  button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--lm-border);
-  border-radius: var(--lm-radius-control);
-  padding: 0 12px;
-  width: 100%;
-  box-sizing: border-box;
-  height: 42px;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    color: var(--lm-text-muted);
-  }
-
-  input {
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 13.5px;
-    color: var(--lm-text);
-    width: 100%;
-
-    &::placeholder {
-      color: var(--lm-text-muted);
-    }
-  }
+  width: 253px;
 }
 
 // ---------------------------------------------------------
-// Table
+// Ledger table
 // ---------------------------------------------------------
-.table-card {
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-  padding: 4px 4px 0;
-}
-
-.table-scroll {
-  overflow-x: auto;
-}
-
 .ledger-table {
-  width: 100%;
-  @include tokens.lm-data-table;
-
-  tr.ledger-table__footer {
+  tr.ledger-table__footer td.mat-mdc-footer-cell {
     font-weight: 700;
-
-    td.mat-mdc-footer-cell {
-      border-top: 2px solid var(--lm-border);
-    }
   }
 
-  // A second footer row (see the template's netLabel/netBlank*/netValue
-  // columnDefs) — a lighter band than the TOTALS row above it so the two
-  // read as distinct lines, not one merged block.
-  tr.net-row {
-    td.mat-mdc-footer-cell {
-      background-color: var(--lm-bg) !important;
-      border-top: 1px solid var(--lm-border);
-    }
+  // Second footer row (netLabel/netBlank*/netValue columnDefs) — a lighter
+  // band than the TOTALS row above so the two read as distinct lines.
+  tr.net-row td.mat-mdc-footer-cell {
+    background-color: var(--surface);
+    border-top: 1px solid var(--border);
+    font-weight: 600;
   }
 }
 
-.cash-in {
-  color: rgb(26, 122, 83);
-  font-weight: 700;
-}
-
-.cash-out {
-  color: rgb(138, 61, 66);
-  font-weight: 700;
-}
-
-// tokens.lm-data-table (included by .ledger-table below) sets `color` via
-// ".ledger-table td.mat-mdc-cell" / ".ledger-table td.mat-mdc-footer-cell" —
-// a two-compound descendant selector that, once Angular stamps its
-// per-component [_ngcontent] attribute onto BOTH compounds, outranks even
-// a three-class single-compound override like "td.mat-mdc-cell.cash-in".
-// The mixin itself already reaches for !important for this exact same
-// "override the shared table color/background for one case" need (see its
-// td.mat-mdc-header-cell/td.mat-mdc-footer-cell background-color rules) —
-// following that precedent here rather than fighting specificity further.
 td.mat-mdc-cell.cash-in,
 td.mat-mdc-footer-cell.cash-in {
-  color: rgb(26, 122, 83) !important;
+  color: var(--success-text);
+  font-weight: 700;
 }
 
 td.mat-mdc-cell.cash-out,
 td.mat-mdc-footer-cell.cash-out {
-  color: rgb(138, 61, 66) !important;
+  color: var(--danger-text);
+  font-weight: 700;
 }
 
 .balance {
-  font-weight: 800;
-  color: var(--lm-text);
+  font-weight: 700;
+  color: var(--text);
 }
 
 .auto-lock {
   font-size: 16px;
   width: 16px;
   height: 16px;
-  color: var(--lm-text-muted);
+  color: var(--text-muted);
   vertical-align: middle;
   cursor: default;
-}
-
-.chip {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 10.5px;
-  font-weight: 700;
-
-  &--in {
-    background: rgba(34, 160, 107, 0.15);
-    color: #1a7a53;
-  }
-
-  &--out {
-    background: rgba(193, 102, 107, 0.16);
-    color: #8a3d42;
-  }
-}
-
-
-.empty-hint {
-  padding: 20px;
-  text-align: center;
-  color: var(--lm-text-muted);
-  font-size: 13px;
 }

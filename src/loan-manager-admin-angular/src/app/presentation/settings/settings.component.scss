@@ -1,48 +1,34 @@
-@use '../../styles/tokens';
-
-.mono {
-  font-family: var(--lm-font-mono);
-  font-feature-settings: 'tnum' 1;
-}
-
-.capitalize {
-  text-transform: capitalize;
-}
+// Settings. mat-card/mat-table are themed globally; .table-card/
+// .table-scroll/.search-box/.empty-hint/.mono are shared page patterns;
+// .pills and .av are toolkit classes. Only settings-specific layout here.
 
 .settings-section {
-  margin-bottom: 20px;
+  margin-bottom: var(--space-4);
 }
 
-.table-card {
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-  padding: 4px 4px 0;
-}
-
-.table-card__header {
+.card-head {
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  padding: 16px 20px 4px;
+  gap: var(--space-3);
+  padding: var(--space-4) var(--space-5) var(--space-1);
 
   h2 {
-    font-family: var(--lm-font-display);
-    font-size: 17px;
+    font-size: 14px;
+    line-height: 20px;
     font-weight: 600;
-    margin: 0 0 2px;
-  }
-
-  p {
-    font-size: 13px;
-    color: var(--lm-text-muted);
+    color: var(--text);
     margin: 0;
   }
 
+  p {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
+    margin: 2px 0 0;
+  }
+
   button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
     flex-shrink: 0;
   }
 }
@@ -52,172 +38,81 @@
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 12px;
-  padding: 8px 20px 16px;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-5) var(--space-4);
 }
 
-.filter-pills {
-  display: flex;
-  gap: 4px;
-  background: var(--lm-bg);
-  border-radius: 10px;
-  padding: 3px;
-}
+.users-search {
+  width: 240px;
 
-.filter-pill {
-  border: none;
-  background: transparent;
-  padding: 6px 14px;
-  border-radius: 8px;
-  font-size: 13px;
-  font-weight: 500;
-  color: var(--lm-text-muted);
-  cursor: pointer;
-
-  &:hover {
-    color: var(--lm-text);
-  }
-
-  &--active {
-    background: var(--lm-surface);
-    color: var(--lm-text);
-    box-shadow: var(--lm-shadow-sm);
-  }
-}
-
-.search-box {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  border: 1px solid var(--lm-border);
-  border-radius: 10px;
-  padding: 6px 12px;
-  min-width: 220px;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-    color: var(--lm-text-muted);
-  }
-
-  input {
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 13.5px;
-    color: var(--lm-text);
+  @media (max-width: 599px) {
     width: 100%;
-
-    &::placeholder {
-      color: var(--lm-text-muted);
-    }
   }
-}
-
-.table-scroll {
-  overflow-x: auto;
 }
 
 .users-table {
   width: 100%;
-  @include tokens.lm-data-table;
 }
 
 .user-cell {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
 
   &__name {
-    font-size: 13.5px;
+    font-size: 13px;
     font-weight: 500;
+    color: var(--text);
   }
 }
 
-.avatar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(108, 93, 211, 0.14);
-  color: var(--lm-primary);
-  font-size: 12px;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.chip {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-  text-transform: capitalize;
-
-  &--active {
-    background: rgba(34, 160, 107, 0.15);
-    color: #1a7a53;
-  }
-
-  &--inactive {
-    background: rgba(139, 143, 163, 0.14);
-    color: var(--lm-text-muted);
-  }
-}
-
-// Bare mat-select (no mat-form-field host, same reasoning as loans.component.scss's
-// .mat-mdc-select override) styled as a compact colored pill so an inline,
-// clickable "change role" control reads the same as the status chip next to
-// it, rather than looking like a stray unstyled form control in the table.
+// Inline "change role" control: a bare mat-select (no mat-form-field host)
+// styled as a small neutral toolkit .select so it fits the 32px row.
 .role-select {
+  box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  height: 26px;
-  padding: 0 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
+  width: 108px;
+  height: var(--control-height-sm);
+  padding: 0 var(--space-2) 0 var(--space-3);
+  border: 1px solid var(--border-control);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  color: var(--text);
+  font-size: 13px;
   text-transform: capitalize;
   cursor: pointer;
 
+  &:hover {
+    border-color: var(--text-secondary);
+  }
+
+  &.mat-mdc-select-focused,
+  &[aria-expanded='true'] {
+    border-color: var(--focus-ring);
+    box-shadow: inset 0 0 0 1px var(--focus-ring);
+  }
+
   .mat-mdc-select-arrow {
-    color: currentColor;
-  }
-
-  &--admin {
-    background: rgba(34, 160, 107, 0.15);
-    color: #1a7a53;
-  }
-
-  &--staff {
-    background: rgba(108, 93, 211, 0.14);
-    color: var(--lm-primary);
+    color: var(--text-muted);
   }
 }
 
-.empty-hint {
-  padding: 20px;
-  text-align: center;
-  color: var(--lm-text-muted);
-  font-size: 13px;
-}
-
+// Toolkit .err, inline under the card header.
 .users-error {
-  padding: 0 20px;
-  color: var(--lm-rose);
-  font-size: 12.5px;
-  margin: 0 0 12px;
+  padding: 0 var(--space-5);
+  color: var(--danger-text);
+  font-size: 12px;
+  line-height: 16px;
+  margin: 0 0 var(--space-3);
 }
 
 .general-settings-row {
   display: flex;
   align-items: flex-start;
-  gap: 16px;
+  gap: var(--space-4);
   flex-wrap: wrap;
-  padding: 4px 20px 20px;
+  padding: var(--space-3) var(--space-5) var(--space-5);
 }
 
 .timezone-field {
@@ -226,8 +121,8 @@
 
 .general-settings-hint {
   flex: 1 1 260px;
-  font-size: 12.5px;
-  color: var(--lm-text-muted);
-  margin: 14px 0 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
+  margin: var(--space-3) 0 0;
 }
-

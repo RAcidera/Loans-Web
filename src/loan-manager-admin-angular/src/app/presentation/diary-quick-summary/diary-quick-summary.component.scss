@@ -1,39 +1,29 @@
-.mono {
-  font-family: var(--lm-font-mono);
-  font-feature-settings: 'tnum' 1;
-}
-
 .quick-summary__header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 8px;
+  gap: var(--space-2);
+  margin-bottom: var(--space-2);
 
-  span {
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--lm-text-muted);
-    letter-spacing: 0.03em;
-    text-transform: uppercase;
+  > span {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 600;
+    color: var(--text);
   }
 }
 
+// Toolkit .link (primary text, 600) with a trailing arrow.
 .quick-summary__link {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 3px;
-  border: none;
-  background: transparent;
-  color: var(--lm-primary);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  padding: 0;
+  gap: 2px;
+  font-size: 12px;
 
   mat-icon {
-    font-size: 13px;
-    width: 13px;
-    height: 13px;
+    font-size: 14px;
+    width: 14px;
+    height: 14px;
   }
 
   &:hover {
@@ -44,10 +34,10 @@
 .quick-summary__row {
   display: flex;
   justify-content: space-between;
-  gap: 10px;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--lm-border);
-  font-size: 12.5px;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
 
   &:last-child {
     border-bottom: none;
@@ -55,11 +45,11 @@
   }
 
   span:first-child {
-    color: var(--lm-text-muted);
+    color: var(--text-muted);
   }
 
   span:last-child {
-    font-weight: 700;
-    color: var(--lm-text);
+    font-weight: 600;
+    color: var(--text);
   }
 }

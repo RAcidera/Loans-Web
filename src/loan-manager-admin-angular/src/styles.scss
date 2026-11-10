@@ -1,344 +1,107 @@
+@use 'sass:map';
 @use '@angular/material' as mat;
+@use './app/styles/theme-colors' as palette;
+@use './app/styles/cambria-tokens';
 @use './app/styles/tokens';
+@use './app/styles/cambria-components';
+@use './app/styles/material-bridge';
+@use './app/styles/page-patterns';
 
 html, body {
   height: 100%;
 }
 
+// Base typography: Segoe UI (--font-sans), toolkit body size 13/20.
 body {
   margin: 0;
-  background: var(--lm-bg);
-  color: var(--lm-text);
-  font-family: var(--lm-font-body);
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  line-height: 20px;
+  -webkit-font-smoothing: antialiased;
 }
 
-$lm-theme: mat.define-theme((
-  color: (
-    theme-type: light,
-    primary: mat.$violet-palette,
-    tertiary: mat.$orange-palette,
-  ),
-  typography: (
-    plain-family: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-    brand-family: 'Inter, -apple-system, BlinkMacSystemFont, sans-serif',
-  ),
-  density: (
-    scale: 0,
-  ),
-));
+:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
 
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+// ---------------------------------------------------------
+// Angular Material theme — M3 system tokens, light/dark driven by the
+// root's `color-scheme` (set by _cambria-tokens.scss from data-theme or the
+// OS preference). The palette is generated from the toolkit primary
+// (styles/_theme-colors.scss); theme-overrides then pin the system colours
+// Material components actually paint with (surfaces, text, outlines,
+// primary) to the Cambria tokens, so dialogs, menus, select panels,
+// datepickers, tooltips etc. render in the toolkit palette in both themes.
+// ---------------------------------------------------------
 html {
-  @include mat.all-component-themes($lm-theme);
-}
+  @include mat.theme((
+    color: (
+      primary: palette.$primary-palette,
+      tertiary: palette.$tertiary-palette,
+      theme-type: color-scheme,
+    ),
+    typography: (
+      plain-family: '"Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif',
+      brand-family: '"Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif',
+    ),
+    density: 0,
+  ));
 
-// ---------------------------------------------------------
-// Global letter-spacing reset — standing user preference, applies to every
-// current and future page/component. Angular Material's M3 typography
-// scale gives buttons, chips, tabs, form labels, etc. their own non-zero
-// letter-spacing by default; !important is needed since Material's own
-// rules are class-based (higher specificity than a bare `*` at equal
-// source order). New components should NOT set their own letter-spacing —
-// this single rule is meant to be the only source of truth for it app-wide.
-// ---------------------------------------------------------
-* {
-  letter-spacing: normal !important;
-}
+  @include mat.theme-overrides((
+    primary: var(--primary),
+    on-primary: var(--on-primary),
+    primary-container: var(--primary-subtle),
+    on-primary-container: var(--primary-text),
+    secondary-container: var(--primary-subtle),
+    on-secondary-container: var(--primary-text),
+    background: var(--bg),
+    on-background: var(--text),
+    surface: var(--surface),
+    on-surface: var(--text),
+    on-surface-variant: var(--text-muted),
+    surface-container-lowest: var(--surface),
+    surface-container-low: var(--surface),
+    surface-container: var(--surface),
+    surface-container-high: var(--surface),
+    surface-container-highest: var(--surface-sunken),
+    outline: var(--border-control),
+    outline-variant: var(--border),
+    inverse-surface: var(--text),
+    inverse-on-surface: var(--bg),
+    error: var(--danger-text),
+  ));
 
-// ---------------------------------------------------------
-// Global button shape — Material 3's default is a fully-rounded/pill
-// corner on every text/flat/stroked/raised button; the app's standard
-// (Customer-detail-page.png/.html) is a less-round 8px rectangle instead.
-// Applied once, globally, so every button across the app matches without
-// per-component overrides — mat-icon-button is deliberately excluded, it
-// keeps its circular shape.
-// ---------------------------------------------------------
-.mat-mdc-unelevated-button,
-.mat-mdc-outlined-button,
-.mat-mdc-raised-button,
-.mat-mdc-button {
-  border-radius: var(--lm-radius-control) !important;
-}
-
-// ---------------------------------------------------------
-// Global input styling — every mat-form-field app-wide (dozens of forms/
-// dialogs), not duplicated per component: light-gray filled box, rounded
-// corners, muted border (accent on focus), label always visible above the
-// field (see MAT_FORM_FIELD_DEFAULT_OPTIONS's floatLabel: 'always' in
-// app.config.ts), hint text muted below.
-// ---------------------------------------------------------
-.mat-mdc-form-field {
-  .mat-mdc-text-field-wrapper {
-    background-color: var(--lm-bg);
-    border-radius: var(--lm-radius);
-  }
-
-  .mdc-notched-outline__leading,
-  .mdc-notched-outline__notch,
-  .mdc-notched-outline__trailing {
-    border-color: var(--lm-border) !important;
-  }
-
-  .mdc-notched-outline__leading {
-    border-radius: var(--lm-radius) 0 0 var(--lm-radius);
-  }
-
-  .mdc-notched-outline__trailing {
-    border-radius: 0 var(--lm-radius) var(--lm-radius) 0;
-  }
-
-  &.mat-focused .mdc-notched-outline__leading,
-  &.mat-focused .mdc-notched-outline__notch,
-  &.mat-focused .mdc-notched-outline__trailing {
-    border-color: var(--lm-primary) !important;
-  }
-
-  .mat-mdc-form-field-hint {
-    color: var(--lm-text-muted);
-  }
-}
-
-// ---------------------------------------------------------
-// Global card background — mat.define-theme's M3 tokens tint every
-// mat-card's surface with a hue derived from the theme's primary/tertiary
-// colors (a light pink here) instead of pure white, which every panel/KPI
-// card/table-card across the app inherits by default since none of them
-// set their own background-color (only border-radius/shadow/border).
-// Overridden once, globally, rather than per component.
-// ---------------------------------------------------------
-.mat-mdc-card {
-  background-color: var(--lm-surface) !important;
-}
-
-// Same M3 surface-tinting issue as mat-card, on every mat-table (header,
-// rows, cells, footer all render their own tinted background otherwise —
-// covering the white card underneath even after the .mat-mdc-card fix above).
-// Row/cell are deliberately NOT !important: several tables set a per-row
-// :hover background (e.g. loans/customers tables), which must still win —
-// a plain rule here is enough since it's declared after Material's own
-// theme include and matches its selector specificity.
-.mat-mdc-table,
-.mat-mdc-header-row,
-.mat-mdc-footer-row,
-.mat-mdc-header-cell,
-.mat-mdc-footer-cell {
-  background-color: var(--lm-surface) !important;
-}
-
-.mat-mdc-row,
-.mat-mdc-cell {
-  background-color: var(--lm-surface);
-}
-
-// Same M3 tinting on the row-divider borders too — cells were rendering
-// with a dark purple-gray border (M3's outline-variant token) instead of
-// this app's own hairline --lm-border used everywhere else (cards, inputs).
-.mat-mdc-header-cell,
-.mat-mdc-cell,
-.mat-mdc-footer-cell {
-  border-bottom-color: var(--lm-border) !important;
-}
-
-// mat-paginator (the "footer" bar under every paginated table) has the
-// same M3 surface tint as mat-card/mat-table did.
-.mat-mdc-paginator {
-  background-color: var(--lm-surface) !important;
-}
-
-// mat-datepicker/mat-date-range-picker's calendar popup and mat-select's
-// option panel render into a CDK overlay appended to <body>, outside any
-// component's view encapsulation — same M3 surface-tinting issue as
-// card/table/paginator above, plus the calendar's default MDC type scale
-// (13-14px cells, 14px nav label) reads slightly large next to this app's
-// compact 13px UI. Themed globally here since scoped component styles
-// can't reach an overlay's content.
-.mat-datepicker-content {
-  background-color: var(--lm-surface) !important;
-  color: var(--lm-text);
-  // Material's M3 datepicker theme resolves its elevation shadow token to
-  // "0px 0px 0px 0px" for every layer in this app's theme config, leaving
-  // the popup with zero drop-shadow — combined with the picker's
-  // intentionally-transparent backdrop, the panel had nothing visually
-  // separating it from the page content underneath it (KPI cards/table
-  // rows bled through behind it). Set explicitly rather than relying on
-  // Material's own token.
-  box-shadow: var(--lm-shadow-md) !important;
-
-  .mat-calendar {
-    font-family: var(--lm-font-body);
-  }
-
-  .mat-calendar-body-cell-content {
-    font-size: 12px;
-  }
-
-  .mat-calendar-table-header,
-  .mat-calendar-period-button {
-    font-size: 12px;
-  }
-
-  .mat-calendar-body-selected {
-    background-color: var(--lm-primary);
-  }
-
-  .mat-calendar-body-in-range::before {
-    background-color: rgba(108, 93, 211, 0.12);
-  }
-}
-
-// The Loans list's compact date-range filter (.range-field, on the
-// mat-form-field host in loans.component.html) needs to reach INSIDE
-// mat-form-field's own template — the hint/error subscript wrapper, the
-// text-field background, the toggle icon-button's size. A selector written
-// in loans.component.scss like ".range-field .mat-mdc-form-field-subscript-wrapper"
-// compiles with Angular's per-component attribute scoping on BOTH sides
-// (".range-field[_ngcontent-xxx] .mat-mdc-form-field-subscript-wrapper[_ngcontent-xxx]"),
-// but that inner div carries mat-form-field's OWN internal template's
-// attribute, not the Loans component's — so the scoped rule silently never
-// matches anything (confirmed via getComputedStyle: display stayed "block"
-// despite a display:none rule). Only the CSS custom properties on
-// .range-field itself (--mat-form-field-container-height, set in the
-// component's own scoped SCSS) get through, since custom properties
-// inherit through the DOM regardless of style scoping. Everything else
-// that targets mat-form-field's internals has to live here, unscoped.
-.range-field {
-  .mat-mdc-form-field-subscript-wrapper {
-    display: none;
-  }
-
-  .mat-mdc-text-field-wrapper {
-    background-color: var(--lm-surface);
-  }
-
-  .mat-mdc-icon-button {
-    width: 32px;
-    height: 32px;
-    padding: 4px;
-  }
-}
-
-// The Payments list's Amount paid column header needs its mat-sort-header
-// label+arrow right-aligned to match the right-aligned money column below
-// it. mat-sort-header renders that label+arrow inside its own internal
-// .mat-sort-header-container div, which carries Material's own component
-// scoping attribute, not payments.component.scss's — a selector written
-// there (".payments-table th.mat-column-amountPaid .mat-sort-header-container")
-// compiles with Angular's scoping on both compounds and silently never
-// matches, same gotcha as .range-field above. Scoped by .payments-table so
-// it can't affect any other page's sort headers.
-.payments-table th.mat-column-amountPaid .mat-sort-header-container {
-  justify-content: flex-end;
-}
-
-// Same gotcha, same fix — the Customer Profile's Payment History tab table.
-.history-table th.mat-column-amount .mat-sort-header-container {
-  justify-content: flex-end;
-}
-
-.lm-select-panel {
-  background-color: var(--lm-surface) !important;
-
-  .mat-mdc-option {
-    font-size: 13.5px;
-    min-height: 38px;
-  }
-}
-
-// ---------------------------------------------------------
-// Global status/classification pill and KPI-card chrome — these two blocks
-// were being hand-copied verbatim into nearly every page's own SCSS
-// (customers/loans/reports/dashboard/settings/loan-details/customer-profile),
-// which is fine at small sizes but pushed customer-profile.component.scss
-// over the per-component style budget (8kB) once its page grew a 6-card
-// summary row on top of everything else. Defined once, globally, here
-// instead — a page's own SCSS no longer needs to redeclare `.chip`/
-// `.kpi-card` at all, only page-specific extensions (e.g. `.kpi-card__caption`).
-// The status/classification color pairings share a palette (active & normal
-// are both "good", extended & watchlist both "caution", overdue & badloan
-// both "bad") so one rule covers both taxonomies.
-// ---------------------------------------------------------
-.chip {
-  display: inline-block;
-  padding: 3px 10px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-
-  &--active, &--normal {
-    background: rgba(34, 160, 107, 0.15);
-    color: #1a7a53;
-  }
-
-  &--inactive, &--paid, &--writtenoff {
-    background: rgba(139, 143, 163, 0.14);
-    color: var(--lm-text-muted);
-  }
-
-  &--extended, &--watchlist {
-    background: rgba(225, 170, 54, 0.18);
-    color: #8a6414;
-  }
-
-  &--overdue, &--badloan {
-    background: rgba(193, 102, 107, 0.16);
-    color: #8a3d42;
-  }
-
-  &--tag {
-    background: rgba(108, 93, 211, 0.12);
-    color: var(--lm-primary);
-  }
-}
-
-.kpi-card {
-  padding: 16px 16px 14px;
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-
-  &__icon {
-    width: 36px;
-    height: 36px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
-    background: rgba(108, 93, 211, 0.12);
-    color: var(--lm-primary);
-
-    .mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+  // Material's M3 type scale ships non-zero letter-spacing on buttons,
+  // labels, tabs etc. The toolkit tracks text at normal everywhere except
+  // a few deliberate components (badge-compact.upper, overlines, nav
+  // section titles), which set their own letter-spacing. Zeroing Material's
+  // tracking here replaces the old `* { letter-spacing: normal !important }`
+  // rule, which also wiped out the toolkit's intentional spacing.
+  $tracking: ();
+  @each $role in (display, headline, title, body, label) {
+    @each $size in (large, medium, small) {
+      $tracking: map.merge($tracking, (#{$role}-#{$size}-tracking: 0));
     }
   }
-
-  &--good &__icon {
-    background: rgba(34, 160, 107, 0.14);
-    color: var(--lm-success);
-  }
-
-  &--warn &__icon {
-    background: rgba(193, 102, 107, 0.16);
-    color: var(--lm-danger);
-  }
-
-  &__label {
-    font-size: 12px;
-    color: var(--lm-text-muted);
-    font-weight: 500;
-    display: block;
-    margin-bottom: 6px;
-  }
-
-  &__value {
-    font-family: var(--lm-font-display);
-    font-size: 20px;
-    font-weight: 600;
-    color: var(--lm-text);
-    margin-bottom: 6px;
-  }
+  @include mat.theme-overrides($tracking);
 }
+
+// Material component styling (buttons, form fields, tables, paginator,
+// overlays, datepicker…) lives in app/styles/_material-bridge.scss; toolkit
+// component classes in app/styles/_cambria-components.scss.
+
+// App page patterns (filter toolbars, page KPI cards, table cards, row
+// links…) live in app/styles/_page-patterns.scss — pages must not redeclare them.
 
 // ---------------------------------------------------------
 // Fast chart-hover tooltip (ChartTooltipDirective/ChartTooltipService) —
@@ -355,14 +118,16 @@ html {
   z-index: 10000;
   visibility: hidden;
   pointer-events: none;
-  background: var(--lm-text);
-  color: #fff;
-  font-family: var(--lm-font-body);
+  // Toolkit .tip__b: inverse surface — var(--text) on var(--bg) flips
+  // correctly in dark mode (a hardcoded #fff would vanish there).
+  background: var(--text);
+  color: var(--bg);
+  font-family: var(--font-sans);
   font-size: 12px;
   font-weight: 600;
-  line-height: 1.4;
-  padding: 6px 11px;
-  border-radius: 7px;
-  box-shadow: 0 6px 16px rgba(20, 18, 31, 0.22);
+  line-height: 16px;
+  padding: 6px 10px;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-overlay);
   white-space: nowrap;
 }

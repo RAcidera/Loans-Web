@@ -1,1 +1,9 @@
 @use '../_shared-dialog-form' as *;
+
+// Fields with a hint use subscriptSizing="dynamic": the hint gets its real
+// (possibly two-line) height instead of a fixed one-line slot, so it can't
+// run into the next field's label. This restores the breathing room the
+// fixed slot used to give before the next field.
+.hinted {
+  margin-bottom: var(--space-3);
+}

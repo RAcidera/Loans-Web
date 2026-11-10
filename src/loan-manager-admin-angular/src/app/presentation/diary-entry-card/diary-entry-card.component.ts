@@ -48,13 +48,23 @@ export class DiaryEntryCardComponent {
     return !!this.entry.snapshot || !!this.entry.customerName;
   }
 
+  private get categoryHex(): string {
+    const color = this.entry.categoryDisplayColor;
+    return color.startsWith('#') ? color : `#${color}`;
+  }
+
+  /** Category colour over transparent — follows the card surface in light and dark mode. */
   get avatarTint(): string {
-    const hex = this.entry.categoryDisplayColor.startsWith('#') ? this.entry.categoryDisplayColor : `#${this.entry.categoryDisplayColor}`;
-    return hex.length === 7 ? `${hex}1e` : hex;
+    return `color-mix(in srgb, ${this.categoryHex} 14%, transparent)`;
+  }
+
+  /** Category colour pulled toward the theme text colour so the icon stays readable in dark mode. */
+  get avatarInk(): string {
+    return `color-mix(in srgb, ${this.categoryHex} 75%, var(--text))`;
   }
 
   get panelTint(): string {
-    return this.avatarTint;
+    return `color-mix(in srgb, ${this.categoryHex} 8%, transparent)`;
   }
 
   stop(event: Event): void {

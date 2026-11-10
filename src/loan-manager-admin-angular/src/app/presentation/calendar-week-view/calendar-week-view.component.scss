@@ -1,29 +1,38 @@
+// Fill the calendar card's remaining height (the card is a flex column).
+:host {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+
 .week-grid {
   display: flex;
   flex-direction: column;
+  flex: 1;
   min-width: 700px;
-  height: 100%;
 }
 
 .week-grid__weekday-row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
 }
 
+// Toolkit .cal weekday header: 11px muted.
 .week-grid__weekday {
-  padding: 6px 8px;
-  font-size: 10.5px;
-  font-weight: 700;
-  color: var(--lm-text-muted);
+  padding: var(--space-2);
+  font-size: 11px;
+  line-height: 14px;
+  font-weight: 600;
+  color: var(--text-muted);
   text-align: center;
   text-transform: uppercase;
-  letter-spacing: 0.03em;
-  border-bottom: 1px solid var(--lm-border);
+  letter-spacing: 0.04em;
+  border-bottom: 1px solid var(--border);
 }
 
 .week-grid__row {
   display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  grid-template-columns: repeat(7, minmax(0, 1fr));
   flex: 1;
   min-height: 320px;
 }

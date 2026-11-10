@@ -1,42 +1,37 @@
-@use '../../styles/tokens';
-
-.mono {
-  font-family: var(--lm-font-mono);
-  font-feature-settings: 'tnum' 1;
-}
-
+// Timeline entry card — toolkit .card look (surface, hairline border,
+// 12px radius, card shadow). Category colours are data: their tints are
+// computed in the component as color-mix() over transparent.
 .entry-card {
   position: relative;
   display: flex;
   align-items: flex-start;
-  gap: 14px;
-  border-radius: var(--lm-radius);
-  box-shadow: var(--lm-shadow-sm);
-  border: 1px solid var(--lm-border);
-  background: var(--lm-surface);
-  padding: 14px 44px 14px 16px;
-  margin-bottom: 10px;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+  padding: var(--space-4) 44px var(--space-4) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: var(--shadow-card);
   cursor: pointer;
-  transition: box-shadow 0.15s ease;
+  transition: border-color 0.15s ease;
 
   &:hover {
-    box-shadow: var(--lm-shadow-md);
+    border-color: var(--border-strong);
   }
 }
 
 .entry-card__avatar {
-  width: 38px;
-  height: 38px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  display: grid;
+  place-items: center;
 
   mat-icon {
-    font-size: 19px;
-    width: 19px;
-    height: 19px;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
   }
 }
 
@@ -48,33 +43,34 @@
 .entry-card__top {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-2);
   flex-wrap: wrap;
 }
 
 .entry-card__time {
-  font-size: 12.5px;
-  color: var(--lm-text-muted);
+  font-size: 12px;
+  color: var(--text-muted);
 }
 
 .entry-card__reminder-icon {
-  font-size: 18px;
-  width: 18px;
-  height: 18px;
-  color: var(--lm-warning);
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: var(--warning-text);
 }
 
 .entry-card__title {
-  font-family: var(--lm-font-display);
-  font-size: 14.5px;
-  font-weight: 700;
-  margin: 8px 0 4px;
+  margin: var(--space-2) 0 var(--space-1);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .entry-card__notes {
+  margin: 0 0 var(--space-2);
   font-size: 13px;
-  color: var(--lm-text);
-  margin: 0 0 8px;
+  color: var(--text-secondary);
   white-space: pre-wrap;
   display: -webkit-box;
   -webkit-line-clamp: 2;
@@ -85,57 +81,41 @@
 .entry-card__tags {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-bottom: 4px;
-}
-
-.entry-card__tag {
-  display: inline-block;
-  padding: 2px 9px;
-  border-radius: 999px;
-  font-size: 11px;
-  font-weight: 600;
-  background: var(--lm-bg);
-  border: 1px solid var(--lm-border);
-  color: var(--lm-text-muted);
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
 }
 
 .entry-card__view {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  font-size: 12.5px;
-  line-height: 30px;
-  margin-top: 8px;
+  margin-top: var(--space-2);
 }
 
 // ---------------------------------------------------------
 // Contextual business-information panel — Financial Snapshot preview OR
 // Customer/Loan info, tinted with the entry's own category color
-// (requirements diary-modern §6/§7). Fixed width on desktop so it reads as
-// a distinct side panel like the reference layout; full-width and stacked
-// below the main content on narrow screens instead of squeezing.
+// (requirements diary-modern §6/§7). Fixed width on desktop; full-width and
+// stacked below the main content on narrow screens.
 // ---------------------------------------------------------
 .entry-card__context {
   flex-shrink: 0;
   width: 260px;
-  border-radius: 10px;
-  padding: 12px 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
 }
 
 .context-panel {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: var(--space-2);
 }
 
 .context-panel__row {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 4px 10px;
+  gap: var(--space-1) var(--space-3);
 }
 
 .context-panel__cell {
@@ -145,16 +125,15 @@
 }
 
 .context-panel__label {
-  font-size: 10px;
-  color: var(--lm-text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--text-muted);
 }
 
 .context-panel__value {
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--lm-text);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -162,45 +141,20 @@
 
 .context-panel__view {
   align-self: flex-end;
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  border: 1px solid var(--lm-primary);
-  background: var(--lm-surface);
-  color: var(--lm-primary);
-  border-radius: 999px;
-  padding: 4px 12px;
-  font-size: 12px;
-  font-weight: 600;
-  cursor: pointer;
+}
 
-  mat-icon {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
-  }
-
-  &:hover {
-    background: rgba(108, 93, 211, 0.08);
-  }
+.entry-card__view,
+.context-panel__view {
+  height: var(--control-height-sm);
 }
 
 .entry-card__menu-trigger {
   position: absolute;
-  top: 8px;
-  right: 6px;
-  width: 30px;
-  height: 30px;
-  line-height: 30px;
-
-  mat-icon {
-    font-size: 18px;
-    width: 18px;
-    height: 18px;
-  }
+  top: var(--space-2);
+  right: var(--space-2);
 }
 
-@include tokens.tablet {
+@media (max-width: 899px) {
   .entry-card {
     flex-wrap: wrap;
   }

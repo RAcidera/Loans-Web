@@ -4,6 +4,7 @@ import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/materia
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { CalendarEvent } from '../../domain/entities/calendar-event.entity';
+import { CALENDAR_EVENT_META } from '../shared/calendar-event-meta';
 
 /**
  * Requirements' calendar-event-detail component — a quick-preview dialog
@@ -33,6 +34,21 @@ export class CalendarEventDetailComponent {
     const period = h >= 12 ? 'PM' : 'AM';
     const hour12 = h % 12 === 0 ? 12 : h % 12;
     return `${hour12}:${String(m).padStart(2, '0')} ${period}`;
+  }
+
+  /** Left stripe: a diary entry's own category colour (server hex), otherwise the type's legend colour. */
+  get accent(): string {
+    if (this.event.type === 'diary' && this.event.color) return this.event.color.startsWith('#') ? this.event.color : `#${this.event.color}`;
+    return CALENDAR_EVENT_META[this.event.type]?.color ?? 'var(--primary)';
+  }
+
+  /** Type badge (toolkit badge-compact soft) coloured with the type's legend colour. */
+  get badgeTint(): string {
+    return CALENDAR_EVENT_META[this.event.type]?.tint ?? 'var(--primary-subtle)';
+  }
+
+  get badgeInk(): string {
+    return CALENDAR_EVENT_META[this.event.type]?.text ?? 'var(--primary-text)';
   }
 
   get hasDestination(): boolean {

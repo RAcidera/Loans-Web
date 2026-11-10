@@ -28,6 +28,7 @@ import { AuthService } from '../../application/auth/auth.service';
 import { AppDateTimePipe } from '../shared/app-date-time.pipe';
 import { AppDatePipe } from '../shared/app-date.pipe';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 function fmtMoney(n: number): string {
   return `₱${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 }
@@ -108,7 +109,7 @@ function relativeFromNow(dateStr: string): string {
 @Component({
   selector: 'lm-customer-profile',
   standalone: true,
-  imports: [
+  imports: [BadgeTonePipe, 
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,

@@ -1,275 +1,446 @@
-@use '../../styles/tokens';
+// Application shell — Cambria dashboard mockup layout, toolkit tokens only
+// (see docs/ui-reference). No hardcoded colours: everything follows
+// light/dark via styles/_cambria-tokens.scss.
+// Breakpoint 899px matches the BreakpointObserver in the component.
 
 .shell {
   display: flex;
-  min-height: 100vh;
-  background: var(--lm-bg);
-  font-family: var(--lm-font-body);
-  color: var(--lm-text);
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--bg);
+  color: var(--text);
 }
 
+// ---------- Sidebar ----------
 .sidebar {
-  width: var(--lm-sidebar-w);
-  background: var(--lm-sidebar-bg);
-  color: #fff;
+  width: var(--shell-sidebar-w);
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  position: relative;
+  background: var(--surface-nav);
+  border-right: 1px solid var(--border);
   transition: width 0.2s ease;
-  flex-shrink: 0;
-
-  .shell.collapsed & {
-    width: var(--lm-sidebar-w-collapsed);
-  }
+  z-index: 10;
 }
 
 .brand {
+  height: var(--shell-topbar-h);
+  flex-shrink: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 20px 18px;
-  font-family: var(--lm-font-display);
+  gap: 11px;
+  padding: 0 20px;
+  border-bottom: 1px solid var(--border);
+  overflow: hidden;
 
   &__mark {
-    width: 34px;
-    height: 34px;
-    border-radius: 9px;
-    background: linear-gradient(135deg, var(--lm-primary-light) 0%, var(--lm-primary) 55%, var(--lm-primary-dark) 100%);
-    box-shadow: 0 2px 8px rgba(108, 93, 211, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 36px;
+    height: 36px;
     flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: var(--on-primary);
 
     mat-icon {
-      font-size: 19px;
-      width: 19px;
-      height: 19px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
   }
 
-  &__name {
-    font-weight: 600;
-    font-size: 15px;
+  &__text {
+    min-width: 0;
     white-space: nowrap;
+
+    b {
+      font-size: 15px;
+      line-height: 18px;
+      font-weight: 700;
+    }
+
+    small {
+      display: block;
+      margin-top: 2px;
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--text-muted);
+    }
+  }
+
+  &__accent {
+    color: var(--primary-text);
   }
 }
 
-.nav {
+.nav-scroll {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: var(--space-3) var(--space-3) var(--space-4);
   display: flex;
   flex-direction: column;
   gap: 2px;
-  padding: 8px;
-  flex: 1;
+}
 
-  &__item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 10px 12px;
-    border-radius: 8px;
-    color: rgba(255, 255, 255, 0.75);
-    text-decoration: none;
-    font-size: 14px;
-    white-space: nowrap;
-    overflow: hidden;
+// Toolkit .nav__t
+.nav-title {
+  padding: var(--space-4) var(--space-3) 4px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: .06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+
+  &:first-child {
+    padding-top: 4px;
+  }
+}
+
+// Toolkit .nav a (selected = aria-current/active)
+.nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  height: 38px;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-sm);
+  color: var(--text);
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+
+  mat-icon {
+    flex-shrink: 0;
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+    color: var(--text-muted);
+  }
+
+  &:hover {
+    background: var(--surface-sunken);
+  }
+
+  &.active {
+    background: var(--primary-subtle);
+    color: var(--primary-text);
+    font-weight: 600;
 
     mat-icon {
-      flex-shrink: 0;
-    }
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.08);
-      color: #fff;
-    }
-
-    &--active {
-      background: var(--lm-primary);
-      color: #fff;
-      font-weight: 500;
+      color: var(--primary-text);
     }
   }
 }
 
-.sidebar__promo {
-  margin: 8px;
-  padding: 16px 14px;
-  border-radius: var(--lm-radius);
-  background: var(--lm-sidebar-elevated);
+.sidebar-foot {
+  flex-shrink: 0;
+  padding: var(--space-3);
+  border-top: 1px solid var(--border);
+}
 
-  &__icon {
+.workspace {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px;
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  overflow: hidden;
+
+  &__avatar {
     width: 32px;
     height: 32px;
-    border-radius: 8px;
-    background: var(--lm-primary);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin-bottom: 10px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--primary-subtle);
+    color: var(--primary-text);
+    font-size: 12px;
+    font-weight: 700;
+  }
 
-    mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
+  &__text {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    white-space: nowrap;
+
+    b {
+      font-size: 12px;
+      line-height: 16px;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-  }
 
-  &__title {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 4px;
-  }
-
-  &__hint {
-    font-size: 11.5px;
-    color: var(--lm-sidebar-text-muted);
-    margin: 0 0 12px;
-    line-height: 1.4;
-  }
-
-  &__cta {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 4px;
-    color: #fff !important;
-    border-color: rgba(255, 255, 255, 0.3) !important;
+    small {
+      font-size: 11px;
+      line-height: 14px;
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
   }
 }
 
-.sidebar__collapse {
-  color: rgba(255, 255, 255, 0.6);
-  margin: 8px;
-  align-self: flex-end;
+// Collapsed rail (desktop) — toolkit .nav--mini
+.shell.collapsed {
+  .sidebar {
+    width: var(--shell-sidebar-w-collapsed);
+  }
+
+  .brand {
+    justify-content: center;
+    padding: 0;
+  }
+
+  .brand__text,
+  .nav-link__label,
+  .workspace__text {
+    display: none;
+  }
+
+  .nav-title {
+    height: 1px;
+    margin: 10px auto;
+    padding: 0;
+    width: 32px;
+    background: var(--border);
+    font-size: 0;
+    overflow: hidden;
+
+    &:first-child {
+      display: none;
+    }
+  }
+
+  .nav-link {
+    justify-content: center;
+    padding: 0;
+    width: 44px;
+    margin: 0 auto;
+  }
+
+  .workspace {
+    justify-content: center;
+    padding: 8px;
+  }
 }
 
 .sidebar-backdrop {
   display: none;
 }
 
-.topbar__menu-toggle {
-  display: none;
-  margin-right: 4px;
+// ---------- Main column ----------
+.main {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
-@include tokens.tablet {
-  .sidebar-backdrop {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.4);
-    z-index: 900;
+.topbar {
+  height: var(--shell-topbar-h);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--shell-gutter);
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+}
+
+.iconbtn {
+  width: 36px;
+  height: 36px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
   }
 
-  .shell.mobile-nav-open .sidebar-backdrop {
-    display: block;
+  &:hover {
+    background: var(--primary-subtle);
+    color: var(--primary-text);
+  }
+}
+
+// Toolkit .crumbs (as used in .appbar)
+.crumbs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  font-size: 14px;
+  color: var(--text-muted);
+
+  &__section,
+  &__sep {
+    white-space: nowrap;
   }
 
+  &__current {
+    margin: 0;
+    font-size: 15px;
+    line-height: 20px;
+    font-weight: 700;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+.top-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+// Toolkit .acct + .av-i
+.acct {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 6px;
+  padding: 4px 6px 4px 4px;
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: none;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+
+  &:hover {
+    background: var(--surface-sunken);
+  }
+
+  &__text {
+    display: flex;
+    flex-direction: column;
+
+    b {
+      font-weight: 600;
+      line-height: 18px;
+    }
+
+    small {
+      font-size: 12px;
+      line-height: 16px;
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
+  }
+
+  &__chevron {
+    color: var(--text-muted);
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.userpic {
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: var(--primary-subtle);
+  color: var(--primary-text);
+  font-size: 12px;
+  font-weight: 700;
+}
+
+// Account menu header (renders in the overlay; declared in this template so
+// emulated encapsulation still applies). Toolkit .acct-h
+.acct-h {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px var(--space-4) 10px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+
+  &__role {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
+    text-transform: capitalize;
+  }
+}
+
+// Content: full width, ~18px gutter, scrolls under a fixed header/sidebar.
+.content {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: var(--shell-gutter);
+}
+
+// ---------- Tablet / mobile: off-canvas drawer ----------
+@media (max-width: 899px) {
   .sidebar {
     position: fixed;
-    top: 0;
-    left: 0;
-    height: 100vh;
-    width: var(--lm-sidebar-w);
+    inset: 0 auto 0 0;
+    width: 252px;
     transform: translateX(-100%);
     transition: transform 0.25s ease;
     z-index: 1000;
-
-    .shell.collapsed & {
-      width: var(--lm-sidebar-w);
-    }
+    box-shadow: var(--shadow-overlay);
   }
 
   .shell.mobile-nav-open .sidebar {
     transform: translateX(0);
   }
 
-  .sidebar__collapse {
+  .shell.mobile-nav-open .sidebar-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 19, 28, 0.48); // toolkit .backdrop
+    z-index: 900;
+  }
+
+  .acct__text,
+  .acct__chevron {
     display: none;
   }
 
+  .content {
+    padding: 15px;
+  }
+}
+
+@media (max-width: 599px) {
   .topbar {
-    position: relative;
-    z-index: 950;
+    gap: 6px;
+    padding: 0 10px;
   }
 
-  .topbar__menu-toggle {
-    display: inline-flex;
-  }
-}
-
-.main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  min-width: 0;
-}
-
-.topbar {
-  height: var(--lm-topbar-h);
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 24px;
-  background: var(--lm-surface);
-  border-bottom: 1px solid var(--lm-border);
-  flex-shrink: 0;
-
-  &__title {
-    font-family: var(--lm-font-display);
-    font-size: 18px;
-    font-weight: 600;
-    margin: 0;
+  .crumbs__section,
+  .crumbs__sep {
+    display: none;
   }
 
-  &__actions {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  .content {
+    padding: 12px;
   }
-
-  &__avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    background: var(--lm-primary-light);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 600;
-    margin-left: 8px;
-    line-height: 1;
-    padding: 0;
-  }
-
-  &__menu-header {
-    display: flex;
-    flex-direction: column;
-    padding: 10px 16px 8px;
-    border-bottom: 1px solid var(--lm-border);
-    margin-bottom: 4px;
-
-    strong {
-      font-size: 13.5px;
-    }
-  }
-
-  &__menu-role {
-    font-size: 11.5px;
-    color: var(--lm-text-muted);
-    text-transform: capitalize;
-  }
-}
-
-.content {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
 }

@@ -13,12 +13,10 @@
       </h2>
       <p>Business position and adjusted capital growth</p>
     </div>
-    <div class="range-toggle" role="group" aria-label="Range">
+    <div class="pills" role="group" aria-label="Range">
       <button
         *ngFor="let r of ranges"
         type="button"
-        class="range-toggle__btn"
-        [class.range-toggle__btn--active]="range === r"
         [attr.aria-pressed]="range === r"
         [disabled]="loading"
         (click)="setRange(r)"
@@ -173,7 +171,7 @@
           <div class="cg-detail__head">
             <mat-icon>event</mat-icon>
             <span class="cg-detail__title">Selected Month: {{ monthLabel(m.monthKey) }}</span>
-            <span class="cg-pill" [ngClass]="'cg-pill--' + m.status">{{ statusLabel(m) }}</span>
+            <span class="badge-compact soft titlecase" [attr.data-tone]="m.status | badgeTone">{{ statusLabel(m) }}</span>
           </div>
 
           <p class="cg-detail__empty" *ngIf="m.status === 'nohistory'">

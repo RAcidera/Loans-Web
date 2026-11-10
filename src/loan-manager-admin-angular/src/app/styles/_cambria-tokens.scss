@@ -1,0 +1,134 @@
+// ---------------------------------------------------------
+// Cambria UI Toolkit — Bright Indigo design tokens.
+// Source of truth: docs/ui-reference/cambria-ui-toolkit.html (:root blocks).
+// Token names are the toolkit's own (unprefixed) so toolkit CSS classes can be
+// used verbatim. The app's legacy --lm-* tokens (_tokens.scss) alias these.
+//
+// Theme resolution (same selectors as the toolkit):
+//   no data-theme attribute  -> follows the OS (prefers-color-scheme)
+//   html[data-theme="light"] -> forced light
+//   html[data-theme="dark"]  -> forced dark
+// The attribute is set by ThemeService (and pre-boot by index.html).
+// ---------------------------------------------------------
+
+@mixin dark-tokens {
+  --bg: #151923;
+  --surface: #202634;
+  --surface-nav: #1B2230;
+  --surface-sunken: #2A3242;
+  --text: #EDF0F7;
+  --text-secondary: #C5CBD8;
+  --text-muted: #9DA8BA;
+  --text-disabled: #727F92;
+  --border: #343E50;
+  --border-strong: #515E72;
+  --border-control: #7E8AA0;
+  --primary: #A6AEDF;
+  --primary-hover: #BBC2ED;
+  --on-primary: #151923;
+  --primary-subtle: #303950;
+  --primary-text: #BBC2ED;
+  --focus-ring: #BBC2ED;
+  --info-subtle: #203D4F;
+  --info-text: #8ED5FA;
+  --success-subtle: #183A2D; // dark-mode tints of the #22A06B success green
+  --success-text: #3DBE85;
+  --warning-subtle: #2F2621;
+  --warning-border: #5C4A2E;
+  --warning-text: #F7B84B;
+  --danger-subtle: #36232C;
+  --danger-border: #7A3A33;
+  --danger-text: #F06548;
+  --shadow-card: 0 1px 2px rgba(0, 0, 0, .4);
+  --shadow-overlay: 0 8px 24px rgba(0, 0, 0, .5);
+  color-scheme: dark;
+}
+
+:root {
+  --bg: #F7F8FA;
+  --surface: #FFFFFF;
+  --surface-nav: #FFFFFF;
+  --surface-sunken: #F1F3F7;
+  --text: #252B38;
+  --text-secondary: #525D70;
+  // Toolkit value is #697588; darkened slightly so muted labels on the grey
+  // --bg / --surface-sunken backgrounds meet WCAG AA 4.5:1 (#697588 gave
+  // 4.2:1 there; #5F6B7E gives 4.8–5.1:1). Phase 5 accessibility fix.
+  --text-muted: #5F6B7E;
+  --text-disabled: #A4A7B3;
+  --border: #E6EAF0;
+  --border-strong: #C2C9D5;
+  --border-control: #919BAB;
+  --primary: #5868B8;
+  --primary-hover: #4657A5;
+  --on-primary: #FFFFFF;
+  --primary-subtle: #EEF1FF;
+  --primary-text: #4657A5;
+  --focus-ring: #5868B8;
+  // Success green: the app's original #22A06B / rgb(34,160,107) (project
+  // override of the toolkit's teal #0AB39C), with its old chip tint/text.
+  --success: #22A06B;
+  --success-subtle: #DEF1E9;
+  --success-text: #1A7A53;
+  --warning: #F7B84B;
+  --warning-subtle: #FEF4E2;
+  --warning-border: #FADBA4;
+  --warning-text: #8A5A00;
+  // Info blue — from the toolkit's info badge tone; a 4th semantic hue so
+  // dashboards/charts aren't indigo-only (requirements §9).
+  --info: #2E8BD0;
+  --info-subtle: #E2F2FC;
+  --info-text: #167BB6;
+  // Secondary chart series (e.g. "last year" bars): a quiet indigo tint
+  // (dashboard mockup's #C6C9DE), derived so it follows dark mode.
+  --chart-muted: color-mix(in srgb, var(--primary) 32%, var(--surface));
+  --danger: #F06548;
+  --danger-subtle: #FDECE9;
+  --danger-border: #F7B1A3;
+  --danger-text: #C2391B;
+  --avatar-1: #727DA8;
+  --avatar-2: #1F78AD;
+  --avatar-3: #067A6A;
+  --on-avatar: #FFFFFF;
+  --shadow-card: 0 1px 2px rgba(33, 37, 41, .06);
+  --shadow-overlay: 0 8px 24px rgba(33, 37, 41, .12);
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --radius-sm: 6px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --control-height: 36px;
+  --control-height-sm: 28px;
+  --icon-size: 16px;
+  --avatar-size: 28px;
+  // App font: Segoe UI (project choice, replacing the toolkit's Plus Jakarta
+  // Sans). System font on Windows — no web-font download; other platforms
+  // fall back to their own UI font.
+  --font-sans: "Segoe UI", system-ui, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+
+  // Application shell (dashboard mockup): 232px sidebar, 76px collapsed,
+  // 64px top bar, ~18px content gutter on desktop.
+  --shell-sidebar-w: 232px;
+  --shell-sidebar-w-collapsed: 76px;
+  --shell-topbar-h: 64px;
+  --shell-gutter: 18px;
+
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    @include dark-tokens;
+  }
+}
+
+:root[data-theme="dark"] {
+  @include dark-tokens;
+}

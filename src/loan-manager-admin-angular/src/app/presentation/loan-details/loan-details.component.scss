@@ -1,83 +1,69 @@
-@use '../../styles/tokens';
-
-.mono {
-  font-family: var(--lm-font-mono);
-  font-feature-settings: 'tnum' 1;
-}
-
-.right {
-  text-align: right;
-}
-
-.center {
-  text-align: center;
-}
+// Loan details. Shared patterns (.mono/.right/.center/.table-scroll,
+// .empty-hint, mat-card/mat-table/tabs/buttons) are global — see
+// styles/_page-patterns.scss and _material-bridge.scss. Only the loan
+// profile's own layout lives here.
 
 .back-link {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-  margin-bottom: 12px;
-  color: var(--lm-text-muted);
+  margin-bottom: var(--space-3);
+  color: var(--text-muted);
 }
 
 .loan-details {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: var(--space-4);
 }
 
-.hero-card,
-.tabs-card {
-  border-radius: var(--lm-radius) !important;
-  box-shadow: var(--lm-shadow-sm) !important;
-  border: 1px solid var(--lm-border);
-}
-
+// ----- Hero card -----
 .hero-card {
-  padding: 20px;
+  padding: var(--space-5);
 }
 
 .hero-card__top {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-  gap: 16px;
-  margin-bottom: 16px;
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
 .hero-card__icon {
   flex-shrink: 0;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(108, 93, 211, 0.14);
-  color: var(--lm-primary);
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-md);
+  display: grid;
+  place-items: center;
+  background: var(--primary-subtle);
+  color: var(--primary-text);
+
+  mat-icon {
+    font-size: 24px;
+    width: 24px;
+    height: 24px;
+  }
 }
 
 .hero-card__identity {
   min-width: 180px;
 
   h2 {
-    font-family: var(--lm-font-display);
     font-size: 20px;
+    line-height: 28px;
     font-weight: 700;
+    color: var(--text);
     margin: 0;
   }
 
   p {
-    font-size: 13.5px;
-    color: var(--lm-text-muted);
-    margin: 2px 0 8px;
+    font-size: 13px;
+    color: var(--text-muted);
+    margin: 2px 0 var(--space-2);
   }
 }
 
 // Icon-only link back to the owning customer, inline right after the
-// borrower's name (e.g. "Jun Dela Cruz ←") to save space — no separate
-// label/row of its own.
+// borrower's name (e.g. "Jun Dela Cruz ←") to save space.
 .hero-card__back-to-customer {
   display: inline-flex;
   align-items: center;
@@ -86,17 +72,17 @@
   background: none;
   padding: 0;
   margin-left: 2px;
-  color: var(--lm-text-muted);
+  color: var(--text-muted);
   cursor: pointer;
 
   mat-icon {
-    font-size: 15px;
-    width: 15px;
-    height: 15px;
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
   }
 
   &:hover {
-    color: var(--lm-primary);
+    color: var(--primary-text);
   }
 }
 
@@ -108,92 +94,74 @@
 .hero-card__actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  margin-left: auto;
-
-  button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
-}
-
-// Every hero action defaults to the app's standard outlined-button look
-// (mat-stroked-button color="primary" — purple border/text), except New
-// Payment, which the reference marks distinctly with green text/border
-// instead of a solid fill.
-.btn--success {
-  color: var(--lm-success) !important;
-  border-color: var(--lm-success) !important;
-}
-
-.btn--small {
-  height: 32px;
-  font-size: 12.5px;
+  gap: var(--space-2);
   margin-left: auto;
 }
 
 .hero-card__stats {
   display: grid;
-  grid-template-columns: repeat(8, 1fr);
-  gap: 12px;
-  border-top: 1px solid var(--lm-border);
-  padding-top: 16px;
+  grid-template-columns: repeat(8, minmax(0, 1fr));
+  gap: var(--space-3);
+  border-top: 1px solid var(--border);
+  padding-top: var(--space-4);
 
   @media (max-width: 1300px) {
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(4, minmax(0, 1fr));
   }
 
-  @include tokens.mobile {
-    grid-template-columns: repeat(2, 1fr);
+  @media (max-width: 599px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
 .hero-stat {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
+  min-width: 0;
 
   &__label {
-    font-size: 11px;
-    color: var(--lm-text-muted);
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
   }
 
   &__value {
     font-size: 14px;
+    line-height: 20px;
     font-weight: 700;
-    color: var(--lm-text);
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
 
-    &--purple { color: var(--lm-primary); }
-    &--orange { color: var(--lm-warning); }
-    &--green { color: var(--lm-success); }
-    &--red { color: var(--lm-danger); }
-    // Distinct, vivid blue for Principal — the one hero stat not already
-    // covered by the warning/success/danger semantic colors above, chosen
-    // to stand out at a glance without implying "good" or "bad" the way
-    // green/red would for a plain informational figure.
-    &--blue { color: var(--lm-info); }
+    &--blue { color: var(--info-text); }
+    &--purple { color: var(--primary-text); }
+    &--orange { color: var(--warning-text); }
+    &--green { color: var(--success-text); }
+    &--red { color: var(--danger-text); }
   }
 }
 
+// ----- Tabs card -----
 .tabs-card {
-  padding: 4px 4px 12px;
+  padding: 0 0 var(--space-2);
+  overflow: hidden;
 }
 
 .tab-content {
-  padding: 20px;
+  padding: var(--space-5);
+
+  @media (max-width: 599px) {
+    padding: var(--space-4);
+  }
 }
 
-// ---------------------------------------------------------
 // Overview tab — 3-column grid (Loan Information / Financial Summary /
-// Timeline), then a 2-column "lower" grid (Payment History / Extension
-// History mini widgets), per Loan-Profile-Page.html.
-// ---------------------------------------------------------
+// Timeline), then a 2-column grid (Payment History / Extension History).
 .overview-grid {
   display: grid;
   grid-template-columns: 1fr 1.1fr 1fr;
-  gap: 14px;
-  margin-top: 18px;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
 
   @media (max-width: 1100px) {
     grid-template-columns: 1fr 1fr;
@@ -203,7 +171,7 @@
     }
   }
 
-  @include tokens.mobile {
+  @media (max-width: 599px) {
     grid-template-columns: 1fr;
 
     .info-card:last-child {
@@ -215,61 +183,75 @@
 .lower-grid {
   display: grid;
   grid-template-columns: 1.05fr 1fr;
-  gap: 14px;
-  margin-top: 14px;
+  gap: var(--space-4);
+  margin-top: var(--space-4);
 
-  @include tokens.mobile {
+  @media (max-width: 599px) {
     grid-template-columns: 1fr;
   }
 }
 
+// Nested section inside the tabs card -> toolkit .card look, no shadow.
 .info-card {
-  border: 1px solid var(--lm-border);
-  border-radius: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
   overflow: hidden;
-  background: var(--lm-surface);
+  background: var(--surface);
 }
 
 .info-card__header {
-  padding: 13px 16px;
-  border-bottom: 1px solid var(--lm-border);
-  font-weight: 700;
+  display: flex;
+  align-items: center;
+  min-height: 48px;
+  box-sizing: border-box;
+  padding: var(--space-2) var(--space-4);
+  border-bottom: 1px solid var(--border);
   font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
 
   &--with-action {
-    display: flex;
-    align-items: center;
     justify-content: space-between;
+    gap: var(--space-2);
   }
 }
 
+// Small header action -> toolkit .btn--sm height.
+.header-action {
+  --mat-button-outlined-container-height: var(--control-height-sm);
+  --mat-button-outlined-horizontal-padding: var(--space-3);
+  font-size: 12px;
+}
+
 .info-card__body {
-  padding: 14px 16px;
+  padding: var(--space-3) var(--space-4);
 }
 
 .info-row {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  align-items: center;
+  gap: var(--space-3);
   padding: 7px 0;
-  color: var(--lm-text-muted);
+  color: var(--text-muted);
   font-size: 13px;
-  border-top: 1px solid var(--lm-border);
+  border-top: 1px solid var(--border);
 
   &:first-child {
     border-top: none;
   }
 
   strong {
-    color: var(--lm-text);
+    color: var(--text);
     font-weight: 600;
+    text-align: right;
   }
 }
 
 .finance {
   display: grid;
   grid-template-columns: 110px 1fr;
-  gap: 18px;
+  gap: var(--space-4);
   align-items: center;
 }
 
@@ -285,7 +267,7 @@
     content: '';
     width: 72px;
     height: 72px;
-    background: var(--lm-surface);
+    background: var(--surface);
     border-radius: 50%;
     position: absolute;
   }
@@ -295,13 +277,15 @@
     z-index: 1;
     text-align: center;
     font-weight: 700;
-    font-size: 15px;
+    font-size: 16px;
+    color: var(--text);
+    font-variant-numeric: tabular-nums;
 
     small {
       display: block;
-      color: var(--lm-text-muted);
+      color: var(--text-muted);
       font-weight: 500;
-      font-size: 10.5px;
+      font-size: 11px;
     }
   }
 }
@@ -309,20 +293,29 @@
 .finance-legend div {
   display: flex;
   justify-content: space-between;
+  gap: var(--space-2);
   padding: 5px 0;
-  font-size: 12.5px;
-  color: var(--lm-text-muted);
+  font-size: 13px;
+  color: var(--text-muted);
+
+  strong {
+    color: var(--text);
+    font-weight: 600;
+  }
 }
 
+// Status note -> toolkit .msg variants.
 .status-alert {
   display: flex;
   align-items: flex-start;
-  gap: 8px;
-  margin-top: 13px;
-  border-radius: 8px;
-  padding: 11px;
-  font-size: 12.5px;
-  line-height: 1.5;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  padding: 10px var(--space-3);
+  font-size: 13px;
+  line-height: 18px;
+  color: var(--text);
 
   mat-icon {
     font-size: 18px;
@@ -332,38 +325,41 @@
   }
 
   &--good {
-    background: rgba(34, 160, 107, 0.1);
-    color: #177957;
+    background: var(--success-subtle);
+    mat-icon { color: var(--success-text); }
   }
 
   &--neutral {
-    background: var(--lm-bg);
-    color: var(--lm-text-muted);
+    background: var(--surface-sunken);
+    border-color: var(--border);
+    mat-icon { color: var(--text-muted); }
   }
 
   &--warn {
-    background: rgba(225, 170, 54, 0.14);
-    color: #8a6414;
+    background: var(--warning-subtle);
+    border-color: var(--warning-border);
+    mat-icon { color: var(--warning-text); }
   }
 
   &--danger {
-    background: rgba(193, 102, 107, 0.12);
-    color: #8a3d42;
+    background: var(--danger-subtle);
+    border-color: var(--danger-border);
+    mat-icon { color: var(--danger-text); }
   }
 }
 
 .timeline-events {
   list-style: none;
   margin: 0;
-  padding: 4px 0;
+  padding: var(--space-1) 0;
 }
 
 .timeline-event {
   display: flex;
   align-items: flex-start;
-  gap: 9px;
-  padding: 8px 16px;
-  border-top: 1px solid var(--lm-border);
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-4);
+  border-top: 1px solid var(--border);
 
   &:first-child {
     border-top: none;
@@ -374,26 +370,25 @@
     height: 28px;
     border-radius: 50%;
     flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(34, 160, 107, 0.14);
-    color: var(--lm-success);
+    display: grid;
+    place-items: center;
+    background: var(--success-subtle);
+    color: var(--success-text);
 
     mat-icon {
-      font-size: 15px;
-      width: 15px;
-      height: 15px;
+      font-size: 16px;
+      width: 16px;
+      height: 16px;
     }
 
     &--neutral {
-      background: rgba(108, 93, 211, 0.12);
-      color: var(--lm-primary);
+      background: var(--primary-subtle);
+      color: var(--primary-text);
     }
 
     &--info {
-      background: rgba(76, 141, 255, 0.14);
-      color: var(--lm-info);
+      background: var(--info-subtle);
+      color: var(--info-text);
     }
   }
 
@@ -405,18 +400,19 @@
   }
 
   &__title {
-    font-size: 12.5px;
-    font-weight: 650;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
   }
 
-  &__subtitle {
-    font-size: 11px;
-    color: var(--lm-text-muted);
+  &__subtitle,
+  &__date {
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
   }
 
   &__date {
-    font-size: 11px;
-    color: var(--lm-text-muted);
     flex-shrink: 0;
   }
 }
@@ -424,92 +420,47 @@
 .lower-total {
   display: flex;
   justify-content: space-between;
-  border-top: 1px solid var(--lm-border);
-  padding: 12px 16px;
-  font-weight: 700;
+  border-top: 1px solid var(--border);
+  padding: var(--space-3) var(--space-4);
+  font-weight: 600;
   font-size: 13px;
-}
+  color: var(--text);
+  background: var(--surface-sunken);
 
-.table-scroll {
-  overflow-x: auto;
+  .hero-stat__value--orange {
+    color: var(--warning-text);
+  }
 }
 
 .history-table {
   width: 100%;
-  @include tokens.lm-data-table;
-
-  &__footer {
-    font-weight: 600;
-
-    td.mat-mdc-footer-cell {
-      border-top: 2px solid var(--lm-border);
-    }
-  }
 }
 
 // Payments tab — compact fixed widths on every column but Notes, so the
-// dense identifying columns (date/amount/method/balance/reference/created)
-// hug the left edge and Notes alone absorbs whatever width is left over
-// (same technique as payments.component.scss's standalone Payments list).
-// Scoped by --payments (not plain .history-table) so it can't also resize
-// the unrelated mini Payment History card above, which reuses the same
-// matColumnDef keys ("date"/"amount"/"method") at a much narrower width.
-//
-// Every fixed column also gets white-space: nowrap, so its content can
-// never wrap onto a second line and inflate --lm-table-row-h — a width
-// alone isn't enough since the table's default "auto" layout algorithm
-// still wraps content that doesn't fit. With nowrap, a column that truly
-// needs more room grows the table past 100% instead, and .table-scroll's
-// overflow-x: auto turns that into a horizontal scrollbar — the same
-// "scroll, don't squish" fallback the rest of the app already uses on
-// narrow/mobile viewports, rather than a new responsive pattern here.
+// identifying columns hug the left edge and Notes absorbs the rest. Scoped
+// by --payments so it can't resize the mini Payment History card above,
+// which reuses the same matColumnDef keys at a narrower width.
 .history-table--payments {
   th.mat-column-date,
-  td.mat-column-date {
-    width: 118px;
-    white-space: nowrap;
-  }
+  td.mat-column-date { width: 118px; }
 
   th.mat-column-amount,
-  td.mat-column-amount {
-    width: 110px;
-    white-space: nowrap;
-  }
+  td.mat-column-amount { width: 110px; }
 
   th.mat-column-method,
-  td.mat-column-method {
-    width: 112px;
-    white-space: nowrap;
-  }
+  td.mat-column-method { width: 112px; }
 
   th.mat-column-balance,
-  td.mat-column-balance {
-    width: 150px;
-    white-space: nowrap;
-  }
+  td.mat-column-balance { width: 150px; }
 
   th.mat-column-reference,
-  td.mat-column-reference {
-    width: 112px;
-    white-space: nowrap;
-  }
+  td.mat-column-reference { width: 112px; }
 
   th.mat-column-createdAt,
-  td.mat-column-createdAt {
-    width: 172px;
-    white-space: nowrap;
-  }
+  td.mat-column-createdAt { width: 172px; }
 
   th.mat-column-actions,
-  td.mat-column-actions {
-    width: 84px;
-    white-space: nowrap;
-  }
-
-  // Notes has no declared width and no nowrap — it's the sole column that
-  // absorbs whatever's left of the table's own 100% width, wrapping onto
-  // extra lines only for a genuinely long note (acceptable; unlike the
-  // fixed columns above, that's real content growth, not layout cramping).
+  td.mat-column-actions { width: 84px; }
 
   td.mat-column-method,
   td.mat-column-reference {
@@ -518,23 +469,9 @@
   }
 }
 
-.empty-note {
-  font-size: 12.5px;
-  color: var(--lm-text-muted);
-  padding: 8px 4px;
-  margin: 0;
-}
-
 .state-panel {
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 240px;
-}
-
-.empty-hint {
-  padding: 20px;
-  text-align: center;
-  color: var(--lm-text-muted);
-  font-size: 13px;
 }

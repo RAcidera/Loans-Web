@@ -9,7 +9,7 @@
 
   <div class="promise-row" *ngFor="let promise of promises">
     <div class="promise-row__main">
-      <span class="chip" [ngClass]="'chip--' + promise.status">{{ statusLabel[promise.status] }}</span>
+      <span class="badge-compact soft upper" [attr.data-tone]="promise.status | badgeTone">{{ statusLabel[promise.status] }}</span>
       <span class="promise-row__amount mono">₱{{ promise.amount | number: '1.2-2' }}</span>
       <span class="promise-row__date mono">{{ promise.promiseDate | appDate: 'MMM d, y' }}</span>
       <span class="promise-row__loan mono" *ngIf="!loanId">{{ promise.loanNumber }}</span>
@@ -19,7 +19,7 @@
     <p class="promise-row__notes" *ngIf="promise.notes">{{ promise.notes }}</p>
 
     <div class="promise-row__reschedule" *ngIf="reschedulingId === promise.promiseId">
-      <input type="date" [(ngModel)]="rescheduleDate" class="date-input" />
+      <input type="date" [(ngModel)]="rescheduleDate" class="input date-input" aria-label="New promise date" />
       <button mat-stroked-button (click)="cancelReschedule()">Cancel</button>
       <button mat-flat-button color="primary" (click)="confirmReschedule(promise)">Confirm</button>
     </div>

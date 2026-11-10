@@ -1,72 +1,75 @@
 // ---------------------------------------------------------
-// Design tokens — Loan Manager Admin
-// Palette: indigo accent (trust/fintech) + near-black sidebar, on a cool
-// light-neutral surface. Sidebar background is deliberately decoupled from
-// the brand accent (--lm-sidebar-bg vs --lm-primary) — the previous pine
-// palette used one token for both jobs, but this template needs a dark
-// sidebar container and a separate, brighter accent for buttons/links/active
-// states.
+// Design tokens — Loan Manager Admin (legacy --lm-* names)
+// Every --lm-* colour/type/shadow token is now an ALIAS of a Cambria UI
+// Toolkit token (styles/_cambria-tokens.scss, loaded once from styles.scss),
+// so the 50+ component stylesheets that consume --lm-* follow the Bright
+// Indigo palette and switch with light/dark mode without being edited.
+// Prefer the toolkit names (--primary, --surface, --text-muted…) in new work.
+//
+// Both blocks are declared on :root, so var() aliases resolve against
+// whichever theme's toolkit values are active there.
 // ---------------------------------------------------------
 
 :root {
-  // Brand accent — buttons, links, active-nav pill, tab underlines
-  --lm-primary: #6C5DD3;
-  --lm-primary-light: #8B7FE8; // lighter accent — secondary accents, hover states
-  --lm-primary-dark: #5847C4;  // pressed/hover state for solid accent surfaces
+  // Brand accent — buttons, links, active states, tab underlines
+  --lm-primary: var(--primary);
+  --lm-primary-light: color-mix(in srgb, var(--primary) 72%, var(--surface));
+  --lm-primary-dark: var(--primary-hover);
 
-  // Sidebar container — decoupled from --lm-primary, see note above
+  // Former dark-sidebar tokens. The shell no longer uses them (it follows
+  // the toolkit's light nav surface); only the login page's background
+  // gradient still does, until it is restyled in a later phase.
   --lm-sidebar-bg: #14121F;
-  --lm-sidebar-elevated: #1E1B2E; // promo card surface inside the sidebar
+  --lm-sidebar-elevated: #1E1B2E;
   --lm-sidebar-text-muted: rgba(255, 255, 255, 0.6);
 
   // Status semantics
-  --lm-success: #22A06B; // active / good standing / positive trend
-  --lm-warning: #E1AA36; // pending / extended / attention
-  --lm-danger: #C1666B;  // overdue / rejected
-  --lm-info: #4C8DFF;    // in progress
+  --lm-success: var(--success);
+  --lm-warning: var(--warning);
+  --lm-danger: var(--danger);
+  --lm-info: var(--avatar-2);
 
-  // Legacy aliases — kept so any not-yet-migrated consumer still resolves;
-  // prefer the semantic names above for new work.
-  --lm-amber: #E1AA36;
-  --lm-rose: #C1666B;
+  // Legacy aliases
+  --lm-amber: var(--warning);
+  --lm-rose: var(--danger);
 
-  // Surfaces / neutrals — cooler and lighter than the old warm-paper palette
-  --lm-bg: #F6F6FB;
-  --lm-surface: #FFFFFF;
-  --lm-border: #ECECF3;
-  --lm-text: #1B1B29;
-  --lm-text-muted: #8B8FA3;
+  // Surfaces / neutrals
+  --lm-bg: var(--bg);
+  --lm-surface: var(--surface);
+  --lm-border: var(--border);
+  --lm-text: var(--text);
+  --lm-text-muted: var(--text-muted);
 
-  // Type — Inter is the app-wide default (text, controls, buttons, headings);
-  // --lm-font-display used to point at Space Grotesk, now unified on Inter.
-  --lm-font-display: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --lm-font-body: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-  --lm-font-mono: 'IBM Plex Mono', 'SFMono-Regular', monospace;
+  // Type — one family (Segoe UI, via --font-sans) for everything,
+  // amounts included (toolkit "amount" style = body font + tabular digits,
+  // see `.mono`/`.num` in _cambria-components.scss). --lm-font-mono is kept
+  // as a name only so existing `.mono` rules keep resolving.
+  --lm-font-display: var(--font-sans);
+  --lm-font-body: var(--font-sans);
+  --lm-font-mono: var(--font-sans);
 
-  // Data-grid chrome — dark indigo header, alternating row stripe (see
-  // Data-table-layout-style.png, the shared reference for how a mat-table
-  // should look across the app).
-  --lm-table-header-bg: #2C195F;
-  --lm-table-header-text: #FFFFFF;
-  --lm-table-row-stripe: #EFF4FA;
-  --lm-table-row-text: rgba(17, 28, 45, 0.6);
-  --lm-table-footer-bg: #F1F2F8;
-  --lm-table-font-size: 13.2px;
-  --lm-table-header-row-h: 32.25px;
-  --lm-table-row-h: 31px;
+  // Data-grid chrome — toolkit table: surface header with muted 12px text,
+  // no zebra stripes, toolkit "Compact" 32px rows (app default).
+  --lm-table-header-bg: var(--surface);
+  --lm-table-header-text: var(--text-muted);
+  --lm-table-row-stripe: transparent;
+  --lm-table-row-text: var(--text);
+  --lm-table-footer-bg: var(--surface-sunken);
+  --lm-table-font-size: 13px;
+  --lm-table-header-row-h: 40px;
+  --lm-table-row-h: 32px; // toolkit Compact density
 
-  // Standard control chrome — buttons, the Loans-tab search box and native
-  // filter <select>s (Customer-detail-page.html reference). Distinct from
-  // --lm-radius (12px), which stays reserved for cards/panels.
-  --lm-radius-control: 8px;
+  // Control corner radius (buttons, inputs, selects) — toolkit --radius-sm.
+  // --lm-radius (12px) stays reserved for cards/panels.
+  --lm-radius-control: var(--radius-sm);
 
   // Layout
-  --lm-radius: 12px;
-  --lm-sidebar-w: 240px;
-  --lm-sidebar-w-collapsed: 72px;
-  --lm-topbar-h: 64px;
-  --lm-shadow-sm: 0 1px 2px rgba(20, 18, 31, 0.06), 0 1px 1px rgba(20, 18, 31, 0.04);
-  --lm-shadow-md: 0 4px 16px rgba(20, 18, 31, 0.08);
+  --lm-radius: var(--radius-lg);
+  --lm-sidebar-w: var(--shell-sidebar-w);
+  --lm-sidebar-w-collapsed: var(--shell-sidebar-w-collapsed);
+  --lm-topbar-h: var(--shell-topbar-h);
+  --lm-shadow-sm: var(--shadow-card);
+  --lm-shadow-md: var(--shadow-overlay);
 }
 
 // Breakpoints
@@ -95,83 +98,14 @@ $lm-bp-tablet: 899px;
 
 @mixin lm-mono-figure {
   font-family: var(--lm-font-mono);
-  font-feature-settings: "tnum" 1;
-  // No letter-spacing override here — the global "letter-spacing: normal"
-  // rule in styles.scss is the single source of truth for the whole app.
+  font-variant-numeric: tabular-nums;
 }
 
-// Shared mat-table look: dark indigo header with bold white text (no
-// uppercase/letter-spacing treatment), Inter at --lm-table-font-size for
-// both header and body cells, alternating row stripe, and compact
-// header/row heights (padding trimmed to fit --lm-table-header-row-h /
-// --lm-table-row-h so more rows fit on screen without scrolling). New
-// tables should @include this on their own table class rather than
-// restyling the header/row look from scratch — see Data-table-layout-style.png.
+// Shared mat-table hook — intentionally empty. The whole grid look (toolkit
+// table: 40px header with muted 12px/500 labels, toolkit Compact 32px rows,
+// hairline dividers, sunken hover, tabular figures, totals footer, 26px row
+// action buttons, toolkit header-button sorting) is applied to EVERY
+// mat-table globally in styles/_material-bridge.scss. Kept so the pages that
+// @include it compile unchanged; don't add per-page grid styling here.
 @mixin lm-data-table {
-  font-family: var(--lm-font-body);
-  font-size: var(--lm-table-font-size);
-
-  th.mat-mdc-header-cell {
-    background-color: var(--lm-table-header-bg) !important;
-    color: var(--lm-table-header-text);
-    font-family: var(--lm-font-body);
-    font-size: var(--lm-table-font-size);
-    font-weight: 700;
-    text-transform: none;
-    letter-spacing: normal;
-  }
-
-  tr.mat-mdc-header-row {
-    height: var(--lm-table-header-row-h);
-  }
-
-  tr.mat-mdc-row {
-    height: var(--lm-table-row-h);
-  }
-
-  th.mat-mdc-header-cell,
-  td.mat-mdc-cell,
-  td.mat-mdc-footer-cell {
-    padding-top: 4px;
-    padding-bottom: 4px;
-    line-height: 1.2;
-  }
-
-  td.mat-mdc-cell {
-    font-family: var(--lm-font-body);
-    font-size: var(--lm-table-font-size);
-    color: var(--lm-table-row-text);
-  }
-
-  // Footer totals get their own distinct band — bold, full-opacity text on
-  // a light gray fill — rather than the muted body-row color, so a TOTAL
-  // row reads as a summary rather than just another row.
-  td.mat-mdc-footer-cell {
-    background-color: var(--lm-table-footer-bg) !important;
-    font-family: var(--lm-font-body);
-    font-size: var(--lm-table-font-size);
-    color: var(--lm-text);
-    font-weight: 700;
-  }
-
-  tr.mat-mdc-row:nth-child(odd) {
-    background-color: var(--lm-table-row-stripe);
-  }
-
-  // Material's icon-button touch target (~40-48px) is taller than
-  // --lm-table-row-h on its own, so any "actions" column with a
-  // mat-icon-button silently forces the whole row past 31px regardless of
-  // the padding/height rules above. Shrink it to fit inside the row.
-  td.mat-mdc-cell .mat-mdc-icon-button {
-    width: 28px;
-    height: 28px;
-    padding: 2px;
-    --mdc-icon-button-state-layer-size: 28px;
-
-    .mat-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-    }
-  }
 }

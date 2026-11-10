@@ -11,7 +11,7 @@
     <button mat-flat-button color="primary" [matMenuTriggerFor]="newMenu">
       <mat-icon>add</mat-icon>
       New Entry
-      <mat-icon>arrow_drop_down</mat-icon>
+      <mat-icon iconPositionEnd>arrow_drop_down</mat-icon>
     </button>
     <mat-menu #newMenu="matMenu">
       <button mat-menu-item (click)="newDiaryEntry.emit()">

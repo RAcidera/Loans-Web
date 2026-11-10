@@ -1,55 +1,49 @@
-.mono {
-  font-family: var(--lm-font-mono);
-}
-
 .event-detail {
-  padding: 20px 22px 18px;
+  padding: var(--space-5) var(--space-5) var(--space-4);
   min-width: 300px;
   max-width: 380px;
 }
 
 .event-detail__header {
   border-left: 3px solid;
-  padding-left: 12px;
-  margin-bottom: 16px;
+  padding-left: var(--space-3);
+  margin-bottom: var(--space-4);
 }
 
 .event-detail__type {
-  display: block;
-  font-size: 12px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
+  display: inline-flex;
+  margin-bottom: var(--space-1);
 }
 
+// Toolkit dialog title (.dialog__h h3 scaled for a preview card).
 .event-detail__subtitle {
-  font-family: var(--lm-font-display);
   font-size: 16px;
-  font-weight: 700;
-  margin: 2px 0 0;
-  color: var(--lm-text);
+  line-height: 22px;
+  font-weight: 600;
+  margin: 0;
+  color: var(--text);
 }
 
 .event-detail__facts {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin: 0 0 18px;
+  gap: var(--space-2);
+  margin: 0 0 var(--space-5);
 }
 
 .event-detail__fact {
   display: flex;
   justify-content: space-between;
-  gap: 12px;
+  gap: var(--space-3);
   font-size: 13px;
 
   dt {
-    color: var(--lm-text-muted);
+    color: var(--text-muted);
   }
 
   dd {
     margin: 0;
-    color: var(--lm-text);
+    color: var(--text);
     text-align: right;
     font-weight: 600;
   }
@@ -58,11 +52,5 @@
 .event-detail__actions {
   display: flex;
   justify-content: flex-end;
-  gap: 10px;
-
-  button {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-  }
+  gap: var(--space-2);
 }

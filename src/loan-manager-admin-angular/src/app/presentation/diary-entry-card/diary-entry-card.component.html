@@ -1,12 +1,12 @@
 <div class="entry-card" (click)="view.emit(entry)">
-  <span class="entry-card__avatar" [style.background]="avatarTint" [style.color]="entry.categoryDisplayColor">
+  <span class="entry-card__avatar" [style.background]="avatarTint" [style.color]="avatarInk">
     <mat-icon>{{ entry.categoryIcon }}</mat-icon>
   </span>
 
   <div class="entry-card__main">
     <div class="entry-card__top">
       <span class="entry-card__time mono">{{ entry.entryTime }}</span>
-      <lm-category-badge [name]="entry.categoryName" [icon]="entry.categoryIcon" [color]="entry.categoryDisplayColor"></lm-category-badge>
+      <lm-category-badge casing="upper" [name]="entry.categoryName" [icon]="entry.categoryIcon" [color]="entry.categoryDisplayColor"></lm-category-badge>
       <mat-icon *ngIf="entry.reminderDate" class="entry-card__reminder-icon" title="Has a reminder">notifications</mat-icon>
     </div>
 
@@ -14,7 +14,7 @@
     <p class="entry-card__notes" *ngIf="entry.notes">{{ entry.notes }}</p>
 
     <div class="entry-card__tags" *ngIf="tags.length > 0">
-      <span class="entry-card__tag" *ngFor="let tag of tags">{{ tag }}</span>
+      <span class="badge-compact soft" *ngFor="let tag of tags">{{ tag }}</span>
     </div>
 
     <button type="button" mat-stroked-button class="entry-card__view" *ngIf="!hasContextPanel" (click)="view.emit(entry); stop($event)">
@@ -49,7 +49,7 @@
       </div>
     </div>
 
-    <button type="button" class="context-panel__view" (click)="view.emit(entry); stop($event)">
+    <button type="button" mat-stroked-button class="context-panel__view" (click)="view.emit(entry); stop($event)">
       <mat-icon>visibility</mat-icon>
       View
     </button>

@@ -54,9 +54,14 @@ public class CustomerRepository : ICustomerRepository
         var totalCount = await query.CountAsync(ct);
 
         var desc = string.Equals(sortDir, "desc", StringComparison.OrdinalIgnoreCase);
+        // Every sort ends with a FullName tiebreak so equal keys page stably.
         query = sortBy?.ToLowerInvariant() switch
         {
-            "borrowertype" => desc ? query.OrderByDescending(c => c.BorrowerType) : query.OrderBy(c => c.BorrowerType),
+            "code" => desc ? query.OrderByDescending(c => c.CustomerNumber) : query.OrderBy(c => c.CustomerNumber),
+            "contact" => (desc ? query.OrderByDescending(c => c.ContactNumber) : query.OrderBy(c => c.ContactNumber)).ThenBy(c => c.FullName),
+            "borrowertype" => (desc ? query.OrderByDescending(c => c.BorrowerType) : query.OrderBy(c => c.BorrowerType)).ThenBy(c => c.FullName),
+            "status" => (desc ? query.OrderByDescending(c => c.Status) : query.OrderBy(c => c.Status)).ThenBy(c => c.FullName),
+            "createdat" => (desc ? query.OrderByDescending(c => c.CreatedAtUtc) : query.OrderBy(c => c.CreatedAtUtc)).ThenBy(c => c.FullName),
             _ => desc ? query.OrderByDescending(c => c.FullName) : query.OrderBy(c => c.FullName),
         };
 
@@ -66,6 +71,20 @@ public class CustomerRepository : ICustomerRepository
 
     public Task<List<Customer>> GetFilteredAsync(string? search, CustomerStatus? status, CancellationToken ct = default) =>
         ApplyFilters(_db.Customers.AsNoTracking().AsQueryable(), search, status).ToListAsync(ct);
+
+    public async Task<List<(CustomerId Id, string FullName)>> GetFilteredIdsAsync(string? search, CustomerStatus? status, CancellationToken ct = default)
+    {
+        var rows = await ApplyFilters(_db.Customers.AsNoTracking().AsQueryable(), search, status)
+            .Select(c => new { c.Id, c.FullName })
+            .ToListAsync(ct);
+        return rows.Select(r => (r.Id, r.FullName)).ToList();
+    }
+
+    public async Task<List<Customer>> GetByIdsAsync(IReadOnlyCollection<CustomerId> ids, CancellationToken ct = default)
+    {
+        if (ids.Count == 0) return new List<Customer>();
+        return await _db.Customers.AsNoTracking().Where(c => ids.Contains(c.Id)).ToListAsync(ct);
+    }
 
     private static IQueryable<Customer> ApplyFilters(IQueryable<Customer> query, string? search, CustomerStatus? status)
     {
