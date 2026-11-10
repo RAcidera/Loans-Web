@@ -28,9 +28,9 @@
   </div>
 
   <div class="loan-timeline__meta">
-    <span *ngIf="daysOverdue > 0" class="loan-timeline__flag loan-timeline__flag--overdue">{{ daysOverdue }} days overdue</span>
-    <span *ngIf="loan.status === 'paid'" class="loan-timeline__flag loan-timeline__flag--paid">Fully paid</span>
-    <span *ngIf="extensionTicks.length > 0" class="loan-timeline__flag loan-timeline__flag--extended">
+    <span *ngIf="daysOverdue > 0" class="badge-compact soft titlecase" data-tone="danger">{{ daysOverdue }} days overdue</span>
+    <span *ngIf="loan.status === 'paid'" class="badge-compact soft titlecase" data-tone="light">Fully paid</span>
+    <span *ngIf="extensionTicks.length > 0" class="badge-compact soft titlecase" data-tone="warning">
       Extended {{ extensionTicks.length }}×
     </span>
   </div>

@@ -82,7 +82,7 @@
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
-      <th mat-header-cell *matHeaderCellDef class="left">Created</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="left">Created</th>
       <td mat-cell *matCellDef="let payment" class="mono left">{{ payment.createdAt | appDateTime:'MM/dd/yyyy h:mm a' }}</td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
@@ -94,21 +94,21 @@
     </ng-container>
 
     <ng-container matColumnDef="paymentMethod">
-      <th mat-header-cell *matHeaderCellDef>Method</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Method</th>
       <td mat-cell *matCellDef="let payment">
-        <span class="chip chip--tag">{{ getMethodLabel(payment.paymentMethod) }}</span>
+        <span class="badge-compact soft upper" data-tone="primary">{{ getMethodLabel(payment.paymentMethod) }}</span>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="referenceNumber">
-      <th mat-header-cell *matHeaderCellDef>Reference</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Reference</th>
       <td mat-cell *matCellDef="let payment" class="mono">{{ payment.referenceNumber || '—' }}</td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="notes">
-      <th mat-header-cell *matHeaderCellDef>Notes</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Notes</th>
       <td mat-cell *matCellDef="let payment">{{ payment.notes || '—' }}</td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
@@ -125,7 +125,7 @@
     [length]="totalCount"
     [pageIndex]="pageIndex"
     [pageSize]="pageSize"
-    [pageSizeOptions]="[10, 25, 50]"
+    [pageSizeOptions]="[10, 15, 20, 25, 50]"
     showFirstLastButtons
     (page)="onPage($event)"
   ></mat-paginator>

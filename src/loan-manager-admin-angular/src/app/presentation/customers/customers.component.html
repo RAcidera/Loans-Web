@@ -54,7 +54,7 @@
   <div class="table-scroll">
   <table mat-table [dataSource]="dataSource" matSort (matSortChange)="onSort($event)" class="customers-table">
     <ng-container matColumnDef="customerCode">
-      <th mat-header-cell *matHeaderCellDef>Code</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer #</th>
       <td mat-cell *matCellDef="let c" class="mono bold">
         <a class="row-link" (click)="openCustomerProfile(c)">{{ c.customerCode }}</a>
       </td>
@@ -69,7 +69,7 @@
     </ng-container>
 
     <ng-container matColumnDef="contact">
-      <th mat-header-cell *matHeaderCellDef>Contact</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Contact</th>
       <td mat-cell *matCellDef="let c" class="mono">{{ c.contactNumber }}</td>
     </ng-container>
 
@@ -79,24 +79,34 @@
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
       <td mat-cell *matCellDef="let c">
-        <span class="chip" [ngClass]="'chip--' + c.status">{{ getStatusLabel(c.status) }}</span>
+        <span class="badge-compact soft upper" [attr.data-tone]="c.status | badgeTone">{{ getStatusLabel(c.status) }}</span>
       </td>
     </ng-container>
 
     <ng-container matColumnDef="loanCount">
-      <th mat-header-cell *matHeaderCellDef class="center">Total Loans</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="center">Total Loans</th>
       <td mat-cell *matCellDef="let c" class="mono center">{{ c.loanCount }}</td>
     </ng-container>
 
+    <ng-container matColumnDef="lastPaymentDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Last Payment Date</th>
+      <td mat-cell *matCellDef="let c" class="mono">{{ c.lastPaymentDate ? (c.lastPaymentDate | appDate:'MM/dd/yyyy') : '—' }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="overdueCount">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="center"># Overdue</th>
+      <td mat-cell *matCellDef="let c" class="mono center" [class.overdue-count]="c.overdueLoanCount > 0">{{ c.overdueLoanCount }}</td>
+    </ng-container>
+
     <ng-container matColumnDef="outstandingBalance">
-      <th mat-header-cell *matHeaderCellDef class="right">Outstanding Balance</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Outstanding Balance</th>
       <td mat-cell *matCellDef="let c" class="mono right bold">₱{{ c.outstandingBalance | number:'1.2-2' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="createdAt">
-      <th mat-header-cell *matHeaderCellDef>Date Added</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Date Added</th>
       <td mat-cell *matCellDef="let c" class="mono">{{ c.createdAt | appDateTime:'MM/dd/yyyy' }}</td>
     </ng-container>
 
@@ -122,7 +132,7 @@
     [length]="totalCount"
     [pageIndex]="pageIndex"
     [pageSize]="pageSize"
-    [pageSizeOptions]="[10, 25, 50]"
+    [pageSizeOptions]="[10, 15, 25, 50]"
     showFirstLastButtons
     (page)="onPage($event)"
   ></mat-paginator>

@@ -19,6 +19,9 @@ public sealed record GetDashboardSummaryQuery : IRequest<DashboardSummaryDto>;
 /// </summary>
 public sealed class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboardSummaryQuery, DashboardSummaryDto>
 {
+    /// <summary>Rows in the dashboard's Recent Loans table.</summary>
+    internal const int RecentLoansCount = 8;
+
     private readonly ILoanRepository _loanRepository;
     private readonly ICustomerRepository _customerRepository;
     private readonly IAppDateTimeService _appDateTime;
@@ -58,7 +61,7 @@ public sealed class GetDashboardSummaryQueryHandler : IRequestHandler<GetDashboa
 
         var recentLoans = loans
             .OrderByDescending(l => l.CreatedAtUtc)
-            .Take(5)
+            .Take(RecentLoansCount)
             .Select(l => l.ToDto(customerNames.GetValueOrDefault(l.CustomerId, "Unknown")))
             .ToList();
 

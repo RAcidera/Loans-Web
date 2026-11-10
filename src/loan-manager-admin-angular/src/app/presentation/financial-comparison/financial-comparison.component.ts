@@ -37,7 +37,7 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
     <div class="comparison" *ngIf="comparison">
       <div class="comparison__header">
         <div class="comparison__heading">
-          <span class="comparison__title">FINANCIAL COMPARISON</span>
+          <span class="comparison__title">Financial Comparison</span>
           <span class="comparison__subtitle">
             Snapshot vs Today ({{ comparison.todayDate | appDate: 'MMM d, y' }})
           </span>
@@ -46,7 +46,7 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
             {{ elapsedText() }}
           </span>
         </div>
-        <button mat-stroked-button class="comparison__export-btn" (click)="exportCsv()">
+        <button mat-stroked-button (click)="exportCsv()">
           <mat-icon>download</mat-icon>
           Export
         </button>
@@ -65,8 +65,8 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
                 Today
                 <span class="comparison__col-date mono">{{ comparison.todayDate | appDate: 'MMM d, y' }}</span>
               </th>
-              <th>Change</th>
-              <th>% Change</th>
+              <th class="right">Change</th>
+              <th class="right">% Change</th>
             </tr>
           </thead>
           <tbody>
@@ -90,7 +90,7 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
       <div class="since-snapshot">
         <div class="since-snapshot__header">
           <mat-icon>trending_up</mat-icon>
-          <span>SINCE THIS SNAPSHOT</span>
+          <span>Since This Snapshot</span>
         </div>
         <div class="since-snapshot__grid">
           <div class="since-snapshot__cell" *ngIf="metric('cashOnHand') as m">
@@ -149,45 +149,39 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
   `,
   styles: [
     `
-      .mono {
-        font-family: var(--lm-font-mono);
-        font-feature-settings: 'tnum' 1;
-      }
-
       .comparison__header {
         display: flex;
         align-items: flex-start;
         justify-content: space-between;
-        gap: 12px;
+        gap: var(--space-3);
         flex-wrap: wrap;
-        margin-bottom: 14px;
+        margin-bottom: var(--space-4);
       }
 
       .comparison__heading {
         display: flex;
         flex-direction: column;
-        gap: 3px;
+        gap: 2px;
       }
 
       .comparison__title {
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: var(--lm-text-muted);
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 600;
+        color: var(--text);
       }
 
       .comparison__subtitle {
         font-size: 13px;
-        font-weight: 600;
-        color: var(--lm-text);
+        color: var(--text-secondary);
       }
 
       .comparison__elapsed {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: var(--space-1);
         font-size: 12px;
-        color: var(--lm-text-muted);
+        color: var(--text-muted);
 
         mat-icon {
           font-size: 14px;
@@ -196,35 +190,30 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
         }
       }
 
-      .comparison__export-btn {
-        display: flex;
-        align-items: center;
-        gap: 4px;
-
-        mat-icon {
-          font-size: 16px;
-          width: 16px;
-          height: 16px;
-        }
-      }
-
       .comparison-scroll {
         overflow-x: auto;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-md);
       }
 
+      // Toolkit table: 40px muted header over a control-colour rule, hairline rows.
       .comparison__table {
         width: 100%;
         border-collapse: collapse;
         font-size: 13px;
 
         th {
+          height: 40px;
+          padding: var(--space-1) var(--space-3);
           text-align: right;
-          font-size: 11px;
-          font-weight: 700;
-          color: var(--lm-text-muted);
-          padding: 8px 10px;
-          border-bottom: 1px solid var(--lm-border);
-          background: var(--lm-bg);
+          vertical-align: middle;
+          font-size: 12px;
+          line-height: 16px;
+          font-weight: 500;
+          color: var(--text-muted);
+          background: var(--surface);
+          border-bottom: 1px solid var(--border-control);
+          white-space: nowrap;
         }
 
         th.comparison__metric-head {
@@ -232,15 +221,20 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
         }
 
         td {
+          height: 40px;
+          padding: 0 var(--space-3);
           text-align: right;
-          padding: 9px 10px;
-          border-bottom: 1px solid var(--lm-border);
+          color: var(--text);
+          border-bottom: 1px solid var(--border);
+          white-space: nowrap;
         }
 
-        // Snapshot/Today/Change/% Change figures — heavier than the table's plain
-        // 400 default so they read as the primary data, not the Metric label.
         td.mono {
           font-weight: 500;
+        }
+
+        tbody tr:hover td {
+          background: var(--surface-sunken);
         }
 
         tbody tr:last-child td {
@@ -250,17 +244,14 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
 
       .comparison__col-date {
         display: block;
-        font-size: 10.5px;
-        font-weight: 500;
-        text-transform: none;
-        letter-spacing: normal;
-        color: var(--lm-text-muted);
-        margin-top: 1px;
+        font-size: 11px;
+        font-weight: 400;
+        color: var(--text-muted);
       }
 
-      .comparison__metric-label {
-        text-align: left !important;
-        color: var(--lm-text);
+      .comparison__table td.comparison__metric-label {
+        text-align: left;
+        color: var(--text);
         font-weight: 500;
       }
 
@@ -268,7 +259,7 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
         display: inline-flex;
         align-items: center;
         justify-content: flex-end;
-        gap: 3px;
+        gap: 2px;
 
         mat-icon {
           font-size: 14px;
@@ -277,41 +268,44 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
         }
       }
 
+      .comparison__table td.good,
       .good {
-        color: var(--lm-success);
+        color: var(--success-text);
       }
 
+      .comparison__table td.bad,
       .bad {
-        color: var(--lm-danger);
+        color: var(--danger-text);
       }
 
+      .comparison__table td.neutral,
       .neutral {
-        color: var(--lm-primary);
+        color: var(--primary-text);
       }
 
-      // Since This Snapshot — a tinted summary band beneath the table.
+      // Since This Snapshot — a success-tinted summary band beneath the table.
       .since-snapshot {
-        margin-top: 16px;
-        background: rgba(34, 160, 107, 0.06);
-        border: 1px solid rgba(34, 160, 107, 0.2);
-        border-radius: var(--lm-radius-control);
-        padding: 14px 16px;
+        margin-top: var(--space-4);
+        padding: var(--space-4);
+        border: 1px solid color-mix(in srgb, var(--success) 28%, transparent);
+        border-radius: var(--radius-md);
+        background: color-mix(in srgb, var(--success) 7%, transparent);
       }
 
       .since-snapshot__header {
         display: flex;
         align-items: center;
-        gap: 6px;
-        margin-bottom: 12px;
-        font-size: 11px;
-        font-weight: 700;
-        letter-spacing: 0.04em;
-        color: var(--lm-success);
+        gap: var(--space-2);
+        margin-bottom: var(--space-3);
+        font-size: 14px;
+        line-height: 20px;
+        font-weight: 600;
+        color: var(--success-text);
 
         mat-icon {
-          font-size: 15px;
-          width: 15px;
-          height: 15px;
+          font-size: 16px;
+          width: 16px;
+          height: 16px;
         }
       }
 
@@ -319,28 +313,29 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
         display: grid;
         // Six regular cells plus a wider closing column for Adjusted Capital Growth, all on one row.
         grid-template-columns: repeat(6, minmax(0, 1fr)) minmax(0, 1.6fr);
-        gap: 12px 10px;
+        gap: var(--space-3) var(--space-3);
       }
 
       .since-snapshot__cell {
         display: flex;
         flex-direction: column;
-        gap: 4px;
+        gap: var(--space-1);
         min-width: 0;
       }
 
       .since-snapshot__label {
-        font-size: 11px;
-        color: var(--lm-text-muted);
+        font-size: 12px;
+        line-height: 16px;
+        color: var(--text-muted);
         white-space: nowrap;
       }
 
       .since-snapshot__value {
         display: inline-flex;
         align-items: center;
-        gap: 3px;
+        gap: 2px;
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 600;
 
         mat-icon {
           font-size: 14px;
@@ -351,18 +346,22 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
 
       // Adjusted Capital Growth — the row's last, wider column, set apart as the headline figure.
       .since-snapshot__cell--highlight {
-        padding-left: 12px;
-        border-left: 1px solid rgba(34, 160, 107, 0.3);
+        padding-left: var(--space-3);
+        border-left: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
       }
 
       .since-snapshot__label--caps {
-        font-weight: 700;
+        font-size: 11px;
+        font-weight: 600;
         letter-spacing: 0.04em;
         text-transform: uppercase;
+        color: var(--text-secondary);
       }
 
       .since-snapshot__value--large {
         font-size: 18px;
+        line-height: 24px;
+        font-weight: 700;
 
         mat-icon {
           font-size: 18px;
@@ -372,35 +371,27 @@ const COUNT_KEYS = new Set(['activeLoanCount', 'overdueLoanCount', 'badLoanCount
       }
 
       .since-snapshot__subtext {
-        font-size: 11px;
-        color: var(--lm-text-muted);
+        font-size: 12px;
+        color: var(--text-muted);
       }
 
       @media (max-width: 899px) {
         .since-snapshot__grid {
-          grid-template-columns: repeat(3, 1fr);
+          grid-template-columns: repeat(3, minmax(0, 1fr));
         }
 
         .since-snapshot__cell--highlight {
           grid-column: 1 / -1;
           padding-left: 0;
-          padding-top: 10px;
+          padding-top: var(--space-3);
           border-left: none;
-          border-top: 1px solid rgba(34, 160, 107, 0.3);
+          border-top: 1px solid color-mix(in srgb, var(--success) 35%, transparent);
         }
       }
 
       @media (max-width: 599px) {
         .since-snapshot__grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-
-        .since-snapshot__cell--highlight {
-          grid-column: 1 / -1;
-          padding-left: 0;
-          padding-top: 10px;
-          border-left: none;
-          border-top: 1px solid rgba(34, 160, 107, 0.3);
+          grid-template-columns: repeat(2, minmax(0, 1fr));
         }
       }
     `,

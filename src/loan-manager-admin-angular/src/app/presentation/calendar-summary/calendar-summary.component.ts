@@ -1,6 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
+import { CALENDAR_EVENT_META } from '../shared/calendar-event-meta';
 
 export interface CalendarSummaryData {
   rangeLabel: string;
@@ -22,4 +23,6 @@ export interface CalendarSummaryData {
 })
 export class CalendarSummaryComponent {
   @Input() summary: CalendarSummaryData | null = null;
+  /** Per-type legend colours — counts are inked in their event type's colour. */
+  readonly meta = CALENDAR_EVENT_META;
 }

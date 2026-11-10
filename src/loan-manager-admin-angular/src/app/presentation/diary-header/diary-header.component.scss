@@ -2,54 +2,46 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 16px;
+  gap: var(--space-4);
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: var(--space-4);
 }
 
 .diary-header__title {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: var(--space-3);
 
   h1 {
-    font-family: var(--lm-font-display);
-    font-size: 20px;
-    font-weight: 700;
     margin: 0;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+    color: var(--text);
   }
 
   p {
-    font-size: 12.5px;
-    color: var(--lm-text-muted);
-    margin: 2px 0 0;
+    margin: 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
   }
 }
 
+// Toolkit icon tile (same look as .kpi-card__icon).
 .diary-header__icon {
   width: 40px;
   height: 40px;
-  border-radius: 12px;
   flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(108, 93, 211, 0.12);
-  color: var(--lm-primary);
+  display: grid;
+  place-items: center;
+  border-radius: var(--radius-md);
+  background: var(--primary-subtle);
+  color: var(--primary-text);
 
   mat-icon {
     font-size: 20px;
     width: 20px;
     height: 20px;
-  }
-}
-
-.diary-header__action button {
-  display: flex;
-  align-items: center;
-  gap: 2px;
-
-  mat-icon:last-child {
-    margin-left: -4px;
   }
 }

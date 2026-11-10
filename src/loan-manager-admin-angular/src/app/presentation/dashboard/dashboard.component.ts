@@ -17,6 +17,7 @@ import { ChartTooltipDirective } from '../shared/chart-tooltip.directive';
 import { AppDatePipe } from '../shared/app-date.pipe';
 import { CapitalGrowthPanelComponent } from './capital-growth-panel/capital-growth-panel.component';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 const STATUS_LABEL: Record<LoanStatus, string> = {
   active: 'Active',
   extended: 'Extended',
@@ -32,7 +33,7 @@ interface TrendKpi {
   label: string;
   value: string;
   icon: string;
-  tone: 'neutral' | 'good' | 'warn' | 'danger';
+  tone: 'neutral' | 'good' | 'warn' | 'danger' | 'info';
   changePercent: number | null;
   /** Overrides the value text color for KPIs with a status-threshold rule (Cash on Hand, Bad Loan Receivables) instead of the default neutral text color. */
   valueColor?: string;
@@ -95,7 +96,7 @@ function fmtCompactMoney(n: number): string {
 @Component({
   selector: 'lm-dashboard',
   standalone: true,
-  imports: [CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, ChartTooltipDirective, AppDatePipe, CapitalGrowthPanelComponent],
+  imports: [BadgeTonePipe, CommonModule, MatCardModule, MatTableModule, MatIconModule, MatButtonModule, ChartTooltipDirective, AppDatePipe, CapitalGrowthPanelComponent],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
 })
@@ -150,9 +151,9 @@ export class DashboardComponent implements OnInit {
       this.kpis = [
         { label: 'Gross Receivables', value: fmtMoney(summary.grossReceivables), icon: 'account_balance_wallet', tone: 'neutral', changePercent: summary.grossReceivablesChangePercent, onClick: () => this.router.navigate(['/reports']) },
         { label: 'Collectible Receivables', value: fmtMoney(summary.collectibleReceivables), icon: 'savings', tone: 'good', changePercent: summary.collectibleReceivablesChangePercent, onClick: () => this.router.navigate(['/reports']) },
-        { label: 'Bad Loan Receivables', value: fmtMoney(summary.badLoanReceivables), icon: 'warning_amber', tone: hasBadLoans ? 'danger' : 'good', changePercent: summary.badLoanReceivablesChangePercent, valueColor: hasBadLoans ? 'var(--lm-danger)' : 'var(--lm-success)', onClick: goToLoans(undefined, 'badloan') },
-        { label: 'Cash on Hand', value: fmtCompactMoney(cash.cashOnHand), icon: 'payments', tone: cashHealthy ? 'good' : 'danger', changePercent: cash.cashOnHandChangePercent, valueColor: cashHealthy ? 'var(--lm-success)' : 'var(--lm-danger)', onClick: () => this.router.navigate(['/cash-funds']) },
-        { label: 'Total Business Position', value: fmtMoney(summary.grossReceivables + cash.cashOnHand), icon: 'account_balance', tone: 'neutral', changePercent: null, onClick: () => this.router.navigate(['/reports']) },
+        { label: 'Bad Loan Receivables', value: fmtMoney(summary.badLoanReceivables), icon: 'warning_amber', tone: hasBadLoans ? 'danger' : 'good', changePercent: summary.badLoanReceivablesChangePercent, valueColor: hasBadLoans ? 'var(--danger-text)' : 'var(--success-text)', onClick: goToLoans(undefined, 'badloan') },
+        { label: 'Cash on Hand', value: fmtCompactMoney(cash.cashOnHand), icon: 'payments', tone: cashHealthy ? 'good' : 'danger', changePercent: cash.cashOnHandChangePercent, valueColor: cashHealthy ? 'var(--success-text)' : 'var(--danger-text)', onClick: () => this.router.navigate(['/cash-funds']) },
+        { label: 'Total Business Position', value: fmtMoney(summary.grossReceivables + cash.cashOnHand), icon: 'account_balance', tone: 'info', changePercent: null, onClick: () => this.router.navigate(['/reports']) },
         { label: 'Active Loans', value: `${summary.activeLoansCount}`, icon: 'receipt_long', tone: 'good', changePercent: summary.activeLoansChangePercent, onClick: goToLoans('active') },
         { label: 'Overdue Loans', value: `${summary.overdueLoansCount}`, icon: 'error_outline', tone: summary.overdueLoansCount > 0 ? 'danger' : 'neutral', changePercent: summary.overdueLoansChangePercent, onClick: goToLoans('overdue') },
       ];
@@ -210,7 +211,7 @@ export class DashboardComponent implements OnInit {
       { label: 'Current', value: breakdown.current, color: 'var(--lm-success)' },
       { label: 'Overdue', value: breakdown.overdue, color: 'var(--lm-warning)' },
       { label: 'Bad Loan', value: breakdown.badLoan, color: 'var(--lm-danger)' },
-      { label: 'Paid', value: breakdown.paid, color: 'var(--lm-text-muted)' },
+      { label: 'Paid', value: breakdown.paid, color: 'var(--info)' },
     ];
 
     let cumulative = 0;

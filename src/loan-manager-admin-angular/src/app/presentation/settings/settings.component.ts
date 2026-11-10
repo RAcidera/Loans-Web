@@ -25,6 +25,7 @@ import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AuthService } from '../../application/auth/auth.service';
 import { AppDateTimePipe } from '../shared/app-date-time.pipe';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 /** A modest curated fallback for browsers without Intl.supportedValuesOf('timeZone') (Safari < 17, older Firefox) — every entry here IS supported by the same TimeZoneInfo.FindSystemTimeZoneById the backend validates against. */
 const FALLBACK_TIME_ZONES = [
   'Asia/Manila', 'Asia/Singapore', 'Asia/Hong_Kong', 'Asia/Tokyo', 'Asia/Shanghai', 'Asia/Kolkata', 'Asia/Dubai',
@@ -45,7 +46,7 @@ type StatusFilter = 'all' | UserStatus;
 @Component({
   selector: 'lm-settings',
   standalone: true,
-  imports: [
+  imports: [BadgeTonePipe, 
     CommonModule,
     FormsModule,
     MatCardModule,

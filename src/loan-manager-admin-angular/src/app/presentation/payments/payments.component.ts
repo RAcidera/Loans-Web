@@ -27,6 +27,10 @@ const SORT_KEY: Record<string, string> = {
   customer: 'customer',
   paymentDate: 'date',
   amountPaid: 'amount',
+  createdAt: 'createdAt',
+  paymentMethod: 'method',
+  referenceNumber: 'reference',
+  notes: 'notes',
 };
 
 const PAYMENT_METHOD_LABEL: Record<PaymentMethod, string> = {
@@ -78,7 +82,7 @@ export class PaymentsComponent implements OnInit, OnDestroy {
   totalAmountPaid = 0;
 
   pageIndex = 0;
-  pageSize = 10;
+  pageSize = 20;
   totalCount = 0;
   sortBy?: string;
   sortDir?: 'asc' | 'desc';

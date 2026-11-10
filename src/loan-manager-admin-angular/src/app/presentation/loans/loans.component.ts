@@ -25,6 +25,7 @@ import { AuthService } from '../../application/auth/auth.service';
 import { toLocalDateString, todayLocalDateString } from '../shared/date-utils';
 import { AppDatePipe } from '../shared/app-date.pipe';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 /** Maps mat-sort-header column ids (template) to the backend's GetLoansPage sortBy values. */
 const SORT_KEY: Record<string, string> = {
   loanNumber: 'loanNumber',
@@ -33,6 +34,11 @@ const SORT_KEY: Record<string, string> = {
   principal: 'principalAmount',
   dueDate: 'dueDate',
   balance: 'balance',
+  status: 'status',
+  interest: 'interest',
+  extensionCharges: 'extensionCharges',
+  totalPayments: 'totalPaid',
+  classification: 'classification',
 };
 
 interface LoanKpi {
@@ -83,7 +89,7 @@ function fmtMoney(n: number): string {
 @Component({
   selector: 'lm-loans',
   standalone: true,
-  imports: [
+  imports: [BadgeTonePipe, 
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -114,7 +120,7 @@ export class LoansComponent implements OnInit, OnDestroy {
   kpis: LoanKpi[] = [];
 
   pageIndex = 0;
-  pageSize = 10;
+  pageSize = 15;
   totalCount = 0;
   sortBy?: string;
   sortDir?: 'asc' | 'desc';

@@ -24,6 +24,7 @@ import { firstOfMonthLocalDateString, todayLocalDateString } from '../shared/dat
 import { ChartTooltipDirective } from '../shared/chart-tooltip.directive';
 import { AppDatePipe } from '../shared/app-date.pipe';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 const STATUS_LABEL: Record<LoanStatus, string> = {
   active: 'Active',
   extended: 'Extended',
@@ -63,7 +64,7 @@ interface BarGroup {
 @Component({
   selector: 'lm-interest-earned-report',
   standalone: true,
-  imports: [
+  imports: [BadgeTonePipe, 
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,

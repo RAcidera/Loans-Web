@@ -6,34 +6,41 @@ import { MatIconModule } from '@angular/material/icon';
  * Reusable category chip — reads its color/icon from a DiaryCategory's own
  * DisplayColor/Icon fields, never a hardcoded palette (requirements §5
  * explicitly forbids hardcoding category colors in the Angular app).
+ *
+ * Rendered as the toolkit's compact soft badge (`badge-compact soft`), with
+ * the category colour fed into the badge's own --badge-tint/--badge-ink
+ * variables: the tint is the colour over transparent, the ink is the colour
+ * mixed toward var(--text) so it stays readable in both light and dark mode.
+ * `casing="upper"` for lists/grids, the default Title Case for detail views.
  */
 @Component({
   selector: 'lm-category-badge',
   standalone: true,
   imports: [CommonModule, MatIconModule],
   template: `
-    <span class="category-badge" [style.background]="tint" [style.color]="color">
-      <mat-icon *ngIf="icon">{{ icon }}</mat-icon>
+    <span
+      class="badge-compact soft category-badge"
+      [class.upper]="casing === 'upper'"
+      [class.titlecase]="casing !== 'upper'"
+      [style.--badge-tint]="tint"
+      [style.--badge-ink]="ink"
+    >
+      <mat-icon *ngIf="icon" aria-hidden="true">{{ icon }}</mat-icon>
       {{ name }}
     </span>
   `,
   styles: [
     `
-      .category-badge {
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-        padding: 3px 10px;
-        border-radius: 999px;
+      .category-badge mat-icon {
         font-size: 12px;
-        font-weight: 600;
-        white-space: nowrap;
+        width: 12px;
+        height: 12px;
       }
 
-      mat-icon {
-        font-size: 14px;
-        width: 14px;
-        height: 14px;
+      .category-badge.upper mat-icon {
+        font-size: 11px;
+        width: 11px;
+        height: 11px;
       }
     `,
   ],
@@ -42,10 +49,20 @@ export class CategoryBadgeComponent {
   @Input() name = '';
   @Input() icon = '';
   @Input() color = '#6B7280';
+  /** `upper` = toolkit ALL CAPS list/grid badge; `titlecase` = detail-view badge. */
+  @Input() casing: 'upper' | 'titlecase' = 'titlecase';
 
-  /** A translucent tint of `color` for the chip background — appends an alpha suffix to the stored hex value rather than a second hardcoded palette. */
+  private get hex(): string {
+    return this.color.startsWith('#') ? this.color : `#${this.color}`;
+  }
+
+  /** Translucent tint of the category colour for the badge background. */
   get tint(): string {
-    const hex = this.color.startsWith('#') ? this.color : `#${this.color}`;
-    return hex.length === 7 ? `${hex}22` : hex;
+    return `color-mix(in srgb, ${this.hex} 16%, transparent)`;
+  }
+
+  /** Category colour pulled toward the theme's text colour — readable on the tint in light and dark mode. */
+  get ink(): string {
+    return `color-mix(in srgb, ${this.hex} 60%, var(--text))`;
   }
 }

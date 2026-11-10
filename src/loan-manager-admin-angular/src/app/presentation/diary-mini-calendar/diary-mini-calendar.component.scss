@@ -1,28 +1,28 @@
-.mini-cal {
-  padding: 4px 2px;
-}
-
+// Toolkit .cal look: selected day = primary fill, today = 1px inset primary
+// ring, hover = sunken surface.
 .mini-cal__head {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 6px;
+  margin-bottom: var(--space-2);
 }
 
 .mini-cal__title {
-  font-family: var(--lm-font-display);
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--lm-text);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .mini-cal__nav {
   display: flex;
+  gap: 2px;
 
-  button {
-    width: 26px;
-    height: 26px;
-    line-height: 26px;
+  .mat-mdc-icon-button {
+    --mat-icon-button-state-layer-size: var(--control-height-sm);
+    width: var(--control-height-sm);
+    height: var(--control-height-sm);
+    padding: 2px;
 
     mat-icon {
       font-size: 18px;
@@ -32,58 +32,66 @@
   }
 }
 
-.mini-cal__weekday-row {
+.mini-cal__weekday-row,
+.mini-cal__week {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  margin-bottom: 2px;
+  gap: 2px;
+}
+
+.mini-cal__weekday-row {
+  margin-bottom: var(--space-1);
 }
 
 .mini-cal__weekday {
   text-align: center;
-  font-size: 10px;
-  font-weight: 700;
-  color: var(--lm-text-muted);
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .mini-cal__week {
-  display: grid;
-  grid-template-columns: repeat(7, 1fr);
+  margin-bottom: 2px;
 }
 
 .mini-cal__day {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 1px;
+  height: 32px;
+  padding: 0;
   border: none;
+  border-radius: var(--radius-sm);
   background: transparent;
-  border-radius: 8px;
-  padding: 3px 0 4px;
+  color: var(--text);
+  font: inherit;
+  font-size: 12px;
+  line-height: 14px;
+  font-variant-numeric: tabular-nums;
   cursor: pointer;
-  font-size: 11.5px;
-  color: var(--lm-text);
 
   &:hover {
-    background: var(--lm-bg);
+    background: var(--surface-sunken);
   }
 
   &--outside {
-    color: var(--lm-text-muted);
-    opacity: 0.55;
+    color: var(--text-muted); // out-of-month days stay clickable, so readable (AA) rather than disabled-grey
   }
 
   &--today {
-    font-weight: 800;
-    color: var(--lm-primary);
+    box-shadow: inset 0 0 0 1px var(--primary);
+    color: var(--primary-text);
+    font-weight: 600;
   }
 
-  &--selected {
-    background: var(--lm-primary);
-    color: #fff;
-
-    &:hover {
-      background: var(--lm-primary-dark);
-    }
+  &--selected,
+  &--selected:hover {
+    background: var(--primary);
+    color: var(--on-primary);
+    font-weight: 600;
   }
 }
 
@@ -99,14 +107,14 @@
   border-radius: 50%;
 
   &--entry {
-    background: #7c3aed;
+    background: var(--primary);
   }
 
   &--reminder {
-    background: #16a34a;
+    background: var(--success);
   }
 }
 
 .mini-cal__day--selected .mini-cal__dot {
-  background: #fff;
+  background: var(--on-primary);
 }

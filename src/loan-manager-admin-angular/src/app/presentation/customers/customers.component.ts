@@ -22,7 +22,9 @@ import { AddCustomerDialogComponent } from '../add-customer-dialog/add-customer-
 import { AuthService } from '../../application/auth/auth.service';
 import { todayLocalDateString } from '../shared/date-utils';
 import { AppDateTimePipe } from '../shared/app-date-time.pipe';
+import { AppDatePipe } from '../shared/app-date.pipe';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 const STATUS_LABEL: Record<CustomerStatus, string> = {
   active: 'Active',
   inactive: 'Inactive',
@@ -30,8 +32,16 @@ const STATUS_LABEL: Record<CustomerStatus, string> = {
 
 /** Maps mat-sort-header column ids (template) to the backend's GetCustomersPage sortBy values. */
 const SORT_KEY: Record<string, string> = {
+  customerCode: 'code',
   name: 'fullName',
+  contact: 'contact',
   borrowerType: 'borrowerType',
+  status: 'status',
+  loanCount: 'loanCount',
+  lastPaymentDate: 'lastPaymentDate',
+  overdueCount: 'overdueCount',
+  outstandingBalance: 'outstandingBalance',
+  createdAt: 'createdAt',
 };
 
 interface CustomerKpi {
@@ -61,7 +71,7 @@ function fmtMoney(n: number): string {
 @Component({
   selector: 'lm-customers',
   standalone: true,
-  imports: [
+  imports: [BadgeTonePipe, 
     CommonModule,
     ReactiveFormsModule,
     MatCardModule,
@@ -73,19 +83,20 @@ function fmtMoney(n: number): string {
     MatButtonModule,
     MatDialogModule,
     AppDateTimePipe,
+    AppDatePipe,
   ],
   templateUrl: './customers.component.html',
   styleUrls: ['./customers.component.scss'],
 })
 export class CustomersComponent implements OnInit, OnDestroy {
-  displayedColumns = ['customerCode', 'name', 'contact', 'borrowerType', 'status', 'loanCount', 'outstandingBalance', 'createdAt', 'actions'];
+  displayedColumns = ['customerCode', 'name', 'contact', 'borrowerType', 'status', 'loanCount', 'lastPaymentDate', 'overdueCount', 'outstandingBalance', 'createdAt', 'actions'];
   dataSource = new MatTableDataSource<CustomerListItem>([]);
   statusLabel = STATUS_LABEL;
   totals: CustomerTotals | null = null;
   kpis: CustomerKpi[] = [];
 
   pageIndex = 0;
-  pageSize = 10;
+  pageSize = 15;
   totalCount = 0;
   sortBy?: string;
   sortDir?: 'asc' | 'desc';

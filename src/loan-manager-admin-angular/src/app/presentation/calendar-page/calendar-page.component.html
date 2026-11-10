@@ -46,10 +46,10 @@
 </mat-card>
 
 <div class="legend">
-  <span class="legend__item"><span class="legend__dot legend__dot--loan-due"></span>Loan Due</span>
-  <span class="legend__item"><span class="legend__dot legend__dot--extension-due"></span>Extension Due</span>
-  <span class="legend__item"><span class="legend__dot legend__dot--reminder"></span>Follow-up Reminder</span>
-  <span class="legend__item"><span class="legend__dot legend__dot--promise"></span>Promise to Pay</span>
-  <span class="legend__item"><span class="legend__dot legend__dot--diary"></span>Diary Entry</span>
+  <span class="legend__item"><span class="legend__dot" [style.background]="meta.loan_due.color"></span>Loan Due</span>
+  <span class="legend__item"><span class="legend__dot" [style.background]="meta.extension_due.color"></span>Extension Due</span>
+  <span class="legend__item"><span class="legend__dot" [style.background]="meta.reminder.color"></span>Follow-up Reminder</span>
+  <span class="legend__item"><span class="legend__dot" [style.background]="meta.promise.color"></span>Promise to Pay</span>
+  <span class="legend__item"><span class="legend__dot" [style.background]="meta.diary.color"></span>Diary Entry</span>
   <span class="legend__hint">Click an event to view details</span>
 </div>

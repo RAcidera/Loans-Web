@@ -14,7 +14,7 @@ import { GetLoansUseCase } from '../../application/use-cases/get-loans.use-case'
 import { BusinessTimeService } from '../../application/business-time.service';
 import { toLocalDateString } from '../shared/date-utils';
 import { CalendarDayCellData } from '../shared/calendar-day-cell.model';
-import { CALENDAR_EVENT_TYPES } from '../shared/calendar-event-meta';
+import { CALENDAR_EVENT_META, CALENDAR_EVENT_TYPES } from '../shared/calendar-event-meta';
 
 import { CalendarToolbarComponent, CalendarViewMode } from '../calendar-toolbar/calendar-toolbar.component';
 import { CalendarFilterChipsComponent } from '../calendar-filter-chips/calendar-filter-chips.component';
@@ -62,6 +62,9 @@ const MAX_VISIBLE_WEEK = 8;
   styleUrls: ['./calendar-page.component.scss'],
 })
 export class CalendarPageComponent implements OnInit {
+  /** Legend dot colours (toolkit tokens, light/dark aware). */
+  readonly meta = CALENDAR_EVENT_META;
+
   viewMode: CalendarViewMode = 'month';
   current = new Date();
   loading = true;

@@ -117,19 +117,19 @@
     </ng-container>
 
     <ng-container matColumnDef="interest">
-      <th mat-header-cell *matHeaderCellDef class="right">Interest</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Interest</th>
       <td mat-cell *matCellDef="let loan" class="mono right">{{ loan.totalInterest | number:'1.2-2' }}</td>
       <td mat-footer-cell *matFooterCellDef class="mono right">{{ (totals?.totalInterest ?? 0) | number:'1.2-2' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="extensionCharges">
-      <th mat-header-cell *matHeaderCellDef class="right">Ext. charges</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Ext. charges</th>
       <td mat-cell *matCellDef="let loan" class="mono right">{{ loan.totalExtensionCharges | number:'1.2-2' }}</td>
       <td mat-footer-cell *matFooterCellDef class="mono right">{{ (totals?.totalExtensionCharges ?? 0) | number:'1.2-2' }}</td>
     </ng-container>
 
     <ng-container matColumnDef="totalPayments">
-      <th mat-header-cell *matHeaderCellDef class="right">Payments</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header class="right">Payments</th>
       <td mat-cell *matCellDef="let loan" class="mono right">{{ loan.totalPaid | number:'1.2-2' }}</td>
       <td mat-footer-cell *matFooterCellDef class="mono right">{{ (totals?.totalPayments ?? 0) | number:'1.2-2' }}</td>
     </ng-container>
@@ -147,17 +147,17 @@
     </ng-container>
 
     <ng-container matColumnDef="status">
-      <th mat-header-cell *matHeaderCellDef>Status</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
       <td mat-cell *matCellDef="let loan">
-        <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
+        <span class="badge-compact soft upper" [attr.data-tone]="loan.status | badgeTone">{{ getStatusLabel(loan.status) }}</span>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
 
     <ng-container matColumnDef="classification">
-      <th mat-header-cell *matHeaderCellDef>Classification</th>
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Classification</th>
       <td mat-cell *matCellDef="let loan">
-        <span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span>
+        <span class="badge-compact soft upper" [attr.data-tone]="loan.classification | badgeTone">{{ getClassificationLabel(loan.classification) }}</span>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>
@@ -184,7 +184,7 @@
     [length]="totalCount"
     [pageIndex]="pageIndex"
     [pageSize]="pageSize"
-    [pageSizeOptions]="[10, 25, 50]"
+    [pageSizeOptions]="[10, 15, 25, 50]"
     showFirstLastButtons
     (page)="onPage($event)"
   ></mat-paginator>

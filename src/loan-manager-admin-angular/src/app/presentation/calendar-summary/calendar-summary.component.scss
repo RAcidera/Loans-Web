@@ -1,30 +1,25 @@
-@use '../../styles/tokens';
-
-.mono {
-  font-family: var(--lm-font-mono);
-}
-
 .summary {
   display: flex;
   align-items: center;
-  gap: 22px;
-  padding: 10px 18px;
+  gap: var(--space-5);
+  padding: var(--space-3) var(--space-5);
   flex-wrap: wrap;
 }
 
 .summary__title {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: var(--space-3);
   flex-shrink: 0;
 
+  // Toolkit KPI icon tile.
   mat-icon {
-    width: 34px;
-    height: 34px;
-    font-size: 18px;
-    border-radius: 9px;
-    background: rgba(108, 93, 211, 0.12);
-    color: var(--lm-primary);
+    width: 36px;
+    height: 36px;
+    font-size: 20px;
+    border-radius: var(--radius-md);
+    background: var(--primary-subtle);
+    color: var(--primary-text);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -33,67 +28,61 @@
 
 .summary__title-main {
   display: block;
-  font-family: var(--lm-font-display);
-  font-size: 12.5px;
-  font-weight: 700;
-  color: var(--lm-text);
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 600;
+  color: var(--text);
 }
 
 .summary__title-sub {
   display: block;
-  font-size: 10.5px;
-  color: var(--lm-text-muted);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
 }
 
 .summary__stat {
   display: flex;
   flex-direction: column;
-  padding-left: 14px;
-  border-left: 1px solid var(--lm-border);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--border);
 }
 
+// Colour is bound per stat from CALENDAR_EVENT_META (the original per-type
+// legend colours) in the template.
 .summary__value {
-  font-family: var(--lm-font-display);
-  font-size: 18px;
-  font-weight: 800;
-  color: var(--lm-info);
-}
-
-.summary__stat--extension .summary__value {
-  color: var(--lm-warning);
-}
-
-.summary__stat--followup .summary__value {
-  color: var(--lm-success);
-}
-
-.summary__stat--promise .summary__value {
-  color: #0d9488;
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text);
 }
 
 .summary__label {
-  font-size: 10.5px;
-  color: var(--lm-text-muted);
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
   white-space: nowrap;
 }
 
 .summary__amount {
   display: flex;
   flex-direction: column;
-  padding-left: 14px;
-  border-left: 1px solid var(--lm-border);
+  padding-left: var(--space-4);
+  border-left: 1px solid var(--border);
   margin-left: auto;
 }
 
 .summary__amount-value {
-  font-size: 17px;
-  font-weight: 800;
-  color: var(--lm-primary);
+  font-size: 20px;
+  line-height: 26px;
+  font-weight: 700;
+  color: var(--text);
 }
 
-@include tokens.tablet {
+@media (max-width: 899px) {
   .summary {
-    gap: 14px;
+    gap: var(--space-4);
   }
 
   .summary__amount {

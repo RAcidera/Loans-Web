@@ -1,7 +1,6 @@
 import { Component, EventEmitter, Input, Output } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatButtonModule } from '@angular/material/button';
-import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 
@@ -11,7 +10,7 @@ export type CalendarViewMode = 'month' | 'week' | 'day';
 @Component({
   selector: 'lm-calendar-toolbar',
   standalone: true,
-  imports: [CommonModule, MatButtonModule, MatButtonToggleModule, MatIconModule, MatMenuModule],
+  imports: [CommonModule, MatButtonModule, MatIconModule, MatMenuModule],
   templateUrl: './calendar-toolbar.component.html',
   styleUrls: ['./calendar-toolbar.component.scss'],
 })

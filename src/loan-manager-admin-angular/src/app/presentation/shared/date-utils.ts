@@ -24,6 +24,42 @@ export function toLocalDateString(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
+/**
+ * Inverse of toLocalDateString: a "yyyy-MM-dd" string -> a Date at LOCAL
+ * midnight of that calendar day (what mat-datepicker expects). Built from
+ * the parts, never `new Date("yyyy-MM-dd")` (which parses as UTC and can
+ * land on the previous day). Returns null for empty/invalid input.
+ */
+export function parseLocalDateString(value: string | null | undefined): Date | null {
+  if (!value) return null;
+  // Accept "yyyy-MM-dd" and "yyyy-MM-ddTHH:mm:ss…" alike: only the calendar day matters.
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+  if (!year || !month || !day) return null;
+  const date = new Date(year, month - 1, day);
+  return isNaN(date.getTime()) ? null : date;
+}
+
+/**
+ * Lets a mat-datepicker input display a form control that stores a plain
+ * "yyyy-MM-dd" string (the backend's business-date format):
+ *   <input matInput [matDatepicker]="p" [value]="cache.get(ctrl.value)"
+ *          (dateChange)="ctrl.setValue(toDateString($event.value))">
+ * Returns the SAME Date instance until the string changes, so the [value]
+ * binding doesn't re-assign (and re-format) the input while someone types.
+ */
+export class LocalDateStringCache {
+  private source: string | null | undefined;
+  private date: Date | null = null;
+
+  get(value: string | null | undefined): Date | null {
+    if (value !== this.source) {
+      this.source = value;
+      this.date = parseLocalDateString(value);
+    }
+    return this.date;
+  }
+}
+
 /** Today's date as a local "yyyy-MM-dd" string — see toLocalDateString's doc comment for why this must never go through toISOString(). */
 export function todayLocalDateString(): string {
   return toLocalDateString(new Date());

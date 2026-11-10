@@ -41,15 +41,10 @@ import { AppDateTimePipe } from '../shared/app-date-time.pipe';
   `,
   styles: [
     `
-      .mono {
-        font-family: var(--lm-font-mono);
-        font-feature-settings: 'tnum' 1;
-      }
-
       .preview {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: var(--space-1);
       }
 
       .preview__header {
@@ -60,31 +55,33 @@ import { AppDateTimePipe } from '../shared/app-date-time.pipe';
       }
 
       .preview__title {
-        font-size: 10.5px;
-        font-weight: 700;
-        letter-spacing: 0.03em;
+        font-size: 11px;
+        line-height: 16px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
         text-transform: uppercase;
-        color: var(--lm-text-muted);
+        color: var(--text-muted);
       }
 
       .preview__time {
-        font-size: 10.5px;
-        color: var(--lm-text-muted);
+        font-size: 11px;
+        color: var(--text-muted);
       }
 
       .preview__row {
         display: flex;
         justify-content: space-between;
-        gap: 10px;
+        gap: var(--space-3);
         font-size: 12px;
+        line-height: 18px;
 
         span:first-child {
-          color: var(--lm-text-muted);
+          color: var(--text-muted);
         }
 
         span:last-child {
-          font-weight: 700;
-          color: var(--lm-text);
+          font-weight: 600;
+          color: var(--text);
         }
       }
     `,

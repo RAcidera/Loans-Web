@@ -20,6 +20,7 @@ import { PromiseFormDialogComponent } from '../promise-form-dialog/promise-form-
 import { ConfirmDialogService } from '../confirm-dialog/confirm-dialog.service';
 import { AppDatePipe } from '../shared/app-date.pipe';
 
+import { BadgeTonePipe } from '../shared/badge-tone.pipe';
 const STATUS_LABEL: Record<PromiseStatus, string> = {
   pending: 'Pending',
   kept: 'Kept',
@@ -39,7 +40,7 @@ const STATUS_LABEL: Record<PromiseStatus, string> = {
 @Component({
   selector: 'lm-promise-list',
   standalone: true,
-  imports: [CommonModule, FormsModule, MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatDialogModule, AppDatePipe],
+  imports: [BadgeTonePipe, CommonModule, FormsModule, MatCardModule, MatIconModule, MatButtonModule, MatMenuModule, MatDialogModule, AppDatePipe],
   templateUrl: './promise-list.component.html',
   styleUrls: ['./promise-list.component.scss'],
 })

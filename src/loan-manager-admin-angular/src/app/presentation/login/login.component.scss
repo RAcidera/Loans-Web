@@ -1,85 +1,101 @@
-@use '../../styles/tokens';
+// Sign-in page — outside the app shell. A centred toolkit dialog/card on
+// the page background, with the same primary-square brand mark as the
+// shell's sidebar logo. mat-card, form fields and buttons are themed
+// globally (styles/_material-bridge.scss).
 
 .login-page {
+  box-sizing: border-box;
   min-height: 100vh;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: var(--lm-sidebar-bg);
-  background: linear-gradient(155deg, var(--lm-primary) 0%, var(--lm-sidebar-bg) 100%);
-  font-family: var(--lm-font-body);
-  padding: 20px;
+  background: var(--bg);
+  padding: var(--space-5);
+
+  @media (max-width: 599px) {
+    padding: var(--space-4);
+  }
 }
 
+// Toolkit .dialog: 12px radius, hairline border, overlay shadow.
 .login-card {
-  width: 380px;
-  padding: 32px 28px 24px !important;
-  border-radius: 14px !important;
-  box-shadow: var(--lm-shadow-md) !important;
+  box-sizing: border-box;
+  width: 400px;
+  max-width: 100%;
+  padding: var(--space-8) var(--space-6) var(--space-6);
+  box-shadow: var(--shadow-overlay);
+
+  @media (max-width: 599px) {
+    padding: var(--space-6) var(--space-5) var(--space-5);
+  }
 
   &__brand {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-bottom: 6px;
+    gap: 11px;
+    margin-bottom: var(--space-4);
   }
 
   &__mark {
-    width: 38px;
-    height: 38px;
-    border-radius: 10px;
-    background: linear-gradient(135deg, var(--lm-primary-light) 0%, var(--lm-primary) 55%, var(--lm-primary-dark) 100%);
-    box-shadow: 0 2px 8px rgba(108, 93, 211, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.2);
-    color: #fff;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--primary);
+    color: var(--on-primary);
 
     mat-icon {
-      font-size: 21px;
-      width: 21px;
-      height: 21px;
+      font-size: 20px;
+      width: 20px;
+      height: 20px;
     }
   }
 
   &__name {
-    font-family: var(--lm-font-display);
-    font-size: 17px;
-    font-weight: 600;
-    color: var(--lm-text);
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 700;
+    color: var(--text);
   }
 
   &__subtitle {
     font-size: 13px;
-    color: var(--lm-text-muted);
-    margin: 0 0 20px;
+    line-height: 20px;
+    color: var(--text-muted);
+    margin: 0 0 var(--space-5);
   }
 
   &__hint {
-    font-size: 11.5px;
-    color: var(--lm-text-muted);
-    margin: 18px 0 0;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--text-muted);
+    margin: var(--space-5) 0 0;
+    padding-top: var(--space-4);
+    border-top: 1px solid var(--border);
     text-align: center;
-    line-height: 1.5;
   }
 }
 
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-2); // mat-form-field's subscript row supplies the rest
 
   mat-form-field {
     width: 100%;
   }
 
+  // Toolkit .err
   &__error {
     display: flex;
     align-items: center;
     gap: 6px;
-    color: var(--lm-rose);
-    font-size: 12.5px;
-    margin: -4px 0 8px;
+    color: var(--danger-text);
+    font-size: 12px;
+    line-height: 16px;
+    margin: 0 0 var(--space-2);
 
     mat-icon {
       font-size: 16px;
@@ -89,7 +105,7 @@
   }
 
   &__submit {
-    margin-top: 6px;
-    height: 42px;
+    width: 100%;
+    margin-top: var(--space-1);
   }
 }

@@ -56,7 +56,8 @@ public static class MappingExtensions
         UploadedBy: document.UploadedBy
     );
 
-    public static CustomerListItemDto ToListItemDto(this Customer customer, int loanCount, decimal outstandingBalance = 0m) => new(
+    public static CustomerListItemDto ToListItemDto(this Customer customer, int loanCount, decimal outstandingBalance = 0m,
+        int overdueLoanCount = 0, DateOnly? lastPaymentDate = null) => new(
         CustomerId: customer.Id.ToString(),
         CustomerCode: FormatCustomerCode(customer.CustomerNumber),
         FullName: customer.FullName,
@@ -68,7 +69,9 @@ public static class MappingExtensions
         Status: customer.Status.ToString().ToLowerInvariant(),
         CreatedAt: customer.CreatedAtUtc.ToString("O"),
         LoanCount: loanCount,
-        OutstandingBalance: outstandingBalance
+        OutstandingBalance: outstandingBalance,
+        OverdueLoanCount: overdueLoanCount,
+        LastPaymentDate: lastPaymentDate?.ToString("yyyy-MM-dd")
     );
 
     public static UserDto ToDto(this User user) => new(

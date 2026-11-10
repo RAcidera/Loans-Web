@@ -41,12 +41,12 @@
     </div>
 
     <div class="tags" *ngIf="tags.length > 0">
-      <span class="tags__tag" *ngFor="let tag of tags">{{ tag }}</span>
+      <span class="badge-compact soft" *ngFor="let tag of tags">{{ tag }}</span>
     </div>
 
-    <div class="reminder" *ngIf="entry.reminderDate">
+    <div class="msg msg--warning reminder" *ngIf="entry.reminderDate">
       <mat-icon>notifications</mat-icon>
-      Reminder set for {{ entry.reminderDate | appDate: 'MMM d, y' }}<ng-container *ngIf="entry.reminderTime"> at {{ entry.reminderTime }}</ng-container>
+      <span class="msg__b">Reminder set for {{ entry.reminderDate | appDate: 'MMM d, y' }}<ng-container *ngIf="entry.reminderTime"> at {{ entry.reminderTime }}</ng-container></span>
     </div>
   </mat-card>
 

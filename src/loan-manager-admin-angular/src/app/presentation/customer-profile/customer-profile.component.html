@@ -5,7 +5,7 @@
   </button>
 
   <div class="page-toolbar__actions" *ngIf="!loading && customer">
-    <button mat-stroked-button color="primary" *ngIf="authService.hasRole('admin')" (click)="openEditCustomer()">
+    <button mat-stroked-button *ngIf="authService.hasRole('admin')" (click)="openEditCustomer()">
       <mat-icon>edit</mat-icon>
       Edit Customer
     </button>
@@ -27,8 +27,8 @@
       </div>
       <p class="identity-card__meta mono">{{ customer.customerCode }} &bull; Since {{ customer.createdAt | appDateTime:'MMM dd, yyyy' }}</p>
       <div class="identity-card__tags">
-        <span class="chip" [ngClass]="'chip--' + customer.status">{{ customer.status === 'active' ? 'Active' : 'Inactive' }}</span>
-        <span class="chip chip--tag" *ngIf="customer.borrowerType">{{ customer.borrowerType }}</span>
+        <span class="badge-compact soft titlecase" [attr.data-tone]="customer.status | badgeTone">{{ customer.status === 'active' ? 'Active' : 'Inactive' }}</span>
+        <span class="badge-compact soft titlecase" data-tone="primary" *ngIf="customer.borrowerType">{{ customer.borrowerType }}</span>
       </div>
     </div>
 
@@ -58,15 +58,15 @@
   </mat-card>
 
   <section class="kpi-row">
-    <mat-card class="kpi-card" *ngFor="let kpi of financialKpis" [ngClass]="'kpi-card--' + kpi.tone">
+    <div class="kpi-card" *ngFor="let kpi of financialKpis" [ngClass]="'kpi-card--' + kpi.tone">
       <div class="kpi-card__icon"><mat-icon>{{ kpi.icon }}</mat-icon></div>
       <div class="kpi-card__body">
         <span class="kpi-card__label">{{ kpi.label }}</span>
         <div class="kpi-card__value">{{ kpi.value }}</div>
-        <p class="kpi-card__caption" *ngIf="!kpi.captionClickable">{{ kpi.caption }}</p>
-        <a class="kpi-card__caption kpi-card__caption--link" *ngIf="kpi.captionClickable" (click)="focusLoansTab()">{{ kpi.caption }}</a>
+        <div class="kpi-card__sub" *ngIf="!kpi.captionClickable">{{ kpi.caption }}</div>
+        <a class="kpi-card__sub kpi-card__sub--link" *ngIf="kpi.captionClickable" (click)="focusLoansTab()">{{ kpi.caption }}</a>
       </div>
-    </mat-card>
+    </div>
   </section>
 
   <mat-card class="tabs-card">
@@ -96,13 +96,13 @@
                 <option value="badloan">Bad Loan</option>
               </select>
 
-              <label class="check-filter">
+              <label class="check check-filter">
                 <input type="checkbox" formControlName="activeOnly" (change)="applyLoanFilters()" />
                 Active Only
               </label>
             </div>
 
-            <button mat-stroked-button color="primary" (click)="viewAllLoans()">View all loans</button>
+            <button mat-stroked-button (click)="viewAllLoans()">View all loans</button>
           </div>
 
           <div class="table-scroll">
@@ -110,7 +110,7 @@
             <ng-container matColumnDef="id">
               <th mat-header-cell *matHeaderCellDef mat-sort-header="loanNumber">Loan #</th>
               <td mat-cell *matCellDef="let loan">
-                <a class="loan-link mono" (click)="openLoanDetails(loan)">{{ loan.loanNumber }}</a>
+                <a class="row-link mono" (click)="openLoanDetails(loan)">{{ loan.loanNumber }}</a>
               </td>
               <td mat-footer-cell *matFooterCellDef>TOTAL</td>
             </ng-container>
@@ -172,7 +172,7 @@
             <ng-container matColumnDef="status">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
               <td mat-cell *matCellDef="let loan">
-                <span class="chip" [ngClass]="'chip--' + loan.status">{{ getStatusLabel(loan.status) }}</span>
+                <span class="badge-compact soft upper" [attr.data-tone]="loan.status | badgeTone">{{ getStatusLabel(loan.status) }}</span>
               </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
@@ -180,7 +180,7 @@
             <ng-container matColumnDef="classification">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Classification</th>
               <td mat-cell *matCellDef="let loan">
-                <span class="chip" [ngClass]="'chip--' + loan.classification">{{ getClassificationLabel(loan.classification) }}</span>
+                <span class="badge-compact soft upper" [attr.data-tone]="loan.classification | badgeTone">{{ getClassificationLabel(loan.classification) }}</span>
               </td>
               <td mat-footer-cell *matFooterCellDef></td>
             </ng-container>
@@ -220,7 +220,7 @@
             <ng-container matColumnDef="loan">
               <th mat-header-cell *matHeaderCellDef mat-sort-header>Loan #</th>
               <td mat-cell *matCellDef="let p">
-                <a class="loan-link mono" (click)="openLoanFromPayment(p)">{{ p.loanNumber }}</a>
+                <a class="row-link mono" (click)="openLoanFromPayment(p)">{{ p.loanNumber }}</a>
               </td>
             </ng-container>
 

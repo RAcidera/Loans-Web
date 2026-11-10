@@ -185,18 +185,42 @@ opened, not at `ng build` time.
   not via route guards — `authGuard` only checks "is logged in" at the
   route level. `AuthService.hasRole()` reads a signal populated from the
   JWT-derived session in `localStorage`.
-- **SCSS is per-component, deliberately duplicated**, not centralized —
-  `.mono`, `.chip`/`.chip--<variant>`, `.table-card`, `.empty-hint` etc.
-  are redefined in each page's own `.scss` file rather than pulled from a
-  shared stylesheet (aside from CSS custom properties in `styles/tokens`).
-  Follow the existing duplication rather than trying to factor it out.
-  Dialog forms do share one partial, `presentation/_shared-dialog-form.scss`
-  (`@use '../_shared-dialog-form' as *;`), for title/form/actions/error
-  layout.
+- **Design system: Cambria UI Toolkit (Bright Indigo)** — see
+  `docs/ui-reference/` (toolkit + dashboard mockup HTML, modernization
+  requirements). Shared, global styles live in `src/app/styles/`:
+  `_cambria-tokens.scss` (toolkit tokens, light/dark/system via
+  `html[data-theme]`), `_cambria-components.scss` (toolkit classes verbatim:
+  `btn btn--*`, `input`/`select`/`field`/`label`, `badge-compact soft upper`
+  + `data-tone`, `msg`, `tabs`, `card`, `kpi`…), `_material-bridge.scss`
+  (Angular Material restyled to the toolkit via `mat.*-overrides` tokens —
+  every mat-table gets the toolkit table globally — toolkit "Compact"
+  density is the app default: 32px rows, 40px header, toolkit sort headers;
+  right-align money columns with `class="right"` on th/td). Legacy `--lm-*`
+  tokens in `_tokens.scss` are aliases of the toolkit tokens. Use toolkit
+  class names and tokens; never hardcode colours (they break dark mode).
+  Status columns use `<span class="badge-compact soft upper"
+  [attr.data-tone]="status | badgeTone">` (`presentation/shared/badge-tone.pipe.ts`
+  maps statuses to tones; `titlecase` instead of `upper` on detail pages).
+  App page patterns shared across list/detail pages live once in
+  `_page-patterns.scss` — filter toolbar (`.filter-card` > `.filter-top` >
+  `form.filter-bar` > `.field` with `<label>` + `.search-box` / bare
+  `mat-select` / `.range-field` date range, then `.filter-actions`), page
+  KPI cards (`.kpi-row` > `.kpi-card--good|warn|danger|info` with
+  `__icon/__label/__value/__sub`), `.table-card`/`.table-scroll`,
+  `.row-link`, `.empty-hint`, `.mono`/`.right`/`.center`/`.bold`. Pages must
+  not redeclare these; page SCSS holds only page-specific layout (column
+  widths, section grids). The Dashboard's mockup-style KPIs are separate
+  (`.dash-kpi`). Dialog forms share
+  `presentation/_shared-dialog-form.scss` (`@use '../_shared-dialog-form' as *;`),
+  which maps title/form/actions onto the toolkit dialog header/body/footer.
 - **Inline error handling**: no snackbar/toast library anywhere in the
   app. Errors surface as an inline `<p>` bound to a component field,
   checked against `err.status` (see `login.component.ts` for the
   canonical example) — mirror this rather than introducing a new error UI
   pattern.
-- Money, dates, and IDs render in `var(--lm-font-mono)` via a `.mono`
-  class; headings use `var(--lm-font-display)`.
+- One font family, Segoe UI (`--font-sans` in `_cambria-tokens.scss`; a
+  deliberate project override of the toolkit's Plus Jakarta Sans), everywhere. Money, dates, and IDs
+  keep their `.mono` class, which now means the toolkit "amount" style
+  (body font + `font-variant-numeric: tabular-nums`), not a monospace face.
+  Letter-spacing is normal except where a toolkit component sets its own
+  (badges, overlines); Material's type-scale tracking is zeroed in `styles.scss`.

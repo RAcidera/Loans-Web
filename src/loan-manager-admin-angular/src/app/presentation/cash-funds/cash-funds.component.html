@@ -113,7 +113,7 @@
     <ng-container matColumnDef="transaction">
       <th mat-header-cell *matHeaderCellDef>Transaction</th>
       <td mat-cell *matCellDef="let e">
-        <span class="chip" [ngClass]="e.isCashIn ? 'chip--in' : 'chip--out'">{{ getTypeLabel(e.transactionType) }}</span>
+        <span class="badge-compact soft upper" [attr.data-tone]="e.isCashIn ? 'success' : 'danger'">{{ getTypeLabel(e.transactionType) }}</span>
       </td>
       <td mat-footer-cell *matFooterCellDef></td>
     </ng-container>

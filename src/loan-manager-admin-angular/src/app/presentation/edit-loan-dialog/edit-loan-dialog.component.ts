@@ -6,10 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 import { Loan } from '../../domain/entities/loan.entity';
 import { UpdateLoanUseCase } from '../../application/use-cases/update-loan.use-case';
 import { PAYMENT_TERMS_MONTHS_OPTIONS } from '../add-loan-dialog/add-loan-dialog.component';
+import { LocalDateStringCache, toLocalDateString } from '../shared/date-utils';
 
 export interface EditLoanDialogData {
   loan: Loan;
@@ -39,7 +41,7 @@ function round2(n: number): number {
 @Component({
   selector: 'lm-edit-loan-dialog',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule],
+  imports: [CommonModule, ReactiveFormsModule, MatDialogModule, MatFormFieldModule, MatInputModule, MatSelectModule, MatButtonModule, MatDatepickerModule],
   templateUrl: './edit-loan-dialog.component.html',
   styleUrls: ['./edit-loan-dialog.component.scss'],
 })
@@ -60,6 +62,16 @@ export class EditLoanDialogComponent implements OnInit {
     dailyPayment: [{ value: this.data.loan.dailyPayment, disabled: true }],
     remarks: [this.data.loan.remarks],
   });
+
+  /** Date pickers: the controls keep their "yyyy-MM-dd" strings; the calendar works in Dates. */
+  readonly startDateCache = new LocalDateStringCache();
+  readonly dueDateCache = new LocalDateStringCache();
+
+  onDatePicked(field: 'startDate' | 'dueDate', date: Date | null): void {
+    const control = this.form.controls[field];
+    control.setValue(date ? toLocalDateString(date) : '');
+    control.markAsDirty();
+  }
 
   constructor(
     private readonly dialogRef: MatDialogRef<EditLoanDialogComponent>,

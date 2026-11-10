@@ -6,11 +6,12 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDatepickerModule } from '@angular/material/datepicker';
 
 import { Customer } from '../../domain/entities/customer.entity';
 import { GetCustomersUseCase } from '../../application/use-cases/get-customers.use-case';
 import { CreateLoanUseCase } from '../../application/use-cases/create-loan.use-case';
-import { todayLocalDateString } from '../shared/date-utils';
+import { LocalDateStringCache, todayLocalDateString, toLocalDateString } from '../shared/date-utils';
 
 export interface AddLoanDialogData {
   /** Preselects and locks the customer field — used when "New Loan" is launched from a Customer Profile page. */
@@ -39,6 +40,7 @@ export const PAYMENT_TERMS_MONTHS_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 
     MatInputModule,
     MatSelectModule,
     MatButtonModule,
+    MatDatepickerModule,
   ],
   templateUrl: './add-loan-dialog.component.html',
   styleUrls: ['./add-loan-dialog.component.scss'],
@@ -63,6 +65,15 @@ export class AddLoanDialogComponent implements OnInit {
     interestAmount: [0, [Validators.required, Validators.min(0)]],
     dailyPayment: [{ value: 0, disabled: true }],
   });
+
+  /** Loan date picker: the control keeps its "yyyy-MM-dd" string; the calendar works in Dates. */
+  readonly loanDateCache = new LocalDateStringCache();
+
+  onLoanDatePicked(date: Date | null): void {
+    const control = this.form.controls.loanDate;
+    control.setValue(date ? toLocalDateString(date) : '');
+    control.markAsDirty();
+  }
 
   constructor(
     private readonly dialogRef: MatDialogRef<AddLoanDialogComponent>,

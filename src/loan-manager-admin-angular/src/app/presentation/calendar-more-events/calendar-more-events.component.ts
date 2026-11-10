@@ -13,21 +13,25 @@ import { Component, EventEmitter, Input, Output } from '@angular/core';
         border: none;
         background: transparent;
         text-align: left;
-        font-size: 10.5px;
-        color: var(--lm-text-muted);
-        font-weight: 700;
+        font: inherit;
+        font-size: 11px;
+        line-height: 15px;
+        color: var(--text-muted);
+        font-weight: 600;
         cursor: pointer;
         padding: 1px 6px;
+        border-radius: 4px;
         width: 100%;
       }
 
       .more-events:hover,
       .more-events:focus-visible {
-        color: var(--lm-primary);
+        color: var(--primary-text);
+        background: var(--surface-sunken);
       }
 
       .more-events:focus-visible {
-        outline: 2px solid var(--lm-primary);
+        outline: 2px solid var(--focus-ring);
         outline-offset: 1px;
       }
     `,

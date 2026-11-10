@@ -1,6 +1,6 @@
 <div class="event-detail">
-  <div class="event-detail__header" [style.borderLeftColor]="event.color">
-    <span class="event-detail__type" [style.color]="event.color">{{ event.title }}</span>
+  <div class="event-detail__header" [style.borderLeftColor]="accent">
+    <span class="event-detail__type badge-compact soft upper" [style.--badge-tint]="badgeTint" [style.--badge-ink]="badgeInk">{{ event.title }}</span>
     <h2 class="event-detail__subtitle" *ngIf="event.subtitle">{{ event.subtitle }}</h2>
   </div>
 

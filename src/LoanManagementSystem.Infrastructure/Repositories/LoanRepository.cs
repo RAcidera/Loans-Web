@@ -129,9 +129,15 @@ public class LoanRepository : ILoanRepository
             "loan" => desc ? query.OrderByDescending(x => x.LoanNumber) : query.OrderBy(x => x.LoanNumber),
             "customer" => desc ? query.OrderByDescending(x => x.FullName) : query.OrderBy(x => x.FullName),
             "amount" => desc ? query.OrderByDescending(x => x.Payment.AmountPaid) : query.OrderBy(x => x.Payment.AmountPaid),
+            "createdat" => desc ? query.OrderByDescending(x => x.Payment.CreatedAtUtc) : query.OrderBy(x => x.Payment.CreatedAtUtc),
+            "method" => desc ? query.OrderByDescending(x => x.Payment.PaymentMethod) : query.OrderBy(x => x.Payment.PaymentMethod),
+            "reference" => desc ? query.OrderByDescending(x => x.Payment.ReferenceNumber) : query.OrderBy(x => x.Payment.ReferenceNumber),
+            "notes" => desc ? query.OrderByDescending(x => x.Payment.Notes) : query.OrderBy(x => x.Payment.Notes),
             "date" when !desc => query.OrderBy(x => x.Payment.PaymentDate),
             _ => query.OrderByDescending(x => x.Payment.PaymentDate),
         };
+        // Stable paging when many payments share the sort key (e.g. method).
+        sorted = sorted.ThenByDescending(x => x.Payment.CreatedAtUtc);
 
         var rows = await sorted
             .Skip(pageIndex * pageSize)
@@ -255,6 +261,46 @@ public class LoanRepository : ILoanRepository
             .ToDictionary(g => g.Key, g => (g.Count(), g.Sum(r => r.Amount)));
     }
 
+    public async Task<Dictionary<CustomerId, CustomerLoanStats>> GetCustomerLoanStatsAsync(
+        IReadOnlyCollection<CustomerId>? customerIds, DateOnly asOfDate, CancellationToken ct = default)
+    {
+        if (customerIds is { Count: 0 }) return new Dictionary<CustomerId, CustomerLoanStats>();
+
+        var loans = _db.Loans.AsNoTracking();
+        if (customerIds is not null)
+            loans = loans.Where(l => customerIds.Contains(l.CustomerId));
+
+        // Flat rows aggregated client-side — same reason as
+        // GetLoanCountsAndBalanceByCustomerAsync: grouped aggregates over the
+        // value-converted Money columns (combined with the OPENJSON Contains
+        // filter) don't translate on SQL Server. Scoped to one page of
+        // customers on the normal path; unscoped only when sorting by one of
+        // these figures, which is a few columns per loan.
+        var loanRows = await loans
+            .Select(l => new { l.CustomerId, l.Balance, l.DueDate, l.Status })
+            .ToListAsync(ct);
+
+        var paymentRows = await _db.Set<Payment>()
+            .AsNoTracking()
+            .Join(loans, p => p.LoanId, l => l.Id, (p, l) => new { l.CustomerId, p.PaymentDate })
+            .ToListAsync(ct);
+
+        var lastPayment = paymentRows
+            .GroupBy(r => r.CustomerId)
+            .ToDictionary(g => g.Key, g => g.Max(r => r.PaymentDate));
+
+        return loanRows
+            .GroupBy(r => r.CustomerId)
+            .ToDictionary(
+                g => g.Key,
+                g => new CustomerLoanStats(
+                    LoanCount: g.Count(),
+                    OutstandingBalance: g.Sum(r => r.Balance.Amount),
+                    // Same rule as ApplyFilters' Overdue match.
+                    OverdueLoanCount: g.Count(r => r.DueDate < asOfDate && r.Status != LoanStatus.Paid && r.Status != LoanStatus.WrittenOff),
+                    LastPaymentDate: lastPayment.TryGetValue(g.Key, out var d) ? d : null));
+    }
+
     public async Task<(List<Loan> Items, int TotalCount)> GetPageAsync(
         int pageIndex, int pageSize, string? search, IReadOnlyCollection<CustomerId> matchingCustomerIds,
         string? sortBy, string? sortDir, LoanPageFilters filters, DateOnly asOfDate, CancellationToken ct = default)
@@ -272,9 +318,21 @@ public class LoanRepository : ILoanRepository
             "principalamount" => desc ? query.OrderByDescending(l => l.PrincipalAmount) : query.OrderBy(l => l.PrincipalAmount),
             "duedate" => desc ? query.OrderByDescending(l => l.DueDate) : query.OrderBy(l => l.DueDate),
             "balance" => desc ? query.OrderByDescending(l => l.Balance) : query.OrderBy(l => l.Balance),
-            "status" => desc ? query.OrderByDescending(l => l.Status) : query.OrderBy(l => l.Status),
+            "interest" => desc ? query.OrderByDescending(l => l.TotalInterest) : query.OrderBy(l => l.TotalInterest),
+            "extensioncharges" => desc ? query.OrderByDescending(l => l.TotalExtensionCharges) : query.OrderBy(l => l.TotalExtensionCharges),
+            "totalpaid" => desc ? query.OrderByDescending(l => l.TotalPaid) : query.OrderBy(l => l.TotalPaid),
+            "classification" => desc ? query.OrderByDescending(l => l.Classification) : query.OrderBy(l => l.Classification),
+            // Sort by the EFFECTIVE status the grid shows: "Overdue" is never
+            // stored (see ApplyFilters), so a past-due open loan sorts as
+            // Overdue rather than with Active/Extended.
+            "status" => desc
+                ? query.OrderByDescending(l => l.DueDate < asOfDate && l.Status != LoanStatus.Paid && l.Status != LoanStatus.WrittenOff ? LoanStatus.Overdue : l.Status)
+                : query.OrderBy(l => l.DueDate < asOfDate && l.Status != LoanStatus.Paid && l.Status != LoanStatus.WrittenOff ? LoanStatus.Overdue : l.Status),
             _ => query.OrderByDescending(l => l.CreatedAtUtc),
         };
+        // Stable paging when many rows share the sort key (e.g. status).
+        if (sortBy is not null)
+            query = ((IOrderedQueryable<Loan>)query).ThenByDescending(l => l.LoanNumber);
 
         var items = await query.Skip(pageIndex * pageSize).Take(pageSize).ToListAsync(ct);
         return (items, totalCount);

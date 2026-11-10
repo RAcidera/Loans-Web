@@ -1,49 +1,70 @@
-@use '../styles/tokens';
+// Shared dialog-form layout, mapped onto the Cambria toolkit dialog:
+//   .dialog-title          -> .dialog__h  (14/600 title, bottom divider)
+//   .dialog-form           -> .dialog__b  (20px padding, 16px rhythm)
+//   .dialog-form__actions  -> .dialog__f  (full-width footer, top divider,
+//                                          right-aligned 8px-gap buttons)
+// The dialog surface itself (radius, border, shadow, backdrop) is themed
+// globally in styles/_material-bridge.scss.
+// Plain media query instead of tokens.mobile so this partial doesn't pull
+// _tokens.scss's :root block into every dialog's stylesheet.
 
 .dialog-title {
-  font-family: var(--lm-font-display);
-  font-size: 17px;
+  margin: 0;
+  padding: var(--space-4) var(--space-5);
+  border-bottom: 1px solid var(--border);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
   font-weight: 600;
-  margin: 0 0 16px;
-  padding: 24px 24px 0;
+  color: var(--text);
 
-  @include tokens.mobile {
-    padding: 20px 16px 0;
+  @media (max-width: 599px) {
+    padding: var(--space-3) var(--space-4);
   }
 }
 
 .dialog-form {
   display: flex;
   flex-direction: column;
-  gap: 18px;
+  gap: var(--space-2); // mat-form-field's own 20px subscript row supplies the rest of the 16px+ rhythm
   min-width: 320px;
-  padding: 0 24px 24px;
+  padding: var(--space-5) var(--space-5) 0;
 
-  @include tokens.mobile {
+  @media (max-width: 599px) {
     min-width: 0;
-    padding: 0 16px 20px;
+    padding: var(--space-4) var(--space-4) 0;
   }
 
   mat-form-field {
     width: 100%;
   }
 
+  // Toolkit .err / success hint
   &__error {
-    color: var(--lm-rose);
-    font-size: 12.5px;
-    margin: -4px 0 8px;
+    color: var(--danger-text);
+    font-size: 12px;
+    line-height: 16px;
+    margin: 0;
   }
 
   &__success {
-    color: var(--lm-primary);
-    font-size: 12.5px;
-    margin: -4px 0 8px;
+    color: var(--success-text);
+    font-size: 12px;
+    line-height: 16px;
+    margin: 0;
   }
 
   &__actions {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
-    margin-top: 8px;
+    gap: var(--space-2);
+    margin: var(--space-2) calc(-1 * var(--space-5)) 0;
+    padding: var(--space-4) var(--space-5);
+    border-top: 1px solid var(--border);
+
+    @media (max-width: 599px) {
+      margin: var(--space-2) calc(-1 * var(--space-4)) 0;
+      padding: var(--space-3) var(--space-4);
+    }
   }
 }
